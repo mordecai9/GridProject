@@ -28,7 +28,7 @@ camdata_SI17$Deployment.Name<-sub(pattern = '0104-SI17-2','0104-SI17',camdata_SI
 
 #bringing in deployment length information
 #Maps_CamChecks
-camnightdata_SI17<-read.csv("CameraOperation_SI17.csv", stringsAsFactors = FALSE)
+camnightdata_SI17<-read.csv("data/CameraOperation_SI17.csv", stringsAsFactors = FALSE)
 
 #Convert time in and out date columns to read as dates
 #Replace "T" in the time columns with a space first
