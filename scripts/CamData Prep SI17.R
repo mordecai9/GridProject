@@ -12,7 +12,7 @@ library(dplyr)
 library(reshape2)
 
 #Bringing in emammal raw data from summer 2017 deployments
-camdata_SI17<-read.csv("SCBI_CamTestingGrid_SI17.csv", stringsAsFactors = FALSE)
+camdata_SI17<-read.csv("data/SCBI_CamTestingGrid_SI17.csv", stringsAsFactors = FALSE)
 
 #Convert Begin.Time and End.Time columns to date types
 #replace "T" in time columns with a space first
