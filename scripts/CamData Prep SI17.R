@@ -8,7 +8,6 @@
 ############################################################################
 #Calculate Number of Species Sequences for Each Deployment (Camera Station)
 ############################################################################
-setwd("C:/Users/josey/Documents/CT Grid/Summer2017")
 library(dplyr)
 library(reshape2)
 
