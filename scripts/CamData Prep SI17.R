@@ -4,7 +4,7 @@
 #Cameras run in 2 month seasonal periods and distance markers at 2.5 meters apart up to 10 meters.
 #Photos uploaded to eMammal and data downloaded from eMammal as csv file.
 #Data currently stored at X:\1 eMammal\eMammal Projects\SCBICameraTestGrid
-
+##
 ############################################################################
 #Calculate Number of Species Sequences for Each Deployment (Camera Station)
 ############################################################################
