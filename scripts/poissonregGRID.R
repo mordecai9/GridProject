@@ -1,4 +1,4 @@
-###Regression Analysis of SCBI Camera Grid Data
+####Regression Analysis of SCBI Camera Grid Data
 
 getwd()
 deerdata <- read.csv("Deer_DF.csv", header = T)
