@@ -12,7 +12,7 @@ library(dplyr)
 library(reshape2)
 
 #Bringing in emammal raw data from summer 2017 deployments
-camdata_SI17<-read.csv("data/SCBI_CamTestingGrid_SI17.csv", stringsAsFactors = FALSE)
+camdata_SI17<-read.csv("data/rawGridData_4S_final.csv", stringsAsFactors = FALSE)
 
 #Convert Begin.Time and End.Time columns to date types
 #replace "T" in time columns with a space first
@@ -59,7 +59,7 @@ names(camdata_SI17) <- sub(pattern = 'Deployment.', 'Deployment_',names(camdata_
 #Make sure all "Scent" deployments from camnightdata are gone after merge
 camdata_summary_SI17<-merge(camnightdata_SI17, camdata_SI17, by = "Deployment_Name")
 
-#remove rows that occur after end dates for deployments
+#remove rows that occur after end dates,before dates, and shift dates for deployments
 camdata_summaryd_SI17<-subset(camdata_summary_SI17, Begin.Time>=Date.out&Begin.Time<=Date.in)
 camdata_summaryd_SI17<-subset(camdata_summaryd_SI17, End.Time<Shift.begin.1|Begin.Time>=Shift.end.1)
 camdata_summaryd_SI17<-subset(camdata_summaryd_SI17, End.Time<Shift.begin.2|Begin.Time>=Shift.end.2)
