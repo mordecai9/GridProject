@@ -3,22 +3,23 @@
 #Twenty-seven Reconyx cameras approximately 20 meters apart.
 #Cameras run in 2 month seasonal periods and distance markers at 2.5 meters apart up to 10 meters.
 #Photos uploaded to eMammal and data downloaded from eMammal as csv file.
-
+#Data currently stored at X:\1 eMammal\eMammal Projects\SCBICameraTestGrid
+##
 ############################################################################
 #Calculate Number of Species Sequences for Each Deployment (Camera Station)
 ############################################################################
 library(dplyr)
 library(reshape2)
 
-#Bringing in emammal raw data from all deployments
-camdataRaw<-read.csv("data/rawGridData_4S_final.csv", stringsAsFactors = FALSE)
+#Bringing in emammal raw data from summer 2017 deployments
+camdata_SI17<-read.csv("data/SCBI_CamTestingGrid_SI17.csv", stringsAsFactors = FALSE)
 
 #Convert Begin.Time and End.Time columns to date types
 #replace "T" in time columns with a space first
-camdataRaw$Begin.Time<-sub(pattern = 'T',' ', camdataRaw$Begin.Time)
-camdataRaw$End.Time<-sub(pattern = 'T', ' ', camdataRaw$End.Time)
-camdataRaw$Begin.Time<-as.POSIXct(as.character(camdataRaw$Begin.Time, "%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
-camdataRaw$End.Time<-as.POSIXct(as.character(camdataRaw$End.Time, "%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
+camdata_SI17$Begin.Time<-sub(pattern = 'T',' ', camdata_SI17$Begin.Time)
+camdata_SI17$End.Time<-sub(pattern = 'T', ' ', camdata_SI17$End.Time)
+camdata_SI17$Begin.Time<-as.POSIXct(as.character(camdata_SI17$Begin.Time, "%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
+camdata_SI17$End.Time<-as.POSIXct(as.character(camdata_SI17$End.Time, "%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
 
 
 #Substitute Deployment named '0104-SI17-2' to '0104-SI17'
@@ -169,7 +170,8 @@ CR3_Sequences_SI17<-CR3_SI17[,1:3]
 #camdata_summaryd_SI17$Caprate <- (deercamdata_coords$Number_of_Sequences/camdata_summaryd_SI17$Deploy.Duration) *100
 
 #Bring in csv with correct coordinates
-camdata_coordinates_SI17 <- read.csv("Grid_Coordinates.csv")
+setwd("C:/Users/josey/Documents/CT Grid/Summer2017")
+camdata_coordinates_SI17 <- read.csv("Grid_Coordinates_SI17.csv")
 
 #Merge capture rates per species with coordinates of Deployments by the Deployment column
 camdata_coords_SI17<-merge(camdata_coordinates_SI17, CR3_Sequences_SI17,  by = "Deployment")
@@ -204,7 +206,7 @@ sqrlcamdata_coords_SI17$Number_of_Sequences_Tot<-sqrlcamdata_coords_SI17$Number_
 #Variable - Camera Height
 ################################
 #Bring in Camera Height Data
-Cam_heights_SI17<-read.csv("Camera_heights.csv")
+Cam_heights_SI17<-read.csv("Camera_Heights_SI17.csv")
 Cam_heights_SI17<-as.data.frame(Cam_heights_SI17)
 
 #Rename columns to match for merge
@@ -233,7 +235,7 @@ library(grid)
 #Bring in geo-reference tree data from entire SIGEO grid
 setwd("C:/Users/josey/Documents/CT Grid")
 list.files()
-SIGEOtrees_SI17<-read.csv("scbi.full2_vegdata.csv")
+SIGEOtrees_SI17<-read.csv("scbi.full2_UTM_lat_long_12012017.csv")
 
 #Change data frame into a Spatial Points Data frame
 head(SIGEOtrees_SI17)
