@@ -9,8 +9,21 @@ library(dplyr)
 library(reshape2)
 
 
-#Bringing in emammal raw data from all deployments
+#Bringing in emammal raw data from all deployments. it looks like for some reason we are missing all sequences from 0503_W17. Not sure why. Sent email to Jen Zhao
 camdataRaw<-read.csv("data/rawGridData_4S_final.csv", stringsAsFactors = FALSE)
+levels(as.factor(camdataRaw$Deployment.Name))
+
+levels(as.factor(camdataRaw$Deployment.Name))
+#Substitute Deployment named '0104-SI17-2' to '0104-SI17'
+#This was the result of uploading this deployment on two seperate days to eMammal
+camdataRaw$Deployment.Name<-sub(pattern = '0104-SI17-2','0104-SI17',camdataRaw$Deployment.Name)
+
+#Substitute Deployment named '0403_F17-1' to '0403_F17'
+#This was the result of uploading this deployment on two seperate days to eMammal
+camdataRaw$Deployment.Name<-sub(pattern = '0403_F17-1','0403_F17',camdataRaw$Deployment.Name)
+
+#There should now be 27*4 = 108 levels of the "Deployment Name", but no sequences were recorded for 0101_W17 and 0401_W17. Photos were also lost for 0505_F17. So we should end up with 105 levels.
+levels(as.factor(camdataRaw$Deployment.Name))
 
 #Convert Begin.Time and End.Time columns to date types
 #replace "T" in time columns with a space first
@@ -19,55 +32,53 @@ camdataRaw$End.Time<-sub(pattern = 'T', ' ', camdataRaw$End.Time)
 camdataRaw$Begin.Time<-as.POSIXct(as.character(camdataRaw$Begin.Time, "%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
 camdataRaw$End.Time<-as.POSIXct(as.character(camdataRaw$End.Time, "%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
 
-
-#Substitute Deployment named '0104-SI17-2' to '0104-SI17'
-#This was the result of uploading this deployment on two seperate days to eMammal
-camdataRaw$Deployment.Name<-sub(pattern = '0104-SI17-2','0104-SI17',camdataRaw$Deployment.Name)
-
-#Substitute Deployment named '0104-SI17-2' to '0104-SI17'
-#This was the result of uploading this deployment on two seperate days to eMammal
-camdataRaw$Deployment.Name<-sub(pattern = '0104-SI17-2','0104-SI17',camdataRaw$Deployment.Name)
-
 #bringing in deployment length information
-#Maps_CamChecks
 camnightdata_SI17<-read.csv("data/CameraOperation_SI17.csv", stringsAsFactors = FALSE)
+camnightdata_F17<-read.csv("data/CameraOperation_F17.csv", stringsAsFactors = FALSE)
+camnightdata_W17<-read.csv("data/CameraOperation_W17.csv", stringsAsFactors = FALSE)
+camnightdata_Sp18<-read.csv("data/CameraOperation_Sp18.csv", stringsAsFactors = FALSE)
+
+#Combine all 4 seasons camera operation information
+camopsAll <- rbind(camnightdata_SI17, camnightdata_F17, camnightdata_W17, camnightdata_Sp18)
 
 #Convert time in and out date columns to read as dates
 #Replace "T" in the time columns with a space first
-camnightdata_SI17$Date.out<-sub(pattern = 'T',' ', camnightdata_SI17$Date.out)
-camnightdata_SI17$Date.in<-sub(pattern = 'T', ' ', camnightdata_SI17$Date.in)
-camnightdata_SI17$Shift.begin.1<-sub(pattern = 'T', ' ', camnightdata_SI17$Shift.begin.1)
-camnightdata_SI17$Shift.end.1<-sub(pattern = 'T', ' ', camnightdata_SI17$Shift.end.1)
-camnightdata_SI17$Shift.begin.2<-sub(pattern = 'T', ' ', camnightdata_SI17$Shift.begin.2)
-camnightdata_SI17$Shift.end.2<-sub(pattern = 'T', ' ', camnightdata_SI17$Shift.end.2)
-camnightdata_SI17$Date.out<-as.POSIXct(as.character(camnightdata_SI17$Date.out,"%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
-camnightdata_SI17$Date.in<-as.POSIXct(as.character(camnightdata_SI17$Date.in,"%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
-camnightdata_SI17$Shift.begin.1<-as.POSIXct(as.character(camnightdata_SI17$Shift.begin.1, "%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
-camnightdata_SI17$Shift.end.1<-as.POSIXct(as.character(camnightdata_SI17$Shift.end.1, "%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
-camnightdata_SI17$Shift.begin.2<-as.POSIXct(as.character(camnightdata_SI17$Shift.begin.2, "%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
-camnightdata_SI17$Shift.end.2<-as.POSIXct(as.character(camnightdata_SI17$Shift.end.2, "%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
+camopsAll$Date.out<-sub(pattern = 'T',' ', camopsAll$Date.out)
+camopsAll$Date.in<-sub(pattern = 'T', ' ', camopsAll$Date.in)
+camopsAll$Shift.begin.1<-sub(pattern = 'T', ' ', camopsAll$Shift.begin.1)
+camopsAll$Shift.end.1<-sub(pattern = 'T', ' ', camopsAll$Shift.end.1)
+camopsAll$Shift.begin.2<-sub(pattern = 'T', ' ', camopsAll$Shift.begin.2)
+camopsAll$Shift.end.2<-sub(pattern = 'T', ' ', camopsAll$Shift.end.2)
+camopsAll$Date.out<-as.POSIXct(as.character(camopsAll$Date.out,"%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
+camopsAll$Date.in<-as.POSIXct(as.character(camopsAll$Date.in,"%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
+camopsAll$Shift.begin.1<-as.POSIXct(as.character(camopsAll$Shift.begin.1, "%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
+camopsAll$Shift.end.1<-as.POSIXct(as.character(camopsAll$Shift.end.1, "%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
+camopsAll$Shift.begin.2<-as.POSIXct(as.character(camopsAll$Shift.begin.2, "%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
+camopsAll$Shift.end.2<-as.POSIXct(as.character(camopsAll$Shift.end.2, "%Y-%b-%d %H:%M:%S", tz = "EST5EDT"))
 
 #Calculate Deployment Duration by subtracting shift length from deployment length
 #Shift means a period of days where the camera was shifted and is unusable data
-camnightdata_SI17$Deploy.Length<-difftime(camnightdata_SI17$Date.in ,camnightdata_SI17$Date.out , units = c("days"))
-camnightdata_SI17$Deploy.Shifts.1<-difftime(camnightdata_SI17$Shift.end.1 ,camnightdata_SI17$Shift.begin.1 , units = c("days"))
-camnightdata_SI17$Deploy.Shifts.2<-difftime(camnightdata_SI17$Shift.end.2 ,camnightdata_SI17$Shift.begin.2 , units = c("days"))
-camnightdata_SI17$Deploy.Duration<-camnightdata_SI17$Deploy.Length-camnightdata_SI17$Deploy.Shifts.1-camnightdata_SI17$Deploy.Shifts.2
+camopsAll$Deploy.Length<-difftime(camopsAll$Date.in ,camopsAll$Date.out , units = c("days"))
+camopsAll$Deploy.Shifts.1<-difftime(camopsAll$Shift.end.1 ,camopsAll$Shift.begin.1 , units = c("days"))
+camopsAll$Deploy.Shifts.2<-difftime(camopsAll$Shift.end.2 ,camopsAll$Shift.begin.2 , units = c("days"))
+camopsAll$Deploy.Duration<-camopsAll$Deploy.Length-camopsAll$Deploy.Shifts.1-camopsAll$Deploy.Shifts.2
 
 #Substitute periods in column titles to underscores (if needed)
-names(camdata_SI17) <- sub(pattern = 'Deployment.', 'Deployment_',names(camdata_SI17))
+names(camdataRaw) <- sub(pattern = 'Deployment.', 'Deployment_',names(camdataRaw))
 
-#Merge camdata and number of camera nights by deployment name
-#Make sure all "Scent" deployments from camnightdata are gone after merge
-camdata_summary_SI17<-merge(camnightdata_SI17, camdata_SI17, by = "Deployment_Name")
+#Merge camdata and camera operation information by deployment name. Should not loose any sequences here.
+camdataM<-merge(camdataRaw, camopsAll, by = "Deployment_Name", all.x = TRUE)
 
 #remove rows that occur after end dates for deployments
-camdata_summaryd_SI17<-subset(camdata_summary_SI17, Begin.Time>=Date.out&Begin.Time<=Date.in)
-camdata_summaryd_SI17<-subset(camdata_summaryd_SI17, End.Time<Shift.begin.1|Begin.Time>=Shift.end.1)
-camdata_summaryd_SI17<-subset(camdata_summaryd_SI17, End.Time<Shift.begin.2|Begin.Time>=Shift.end.2)
+#Need to ensure there are no sequences for 0206 and 0505 for Fall. 0101 for Winter, 0401 for Winter, 
+camdataM<-subset(camdataM, Begin.Time>=Date.out&Begin.Time<=Date.in)
+camdataM<-subset(camdataM, End.Time<Shift.begin.1|Begin.Time>=Shift.end.1)
+camdataM<-subset(camdataM, End.Time<Shift.begin.2|Begin.Time>=Shift.end.2)
 
-setwd("C:/Users/josey/Documents/CT Grid")
-write.csv(camdata_summaryd_SI17, file = "Camdata_SI17.csv")
+#Here is where we would set our threshold of sequence independence. Automaticall in emammal it is set to 1 minute. Here I am setting it to 10 minutes.
+
+
+write.csv(camdataM, file = "CamdataAllClean.csv")
 
 #########################################################################
 #Calculate Average, Minimum, and Maximum Number of Sequences Across Grid
