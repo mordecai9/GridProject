@@ -5,13 +5,14 @@ library(dplyr)
 library(tidyverse)
 load("data/CamdataAllClean.RData")
 
-alldata <- camdataMSeq
-#Calculate Average, Minimum, and Maximum Capture Rate Across Grid, Across Seasons
+alldata <- camdataMSeq #shorter name for ease of coding
 
 #Here I should remove unwanted species and categories right away.
 badSP <- c("Animal Not on List", "Camera Misfire", "Camera Trapper", "Corvus brachyrhynchos", "Corvus corax", "Cyanocitta cristata", "Homo sapiens", "Meleagris gallopavo", "No Animal", "Other Bird species", "Owl species", "Raptor Species", "Time Lapse", "Unknown Animal", "Unknown Bird", "Unknown Canid", "Unknown Skunk_Badger")
 alldata <- subset(alldata, !alldata$Species.Name %in% badSP)
 levels(as.factor(alldata$Species.Name))
+
+#Summarize Sequence Counts and Capture Rates for Whole Grid, All Seasons --------
 
 #create summary table of frequencies of sequences and convert it to a data frame
 camdata_summary<-table(alldata$Deployment_Name, 
@@ -21,10 +22,16 @@ camdata_summary<-as.data.frame(camdata_summary)
 #change column names
 colnames(camdata_summary)<-c("Deployment_Name", "Species", "Number_of_Sequences")
 
-#get unique camera effort values from sequence data for each deployment
+#get unique camera effort values from sequence data for each deployment. This immediately excludes cameras that had no sequences recorded, which is OK.
 effort <- camdataMSeq %>%
   select(Deployment_Name, Deploy.Duration) %>%
   distinct
+totEffort <- sum(as.numeric(effort$Deploy.Duration))
+
+#Overall Capture Rate per species, across everything (NOT THE MEAN)
+CRAll <- as.data.frame(tapply(camdata_summary$Number_of_Sequences, camdata_summary$Species, sum))
+names(CRAll)[1] <- "TotalSeqs"
+CRAll$TotCR <- (CRAll$TotalSeqs/totEffort)*100
 
 #Merge in the camera effort and calculate capture rate for each species and each deployment, as rate of sequences per 100 camera nights
 camdata_summary <- merge(camdata_summary, effort, by = "Deployment_Name" )
@@ -38,6 +45,7 @@ camdata_summary_seqs<- spread(
   value = Number_of_Sequences,
   fill = 0
 )
+camdata_summary_seqs <- dplyr::select(camdata_summary_seqs, -("CR")) #unwanted column
 
 #Shift table so species are along top and values are capture rates, fill in blanks with zeros. Not sure if I need this format, but it is here just in case.
 camdata_summary_caprate<- spread(
@@ -46,11 +54,12 @@ camdata_summary_caprate<- spread(
   value = CR,
   fill = 0
 )
-#Remove unwanted columns from both files
-camdata_summary_caprate <- dplyr::select(camdata_summary_caprate, -("Number_of_Sequences"))
-camdata_summary_seqs <- dplyr::select(camdata_summary_seqs, -("CR"))
+camdata_summary_caprate <- dplyr::select(camdata_summary_caprate, -("Number_of_Sequences")) #unwanted column
 
-#calculating average number of sequences for each species across the grid. This can be seen as a baseline sequence number against which we can compare sequence numbers at individual cameras. Note that in this case, this is across all 4 seasons, so we are averaging over more than 100 data points. It is now listing as 102 when I use length as the function in tapply. Should be higher no?
+
+
+# Summary Stats - CapRates All Seasons All Species ------------------------
+#calculating average capture rate for each species across the grid. This can be seen as a baseline number against which we can compare numbers at individual cameras. Note that in this case, this is across all 4 seasons, so we are averaging over more than 100 data points.
 
 baselines<- tapply(camdata_summary$CR, camdata_summary$Species, mean)
 baselines<- as.data.frame(baselines)
@@ -61,7 +70,7 @@ baselines_sd <- tapply(camdata_summary$CR, camdata_summary$Species, sd)
 baselines$sd<- baselines_sd
 names(baselines)[2] <- "StDev_CR"
 
-#number of sequences by species by camera, then transposing to have species as rows
+#Capture rate by species by camera, here with species as rows
 CR_bD_bS <- tapply(camdata_summary$CR, list(camdata_summary$Species, camdata_summary$Deployment_Name), mean)
 CR_bD_bS <- as.data.frame(CR_bD_bS)
 
@@ -77,353 +86,73 @@ CR_bD_bS$StDev_CR<-baselines$StDev_CR
 CR_bD_bS$Min_CR<-baselines$Min_CR
 CR_bD_bS$Max_CR<-baselines$Max_CR
 
+baselines <- merge(baselines, CRAll, by = "row.names")
+
+#At this point I just have baseline summary values for capture rates by species, across all seasons, in a few difffert formats for various uses later.
 
 
-#############################################################
-#Calculate Proportion of Species Captures for Each Camera
-#############################################################
+
+#Calculate Proportion of Species Captures for Each Camera####
+
+
 #Create replicate data frame and remove mean,sd,min,max columns
-CR_bD_bS2_SI17<-CR_bD_bS1_SI17
-CR_bD_bS2_SI17<-CR_bD_bS2_SI17[,-c(28:31)]
+CR_bD_bS2<- dplyr::select(CR_bD_bS,-c("Mean_CR", "StDev_CR", "Min_CR", "Max_CR"))
 
 #convert all values >0 to 1
-CR_bD_bS3_SI17<-as.data.frame((ifelse(CR_bD_bS2_SI17==0,0,1)))
+CR_bD_bS2<-as.data.frame((ifelse(CR_bD_bS2==0,0,1)))
 
 #create column of camera capture proportion per species for whole grid to original data frame
-CR_bD_bS1_SI17$Prop_Grid<-rowSums(CR_bD_bS3_SI17)/length(unique(camdata_SI17$Deployment_Name))
+CR_bD_bS$Prop_Grid<-rowSums(CR_bD_bS2)/length(unique(alldata$Deployment_Name))
 
-##############################################################################################
-#Create Boxplot of Number of Sequences and Proportion of sequences per Species per Camera
-##############################################################################################
+
+#Boxplot of CapRates and Proportions of Deployments----
+
 
 #Transpose headers
-CR_SI17<-t(CR_bD_bS2_SI17)
+CR<-t(CR_bD_bS2)
 
 #reshape data so that each row is per deployment, per species, per capture rate
-CR1_SI17<-melt(CR_SI17)
-colnames(CR1_SI17)<-c ("Deployment", "Species", "Number_of_Sequences")
-
+#FIGURE OUT IF I ALREADY HAVE ALL THIS. MIGHT BE REDUNDANT
+CR1<-melt(CR)
+colnames(CR1)<-c ("Deployment", "Species", "Detected")
 #Calculates proportion of cameras that captured each species
-CR2_SI17<-subset(CR1_SI17, Number_of_Sequences !=0)
-prop_per_cam_SI17<-as.data.frame(table(CR2_SI17$Species))
-colnames(prop_per_cam_SI17)<-c("Species","Prop")
-####################################################
-#Edits stop here
-#########################################
+CR2<-subset(CR1, Detected !=0)
+NumPres<-as.data.frame(table(CR2$Species))
+colnames(NumPres)<-c("Species","NumPres")
+
 #Merge proportion dataframe with rest of data
-CR3_SI17<-merge(CR1_SI17, prop_per_cam_SI17, by = "Species")
+CR3<-merge(CR1, NumPres, by = "Species")
 
-CR3_SI17["tot"]<-length(unique(CR1_SI17$Deployment))
+CR3["tot"]<-length(unique(CR1$Deployment))
 
-#Adds column label which outputs the desired text labels for the boxplot
-CR3_SI17["label"]<-paste(CR3_SI17$Species,"|", CR3_SI17$Prop, "/", CR3_SI17$tot)
+#Adds column label which outputs the desired text labels for the boxplot. 
+#NEED TO MAKE LABELS FOR OTHER SEASONS HERE. I THINK I HAVE ALL IN NEED in CR3 to DO IT DIRECTLY
+CR3["labelAll"]<-paste(CR3$Species,"|", CR3$NumPres, "/", CR3$tot)
+Labels_all <- CR3 %>%
+  select(Species, labelAll) %>%
+  distinct
 
-#Boxplot of the sequence number per species
+camdata_summary <- merge(camdata_summary, Labels_all, by = "Species")
+Season <- alldata %>%
+  select(Deployment_Name, Deployment_Name2, Season) %>%
+  distinct
+camdata_summary <- merge(camdata_summary, Season, by = "Deployment_Name")
+
+save(camdata_summary, file = "data/camdata_summary")
+
+#Boxplot showing median capture rate per species, all seasons. Remember I can use "subset" here to just do a boxplot for summer, but it much more complicated to get the proportion of stations with presence in this way. Might need to redo all code above by season??
 par(mar=c(9,17,4,2))
-plot<-boxplot(CR3_SI17$Number_of_Sequences~CR3_SI17$label,
+plot<-boxplot(camdata_summary$CR~camdata_summary$labelAll,
               cex.main = 2.5,
-              main = "Summer 2017",
-              cex.lab = 1.7,
-              cex.axis = 1.3,
+              main = "",
+              cex.lab = 1.0,
+              cex.axis = 1.0,
               horizontal = T, las = 2, cex.axis = 1,
-              names.arg = CR3_SI17$label, at=rank(tapply(CR3_SI17$Number_of_Sequences,CR3_SI17$Species,mean)))
+              names.arg = camdata_summary$Species, at=rank(tapply(camdata_summary$CR,camdata_summary$Species,median), ties.method = "random"))
 mtext(expression(bold("Species")), side = 2, line = 15, cex = 1.7)
-mtext(expression(bold("Number_of_Sequences (per 100 camera-nights)")), side = 1 , line = 4, cex = 1.7)
+mtext(expression(bold("Total Capture Rate (events per 100 camera-nights)")), side = 1 , line = 4, cex = 1.3)
 
-################################################################################################################
-#Create Individual Species Data frames with Deployment, #Seq, Detection Distance, Cam Height, #Trees, duration
-##############################################################################################################
-#Subset number of sequences by species and deployment
-CR3_Sequences_SI17<-CR3_SI17[,1:3]
-
-#camdata_summaryd_SI17$Caprate <- (deercamdata_coords$Number_of_Sequences/camdata_summaryd_SI17$Deploy.Duration) *100
-
-#Bring in csv with correct coordinates
-camdata_coordinates_SI17 <- read.csv("Grid_Coordinates.csv")
-
-#Merge capture rates per species with coordinates of Deployments by the Deployment column
-camdata_coords_SI17<-merge(camdata_coordinates_SI17, CR3_Sequences_SI17,  by = "Deployment")
-
-#create individual species data frames with species name, capture rate, and coordinates
-deercamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Odocoileus virginianus")
-bearcamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Ursus americanus")
-coyotecamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Canis latrans")
-foxsqrlcamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Sciurus niger")
-redfoxcamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Vulpes vulpes")
-bobcatcamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Lynx rufus")
-grsqrlcamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Sciurus carolinensis")
-raccooncamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Procyon lotor")
-opossumcamdata_coords_SI17<-subset(camdata_coords_SI17, Species =="Didelphis virginiana")
-unknownsqrlcamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Unknown Squirrel")
-
-###Find Capture Rate###
-#deercamdata_coords$Deploy.Duration<-camnightdata_SI17$Deploy.Duration
-#deercamdata_coords$Deploy.Duration<-as.numeric(deercamdata_coords$Deploy.Duration)
-#deercamdata_coords$Capture_Rate <- (deercamdata_coords$Number_of_Sequences/deercamdata_coords$Deploy.Duration) *100
+#Need to bring in Circle Graphs here
 
 
-#Merge all squirrel species
-sqrlcamdata_coords_SI17<-merge(foxsqrlcamdata_coords_SI17, grsqrlcamdata_coords_SI17, by = "Deployment")
-sqrlcamdata_coords_SI17<-merge(sqrlcamdata_coords_SI17, unknownsqrlcamdata_coords_SI17, by = "Deployment")
-sqrlcamdata_coords_SI17$Number_of_Sequences_Tot<-sqrlcamdata_coords_SI17$Number_of_Sequences.x + 
-  sqrlcamdata_coords_SI17$Number_of_Sequences.y + sqrlcamdata_coords_SI17$Number_of_Sequences
 
-
-##################################
-#Bring in the different variables
-#Variable - Camera Height
-################################
-#Bring in Camera Height Data
-Cam_heights_SI17<-read.csv("Camera_heights.csv")
-Cam_heights_SI17<-as.data.frame(Cam_heights_SI17)
-
-#Rename columns to match for merge
-names(Cam_heights_SI17)[1]<- "Deployment"
-names(Cam_heights_SI17)[3]<- "Camera_Height"
-
-#CAMERA HEIGHT is the distance in centimeters from the ground to the camera lens#
-
-#Check that 'Camera_Height' is an integer variable
-str(Cam_heights_SI17)
-
-############################################
-#Variable - Number of Trees in camera sight
-###########################################
-#Working with SIGEO tree grid information to try to associate with capture rates from our
-#high resolution camera grid. Grid established summer 2017, running through summer 2018.
-#Coordinates should be UTM Zone 17S
-
-library(rgeos)
-library(rgdal)
-library(sp)
-library(maptools)
-library(raster)
-library(grid)
-
-#Bring in geo-reference tree data from entire SIGEO grid
-setwd("C:/Users/josey/Documents/CT Grid")
-list.files()
-SIGEOtrees_SI17<-read.csv("scbi.full2_vegdata.csv")
-
-#Change data frame into a Spatial Points Data frame
-head(SIGEOtrees_SI17)
-coordinates(SIGEOtrees_SI17)<- c("NAD83_X", "NAD83_Y")
-class(SIGEOtrees_SI17)
-#plot(SIGEOtrees)
-
-#plot the coordinates
-plot(camdata_coordinates_SI17$NAD83_X,
-     camdata_coordinates_SI17$NAD83_Y,
-     xlim = c(747420, 747560),
-     ylim = c(4308900,4309040))
-
-#Convert this trap coordinate information into a spatialpoints object
-#First need to have the xy coordinates as a separate matrix
-trapxy_SI17 <- camdata_coordinates_SI17[, c(2,3)]
-trapxy_sp_SI17 <- SpatialPointsDataFrame(coords = trapxy_SI17, data = camdata_coordinates_SI17,
-                                         proj4string = CRS(proj4string(SIGEOtrees_SI17)))
-plot(trapxy_SI17)
-
-#Create a clipping polygon to reduce the size of the SIGEO grid to just the area of interest
-#I'm setting the extent as 50m around the extreme trap coordinates
-c<-50
-CP_SI17 <- as(extent(min(trapxy_SI17$NAD83_X)-c, 
-                     max(trapxy_SI17$NAD83_X)+c,
-                     min(trapxy_SI17$NAD83_Y)-c,
-                     max(trapxy_SI17$NAD83_Y)+c),
-              "SpatialPolygons")
-
-#Assign the coordinate reference system of SIGEOtrees to the new clipping polygon         
-proj4string(CP_SI17) <- CRS(proj4string(SIGEOtrees_SI17))
-plot(CP_SI17)
-
-#You could also use gIntersect below but it does not preserve the original attribute data
-SIGEOsmall_SI17 <- intersect(SIGEOtrees_SI17, CP_SI17)
-
-#plot grid with tree and cameras
-plot(SIGEOsmall_SI17, col = "darkgreen", pch = 3,cex.main = 4)
-plot(trapxy_sp_SI17, pch = 19, col = "red", add = T)
-
-#Add a legend
-par(font = 2)
-legend(747300,4308970, legend = c("Tree", "Camera"), col = c("darkgreen", "red"), 
-       pch = c(3,19), cex =1.5, bty = "n")
-
-#Add scale
-scale.len <- 20
-x <- c(747308.5,747308.5+scale.len)
-y<- c(4308890, 4308890)
-lines(x,y,lwd = 2)
-text(747347.9, 4308890, '20m', cex = 1.5)
-
-#Add Deployment label to each camera
-#pointLabel(coordinates(trapxy_sp),labels=trapxy_sp@data$Deployment, cex = 0.7, allowSmallOverlap = T)
-
-#########################################################
-#Create 4 point polygon to represent camera view
-#Create data frame of the 4 points per camera
-camview_SI17 <- camdata_coordinates_SI17[, c(2,3,5)]
-camview_SI17$X1<-(camview_SI17$NAD83_X + 6.84)
-camview_SI17$Y1<-(camview_SI17$NAD83_Y + 18.79)
-camview_SI17$X2<-(camview_SI17$NAD83_X)
-camview_SI17$Y2<-(camview_SI17$NAD83_Y + 20)
-camview_SI17$X3<-(camview_SI17$NAD83_X - 6.84)
-camview_SI17$Y3<-(camview_SI17$NAD83_Y + 18.79)
-
-camview1_SI17<- camdata_coordinates_SI17 [,c(2,3,5)]
-camview1_SI17[28:54,]<-(camview_SI17[1:27, c(4:5,3)])
-camview1_SI17[55:81,]<-(camview_SI17[1:27, c(6:7,3)])
-camview1_SI17[82:108,]<-(camview_SI17[1:27, c(8:9,3)])
-
-camview_list_SI17<-split(camview1_SI17, camview1_SI17$Deployment)
-camview_list_SI17<-lapply(camview_list_SI17, function(x) {x["Deployment"]<- NULL; x})
-
-#create sp object and convert coords to polygon to prepare for 
-cvpp_SI17 <- lapply(camview_list_SI17, Polygon)
-
-#add id variable
-cvp_SI17<-lapply(seq_along(cvpp_SI17), function(i) Polygons(list(cvpp_SI17[[i]]),ID = names(camview_list_SI17)[i]))
-
-#create spobject
-camview_spo_SI17<-SpatialPolygons(cvp_SI17, proj4string = CRS(proj4string(SIGEOtrees_SI17)))
-
-#Create spdf with IDs (one unique ID per poly) and plot polygons
-camview_spo.df_SI17<-SpatialPolygonsDataFrame(camview_spo_SI17,data.frame(id = unique(camview1_SI17$Deployment),row.names = unique(camview1_SI17$Deployment)))
-plot(camview_spo.df_SI17, add = T)
-
-#Cut out tree data from within polygons
-clip_polys_SI17<-intersect(SIGEOsmall_SI17,camview_spo.df_SI17)
-plot(clip_polys_SI17)
-cvtrees_SI17<-as.data.frame(clip_polys_SI17)
-
-#Pull and total the # of trees per deployment and change column names
-cvtreecount_SI17<-cvtrees_SI17[,c(4,28)]
-cvtreecount1_SI17<-aggregate(cvtreecount_SI17[,1], by = list(cvtreecount_SI17$d),sum)
-colnames(cvtreecount1_SI17)[2]<-"Number_of_Trees"
-colnames(cvtreecount1_SI17)[1]<-"Deployment"
-
-######################
-#Variable - Oak Trees
-######################
-#Pull Oak Tree Data from grid
-Oak_Trees_SI17<-subset(SIGEOsmall_SI17,sp %in% c('qual','quru','quco','qufa','qupr','quve','qusp','qumi'))
-plot(Oak_Trees_SI17, pch = 19)
-#plot camera locations in red
-plot(trapxy_sp_SI17, pch = 22, col = "red", add = T)
-
-#add column to study site tree info that divides trees into 5 color size cateories
-Oak_Trees_SI17$Size_Category[Oak_Trees_SI17$dbh <150]<-'461' #turqoise
-Oak_Trees_SI17$Size_Category[Oak_Trees_SI17$dbh >150]<-'68' #dark blue
-Oak_Trees_SI17$Size_Category[Oak_Trees_SI17$dbh >300]<-'47' #yellow
-Oak_Trees_SI17$Size_Category[Oak_Trees_SI17$dbh >600]<-'139' #green
-Oak_Trees_SI17$Size_Category[Oak_Trees_SI17$dbh >900]<-'8' #gray
-Oak_Trees_SI17$Size_Category[Oak_Trees_SI17$dbh >1200]<-'550' #pink
-
-#plot Oak Tree sizes by color
-par(mar=c(5,17,4,2))
-plot(Oak_Trees_SI17,pch = 19, col = Oak_Trees_SI17$Size_Category, add = T)
-
-#Legend matching color to size 
-legend(747285,4309044, legend = c("< 15cm","> 15cm","> 30cm","> 60cm","> 90cm","> 120cm"), col = c("461", "68", "47","139", "8", "550"), pch = 19, title = "DBH of Oak Trees", bty = 'n')
-
-#Cut out oak tree data from within the cones
-library(rowr)
-polyoaktrees_SI17<-intersect(Oak_Trees_SI17, camview_spo.df_SI17)
-plot(polyoaktrees_SI17)
-polyoaktreesdf_SI17<-as.data.frame(polyoaktrees_SI17)
-
-#Pull # of oaks out of each deployment and rename columns to prepare for merge
-oakcount_SI17<-polyoaktreesdf_SI17[,c(4,29)]
-oakcount1_SI17<-aggregate(oakcount_SI17[,1],by=list(oakcount_SI17$d), sum)
-colnames(oakcount1_SI17)[2]<-"Num_Oaks"
-colnames(oakcount1_SI17)[1]<-"Deployment"
-
-#Pull DBH of oaks from each deployment and add total
-Oak_DBH_SI17<-polyoaktreesdf_SI17[,c(11,29)]
-Oak_DBH1_SI17<-aggregate(Oak_DBH_SI17[,1],by=list(Oak_DBH_SI17$d), sum)
-colnames(Oak_DBH1_SI17)[1]<-"Deployment"
-colnames(Oak_DBH1_SI17)[2]<-"DBH"
-
-#########################################
-#Variable - Estimated Detection Distance
-#########################################
-#Bring in Detection Distance Data for Each Species
-setwd("C:/Users/josey/Documents/CT Grid/Summer2017")
-#Deer EDD Data
-Deer_EDD_Summer2017<-read.csv("Deer_EDD_S17.csv")
-Deer_EDD_Summer2017<-as.data.frame(Deer_EDD_Summer2017)
-
-#Bear EDD Data
-#Squirrel EDD Data
-#Raccoon EDD Data
-
-############################################################
-#Deer Data Frame with XY coords
-Deercamdata_SI17<-deercamdata_coords_SI17[-c(2,5)]
-
-#Add Variables to Data Frame
-Deercamdata_SI17$Cam_Nights<-camnightdata_SI17$Deploy.Duration
-Deercamdata_SI17$Log<-camnightdata_SI17$Log.in.View
-Deercamdata_SI17$EDD<-Deer_EDD_Summer2017$ESW.EDR
-Deercamdata_SI17$Cam_Height<-Cam_heights_SI17$Camera_Height
-Deercamdata_SI17$Num_Stems<-cvtreecount1_SI17$Number_of_Trees
-
-
-#Merge because not all cameras have oak trees
-Deercamdata_SI17<-merge(Deercamdata_SI17, Oak_DBH1_SI17, all = TRUE)
-Deercamdata_SI17[is.na(Deercamdata_SI17)] <- 0
-
-
-#######################################################
-#Bear Data Frame with XY coords
-Bearcamdata_SI17<-bearcamdata_coords_SI17[-c(2,5)]
-
-#Add Variables to Data Frame
-Bearcamdata_SI17$Cam_Nights<-camnightdata_SI17$Deploy.Duration
-Bearcamdata_SI17$Log<-camnightdata_SI17$Log.in.View
-#Bearcamdata_SI17$EDD<-Bear_EDD_Summer2017$ESW_EDR
-Bearcamdata_SI17$Cam_Height<-Cam_heights_SI17$Camera_Height
-Bearcamdata_SI17$Num_Stems<-cvtreecount1_SI17$Number_of_Trees
-
-#Merge because not all cameras have oak trees
-Bearcamdata_SI17<-merge(Bearcamdata_SI17, Oak_DBH1_SI17, all = TRUE)
-Bearcamdata_SI17[is.na(Bearcamdata_SI17)] <- 0
-########################################################
-#Squirrel Data Frame with XY coords
-Sqrlcamdata_SI17<-sqrlcamdata_coords_SI17[-c(2,5:19)]
-
-#Add Variables to Data Frame
-Sqrlcamdata_SI17$Cam_Nights<-camnightdata_SI17$Deploy.Duration
-Sqrlcamdata_SI17$Log<-camnightdata_SI17$Log.in.View
-#Sqrlcamdata_SI17$EDD<-Sqrl_EDD_Summer2017$ESW_EDR
-Sqrlcamdata_SI17$Cam_Height<-Cam_heights_SI17$Camera_Height
-Sqrlcamdata_SI17$Num_Stems<-cvtreecount1_SI17$Number_of_Trees
-
-#Merge because not all cameras have oak trees
-Sqrlcamdata_SI17<-merge(Sqrlcamdata_SI17, Oak_DBH1_SI17 , all = TRUE)
-Sqrlcamdata_SI17[is.na(Sqrlcamdata_SI17)] <- 0
-
-#########################################################
-#Raccoon Data Frame with XY coords
-Raccooncamdata_SI17<-raccooncamdata_coords_SI17[-c(2,5)]
-
-#Add Variables to Data Frame
-Raccooncamdata_SI17$Cam_Nights<-camnightdata_SI17$Deploy.Duration
-Raccooncamdata_SI17$Log<-camnightdata_SI17$Log.in.View
-#Raccooncamdata_SI17$EDD<-Raccoon_EDD_Summer2017$ESW_EDR
-Raccooncamdata_SI17$Cam_Height<-Cam_heights_SI17$Camera_Height
-Raccooncamdata_SI17$Num_Stems<-cvtreecount1_SI17$Number_of_Trees
-
-#Merge because not all cameras have oak trees
-Raccooncamdata_SI17<-merge(Raccooncamdata_SI17, Oak_DBH1_SI17, all = TRUE)
-Raccooncamdata_SI17[is.na(Raccooncamdata_SI17)] <- 0
-
-########################################################
-#Save species data frames to bring in for Analysis later
-########################################################
-#Change working directory to general Camera Grid Folder
-setwd("C:/Users/josey/Documents/CT Grid")
-write.csv(Deercamdata_SI17, file = "Deer_DF.csv")
-write.csv(Bearrcamdata_SI17, file = "Bear_DF.csv")
-write.csv(Sqrlcamdata_SI17, file = "Sqrl_DF.csv")
-write.csv(Raccooncamdata_SI17, file = "Raccoon_DF.csv")
