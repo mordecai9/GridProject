@@ -152,7 +152,110 @@ plot<-boxplot(camdata_summary$CR~camdata_summary$labelAll,
 mtext(expression(bold("Species")), side = 2, line = 15, cex = 1.7)
 mtext(expression(bold("Total Capture Rate (events per 100 camera-nights)")), side = 1 , line = 4, cex = 1.3)
 
-#Need to bring in Circle Graphs here
+
+#Plot CapRates by point size on grid####
+#Remember to somehow label cameras that were not operating. This goes for Winter and Fall figures. Look into putting species name into the plot, instead of as title
+
+#Bring in XY data for grid
+gridXY <- read.csv("data/Grid_Coordinates.csv")
+camdata_summary <- merge(camdata_summary, gridXY, by.x = "Deployment_Name2", by.y = "Deployment")
+
+#OVERALL
+s<-22 #Sets point size modification to make graphs readable
+plot(camdata_summary$NAD83_X, camdata_summary$NAD83_Y, main = "Overall Capture Rates - All Species",
+     cex.main = 2.5,
+     xlab = "", ylab = "",
+     cex = camdata_summary$CR/s, 
+     pch = 20,  
+     xlim = c(747430, 747550),
+     ylim = c(4308910,4309030))
+
+#DEER OVERALL
+s=10
+camdata_summary %>%
+  filter(Species == "Odocoileus virginianus") %>%
+  with(plot(NAD83_X, NAD83_Y,main = "Overall Capture Rates - Deer",
+       cex.main = 2.2,
+       xlab = "", ylab = "",
+       cex = camdata_summary$CR/s, 
+       pch = 20,  
+       xlim = c(747430, 747550),
+       ylim = c(4308910,4309030)))
+  points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
+       xlab = "", ylab = "",
+       cex = .8, 
+       pch = 3,  
+       xlim = c(747430, 747550),
+       ylim = c(4308910,4309030))
+#Gray Squirrel OVERALL
+s=10
+camdata_summary %>%
+  filter(Species == "Sciurus carolinensis") %>%
+  with(plot(NAD83_X, NAD83_Y,main = "Overall Capture Rates - Gray Squirrel",
+            cex.main = 2.2,
+            xlab = "", ylab = "",
+            cex = CR/s, 
+            pch = 20,  
+            xlim = c(747430, 747550),
+            ylim = c(4308910,4309030)))
+  points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
+       xlab = "", ylab = "",
+       cex = .8, 
+       pch = 3,  
+       xlim = c(747430, 747550),
+       ylim = c(4308910,4309030))
+#Fox Squirrel OVERALL
+s=10
+camdata_summary %>%
+  filter(Species == "Sciurus niger") %>%
+  with(plot(NAD83_X, NAD83_Y,main = "Overall Capture Rates - Fox squirrel",
+            cex.main = 2.2,
+            xlab = "", ylab = "",
+            cex = CR/s, 
+            pch = 20,  
+            xlim = c(747430, 747550),
+            ylim = c(4308910,4309030)))
+  points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
+       xlab = "", ylab = "",
+       cex = .8, 
+       pch = 3,  
+       xlim = c(747430, 747550),
+       ylim = c(4308910,4309030))
+
+#Raccoon OVERALL
+s=10
+camdata_summary %>%
+  filter(Species == "Procyon lotor") %>%
+  with(plot(NAD83_X, NAD83_Y,main = "Overall Capture Rates - Raccoon",
+            cex.main = 2.2,
+            xlab = "", ylab = "",
+            cex = CR/s, 
+            pch = 20,  
+            xlim = c(747430, 747550),
+            ylim = c(4308910,4309030)))
+points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
+       xlab = "", ylab = "",
+       cex = .8, 
+       pch = 3,  
+       xlim = c(747430, 747550),
+       ylim = c(4308910,4309030))
+#Bear OVERALL
+s=10
+camdata_summary %>%
+  filter(Species == "Ursus americanus") %>%
+  with(plot(NAD83_X, NAD83_Y,main = "Overall Capture Rates - Black Bear",
+            cex.main = 2.2,
+            xlab = "", ylab = "",
+            cex = CR/s, 
+            pch = 20,  
+            xlim = c(747430, 747550),
+            ylim = c(4308910,4309030)))
+points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
+       xlab = "", ylab = "",
+       cex = .8, 
+       pch = 3,  
+       xlim = c(747430, 747550),
+       ylim = c(4308910,4309030))
 
 
 
