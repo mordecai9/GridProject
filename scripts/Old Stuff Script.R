@@ -1,42 +1,4 @@
-##########################################################################################
-#Plot Number of Sequences for Deer, Bear, Gray Squirrel, and Raccoon using Point Size Grids
-##############################################################################################
-#Create point size map of grid for deer
-s<-7
-plot(deercamdata_coords$NAD83_X, deercamdata_coords$NAD83_Y, main = "Summer 2017 Capture Rates - White-tailed Deer",
-     cex.main = 2.5,
-     xlab = "", ylab = "",
-     cex = deercamdata_coords$Capture_Rate/s, 
-     pch = 20,  
-     xlim = c(747430, 747550),
-     ylim = c(4308910,4309030))
 
-#Create point size map of grid for bear
-plot(bearcamdata_coords$NAD83_X, bearcamdata_coords$NAD83_Y, main = "Summer 2017 Capture Rates -  American Black Bear",
-     cex.main = 2.5,
-     xlab = "", ylab = "",
-     cex = bearcamdata_coords$Capture_Rate/s, 
-     pch = 20, 
-     xlim = c(747430, 747550),
-     ylim = c(4308910,4309030))
-
-#Create point size map of grid for gray squirrel
-plot(grsqrlcamdata_coords$NAD83_X, grsqrlcamdata_coords$NAD83_Y, main = "Summer 2017 Capture Rates - Eastern Gray Squirrel",
-     cex.main = 2.5,
-     xlab = "", ylab = "",
-     cex = grsqrlcamdata_coords$Capture_Rate/s, 
-     pch = 20, 
-     xlim = c(747430, 747550),
-     ylim = c(4308910,4309030))
-
-#Create point size map of grid for racoon
-plot(raccooncamdata_coords$NAD83_X, raccooncamdata_coords$NAD83_Y, main = "Summer 2017 Capture Rates - Raccoon",
-     cex.main = 2.5,
-     xlab = "", ylab = "",
-     cex = raccooncamdata_coords$Capture_Rate/s, 
-     pch = 20, 
-     xlim = c(747430, 747550),
-     ylim = c(4308910,4309030))
 
 ###############################################################################
 #Regression Analysis of Deer Capture Rate by Deer Estimated Detection Distance
