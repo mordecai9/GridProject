@@ -63,40 +63,34 @@ camdata_summary_caprate <- dplyr::select(camdata_summary_caprate, -("Number_of_S
 
 #calculating average capture rate for each species across the grid. This can be seen as a baseline number against which we can compare numbers at individual cameras. Note that in this case, this is across all 4 seasons, so we are averaging over more than 100 data points.
 
-baselines<- tapply(camdata_summary$CR, camdata_summary$Species, mean)
-baselines<- as.data.frame(baselines)
-names(baselines)[1] <- "Mean_CR"
+baselinesAll<- tapply(camdata_summary$CR, camdata_summary$Species, mean)
+baselinesAll<- as.data.frame(baselinesAll)
+names(baselinesAll)[1] <- "Mean_CR"
 
 #SD of average number of sequences across the grid for each species
-baselines_sd <- tapply(camdata_summary$CR, camdata_summary$Species, sd)
-baselines$sd<- baselines_sd
-names(baselines)[2] <- "StDev_CR"
+baselinesAll_sd <- tapply(camdata_summary$CR, camdata_summary$Species, sd)
+baselinesAll$sd<- baselinesAll_sd
+names(baselinesAll)[2] <- "StDev_CR"
 
 #Capture rate by species by camera, here with species as rows
 CR_bD_bS <- tapply(camdata_summary$CR, list(camdata_summary$Species, camdata_summary$Deployment_Name), mean)
 CR_bD_bS <- as.data.frame(CR_bD_bS)
 
 #Min and max CR for each species across the grid
-baselines$minCR <- apply(CR_bD_bS,1,min)
-names(baselines)[3]<- "Min_CR"
-baselines$maxCR <- apply(CR_bD_bS,1,max)
-names(baselines)[4]<-"Max_CR"
+baselinesAll$minCR <- apply(CR_bD_bS,1,min)
+names(baselinesAll)[3]<- "Min_CR"
+baselinesAll$maxCR <- apply(CR_bD_bS,1,max)
+names(baselinesAll)[4]<-"Max_CR"
 
 #Add columns to CR_bD_bS for standard deviation, mean, max and min.
-CR_bD_bS$Mean_CR <- baselines$Mean_CR
-CR_bD_bS$StDev_CR<-baselines$StDev_CR
-CR_bD_bS$Min_CR<-baselines$Min_CR
-CR_bD_bS$Max_CR<-baselines$Max_CR
+CR_bD_bS$Mean_CR <- baselinesAll$Mean_CR
+CR_bD_bS$StDev_CR<-baselinesAll$StDev_CR
+CR_bD_bS$Min_CR<-baselinesAll$Min_CR
+CR_bD_bS$Max_CR<-baselinesAll$Max_CR
 
-baselines <- merge(baselines, CRAll, by = "row.names")
-
-#At this point I just have baseline summary values for capture rates by species, across all seasons, in a few difffert formats for various uses later.
-
-
+baselinesAll <- merge(baselinesAll, CRAll, by = "row.names")
 
 #Calculate Proportion of Camera Deployments Confirming Each Species####
-
-
 #Create replicate data frame and remove mean,sd,min,max columns
 CR_bD_bS2<- dplyr::select(CR_bD_bS,-c("Mean_CR", "StDev_CR", "Min_CR", "Max_CR"))
 
@@ -105,6 +99,26 @@ CR_bD_bS2<-as.data.frame((ifelse(CR_bD_bS2==0,0,1)))
 
 #create column of camera capture proportion per species for whole grid to original data frame
 CR_bD_bS$Prop_Grid<-rowSums(CR_bD_bS2)/length(unique(alldata$Deployment_Name))
+
+#At this point I just have baseline summary values for capture rates by species, across all seasons, in a few difffert formats for various uses later.
+
+#Capture Rates and Proportion of Detections, by Season and Species####
+
+#Note that the total count for cameras in Fall was 25, winter was 25, summer and spring were both 27, so need to take this into account when lookign at proportion of cameras with detections. 
+
+SeasonsCR <- camdata_summary %>%
+  group_by(.dots = c("Season", "Species")) %>%
+  summarize(meanCR = mean(CR),
+            sdCR = sd(CR),
+            minCR = min(CR),
+            maxCR = max(CR),
+            seCR = sd(CR)/sqrt(27),
+            lowCI = mean(CR)-(1.96*(sd(CR)/sqrt(27))),
+            highCI = mean(CR)+(1.96*(sd(CR)/sqrt(27))),            
+            DetCount = length(which(Number_of_Sequences >0)))
+SeasonsCR$lowCI <- ifelse(SeasonsCR$lowCI >= 0, SeasonsCR$lowCI, 0)
+
+
 
 #_________________________________________________________
 #Boxplot of CapRates and Proportions of Deployments----
@@ -154,6 +168,55 @@ plot<-boxplot(camdata_summary$CR~camdata_summary$labelAll,
 mtext(expression(bold("Species")), side = 2, line = 15, cex = 1.7)
 mtext(expression(bold("Total Capture Rate (events per 100 camera-nights)")), side = 1 , line = 4, cex = 1.3)
 
+#Plots for the 4 seasons. Need to correct the proportions in the labels, the current ones are just for overall
+par(mfrow = c(2,2))
+par(mar=c(9,17,4,2))
+plot<-boxplot(camdata_summary$CR~camdata_summary$labelAll,
+              cex.main = 2.5,
+              main = "",
+              cex.lab = 1.0,
+              cex.axis = 1.0,
+              horizontal = T, las = 2, cex.axis = 1,
+              ylim = c(0,450),
+              subset = Season == "Summer 2017",
+              names.arg = camdata_summary$Species, at=rank(tapply(camdata_summary$CR,camdata_summary$Species,median), ties.method = "random"))
+mtext(expression(bold("Species")), side = 2, line = 15, cex = 1.7)
+mtext(expression(bold("Summer CR")), side = 1 , line = 4, cex = 1.3)
+
+plot<-boxplot(camdata_summary$CR~camdata_summary$labelAll,
+              cex.main = 2.5,
+              main = "",
+              cex.lab = 1.0,
+              cex.axis = 1.0,
+              horizontal = T, las = 2, cex.axis = 1,
+              ylim = c(0,450),
+              subset = Season == "Fall 2017",
+              names.arg = camdata_summary$Species, at=rank(tapply(camdata_summary$CR,camdata_summary$Species,median), ties.method = "random"))
+mtext(expression(bold("Fall CR")), side = 1 , line = 4, cex = 1.3)
+
+plot<-boxplot(camdata_summary$CR~camdata_summary$labelAll,
+              cex.main = 2.5,
+              main = "",
+              cex.lab = 1.0,
+              cex.axis = 1.0,
+              horizontal = T, las = 2, cex.axis = 1,
+              ylim = c(0,450),
+              subset = Season == "Winter 2017",
+              names.arg = camdata_summary$Species, at=rank(tapply(camdata_summary$CR,camdata_summary$Species,median), ties.method = "random"))
+mtext(expression(bold("Species")), side = 2, line = 15, cex = 1.7)
+mtext(expression(bold("Winter CR")), side = 1 , line = 4, cex = 1.3)
+
+plot<-boxplot(camdata_summary$CR~camdata_summary$labelAll,
+              cex.main = 2.5,
+              main = "",
+              cex.lab = 1.0,
+              cex.axis = 1.0,
+              horizontal = T, las = 2, cex.axis = 1,
+              subset = Season == "Spring 2018",
+              ylim = c(0,450),
+              names.arg = camdata_summary$Species, at=rank(tapply(camdata_summary$CR,camdata_summary$Species,median), ties.method = "random"))
+mtext(expression(bold("Spring CR")), side = 1 , line = 4, cex = 1.3)
+
 #______________________________________________
 #Plot CapRates by Point Size on Grid####
 #Remember to somehow label cameras that were not operating. This goes for Winter and Fall figures.
@@ -166,7 +229,7 @@ camdata_summary <- merge(camdata_summary, gridXY, by.x = "Deployment_Name2", by.
 #_____________________________________________
 ##CapRates Point Size Figures- DEER----
 #_____________________________________________
-#Would be nice to add proportion of cameras with hits, or to label cameras that had no detections
+#Would be nice to add proportion of cameras with hits, or to label cameras that had no detections. Would also be good to have a small key to circle size, maybe showing lower quartile, median and upper quartile values? Final figures will probably just have Season names, with the species in the caption?
 
 par(mar = c(1,1,1,1))
 par(mfrow = c(2,2))
@@ -193,7 +256,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Deer - Summer", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Deer - Summer", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #DEER Fall
 s=12
@@ -217,7 +280,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Deer - Fall", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Deer - Fall", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #DEER WINTER
 s=12
@@ -241,7 +304,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Deer - Winter", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Deer - Winter", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #DEER Spring
 s=12
@@ -265,7 +328,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Deer - Spring", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Deer - Spring", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 
 
@@ -296,7 +359,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Fox Sq. - Summer", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Fox Sq. - Summer", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #Fox Squirrel Fall
 s=6
@@ -320,7 +383,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Fox sq. - Fall", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Fox sq. - Fall", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #Fox Squirrel Winter
 s=6
@@ -344,7 +407,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Fox Sq. - Winter", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Fox Sq. - Winter", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #Fox Squirrel - Spring
 s=6
@@ -368,7 +431,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Fox sq. - Spring", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Fox sq. - Spring", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #_____________________________________________
 ##CapRates Point Size Figures- Gray Squirrel----
@@ -398,7 +461,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Gray Sq. - Summer", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Gray Sq. - Summer", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #Gray Squirrel FALL
 s=6
@@ -422,7 +485,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Gray sq. - Fall", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Gray sq. - Fall", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #Gray Squirrel Winter
 s=6
@@ -446,7 +509,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Gray sq. - Winter", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Gray sq. - Winter", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #Gray Squirrel Spring
 s=6
@@ -470,7 +533,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Gray sq. - Spring", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Gray sq. - Spring", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 
 #_____________________________________________
@@ -501,7 +564,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Raccoon - Summer", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Raccoon - Summer", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #Raccoon FALL
 s=5
@@ -525,7 +588,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Raccoon - Fall", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Raccoon - Fall", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #Raccoon Winter
 s=5
@@ -549,7 +612,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Raccoon - Winter", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Raccoon - Winter", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #Raccoon Spring
 s=5
@@ -573,7 +636,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Raccoon - Spring", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Raccoon - Spring", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #_____________________________________________
 ##CapRates Point Size Figures- Bear----
@@ -603,7 +666,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Black Bear - Summer", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Black Bear - Summer", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #Black Bear FALL
 s=1
@@ -627,7 +690,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Black Bear - Fall", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Black Bear - Fall", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #Black Bear Winter
 s=1
@@ -651,7 +714,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Black Bear - Winter", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Black Bear - Winter", y = 4309025, x = 747430, cex = 1.6, pos = 4)
 
 #Black Bear Spring
 s=1
@@ -675,4 +738,4 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Black Bear - Spring", y = 4309025, x = 747447, cex = 1.6)
+text(labels = "Black Bear - Spring", y = 4309025, x = 747430, cex = 1.6, pos = 4)
