@@ -1,12 +1,15 @@
 #Script for formatting and cleaning raw sequence camera trap data from high resolution camera grid established in Posey Hollow SCBI end of May 2017.  Twenty-seven Reconyx cameras approximately 20 meters apart.Cameras run in 2 month seasonal periods and distance markers at 2.5 meters apart up to 10 meters.Photos uploaded to eMammal and data downloaded from eMammal as csv file. The raw data was downloaded and saved as "rawGridData_4S_final.csv". We also kept track of when cameras were running, and when problems occurred. These occur in 4 separate csv files starting with "CameraOperation_". 
 
+#Key notes: In summer all 27 cameras ran for at least part of the summer. In winter, two cameras had their data lost (0101_W17 and 0401_W17) so we shoudl have 25 deployments then. For Fall, data was lost from camera 0505_F17 and data are not usable from camera 0206_F17. All deployments worked fine in Spring. So we should end up with a total of 104 deployments. 27-summer, 25-winter, 25-Fall, 27 Spring.
+
+
 #This script removes a few errors in deployment names, converts the date/times into proper format, merges in the camera operation information and uses it to calculate deployment length (i.e. camera nights/effort), removes sequences that occurred when the camera was not functioning properly, removes sequences that started less than 10 minutes from the end of the previous sequence for the same species at the same camera (independence threshold) and then removes unnecessary columns. In the end, we get an R object dataframe called "CamdataAllClean.RData" which should be the starting point for all other scripts.
 
 
 library(dplyr)
 
 
-#Bringing in emammal raw data from all deployments. it looks like for some reason we are missing all sequences from 0503_W17. Not sure why. Sent email to Jen Zhao
+#Bringing in emammal raw data from all deployments. it looks like for some reason we are missing all sequences from 0503_W17. Not sure why. Sent email to Jen Zhao. Looks like maybe we are also missing 0102-W17??
 camdataRaw<-read.csv("data/rawGridData_4S_final.csv", stringsAsFactors = FALSE)
 levels(as.factor(camdataRaw$Deployment.Name))
 
@@ -19,7 +22,7 @@ camdataRaw$Deployment.Name<-sub(pattern = '0104-SI17-2','0104-SI17',camdataRaw$D
 #This was the result of uploading this deployment on two seperate days to eMammal
 camdataRaw$Deployment.Name<-sub(pattern = '0403_F17-1','0403_F17',camdataRaw$Deployment.Name)
 
-#There should now be 27*4 = 108 levels of the "Deployment Name", but no sequences were recorded for 0101_W17 and 0401_W17. Photos were also lost for 0505_F17. So we should end up with 105 levels.
+#There should now be 27*4 = 108 levels of the "Deployment Name", but no sequences were recorded for 0101_W17 and 0401_W17. These were lost. Photos were also lost for 0505_F17. So we should end up with 105 levels. 0206_F17 cannot be used.
 levels(as.factor(camdataRaw$Deployment.Name))
 
 #Convert Begin.Time and End.Time columns to date types
