@@ -1,134 +1,114 @@
-#Create Individual Species/Seasons Data frames with SeqCount and Covariates#####
+#Create Individual Species/Seasons Data frames with SeqCount and Covariates to be used in Poisson GLM regression analysis. I think here I can use "camdatasummary", not CR3, since it has the raw number of sequences and the camera effort, as well as season and both kinds of deployment names
 
-#I think here I can use "camdatasummary", not CR3, since it has the raw number of sequences and the camera effort, as well as season and both kinds of deployment names
-
-#Subset number of sequences by species and deployment
-CR3_Sequences_SI17<-CR3_SI17[,1:3]
-
-#camdata_summaryd_SI17$Caprate <- (deercamdata_coords$Number_of_Sequences/camdata_summaryd_SI17$Deploy.Duration) *100
+load("data/camdata_summary")
+camdata <- camdata_summary
 
 #Bring in csv with correct coordinates
-camdata_coordinates_SI17 <- read.csv("Grid_Coordinates.csv")
-
-#Merge capture rates per species with coordinates of Deployments by the Deployment column
-camdata_coords_SI17<-merge(camdata_coordinates_SI17, CR3_Sequences_SI17,  by = "Deployment")
+gridXY <- read.csv("data/Grid_Coordinates.csv")
+camdata <- merge(camdata, gridXY, by.x = "Deployment_Name2", by.y = "Deployment")
+names(camdata)[1] <- "Deployment" #Facilitates merges later
 
 #create individual species data frames with species name, capture rate, and coordinates
-deercamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Odocoileus virginianus")
-bearcamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Ursus americanus")
-coyotecamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Canis latrans")
-foxsqrlcamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Sciurus niger")
-redfoxcamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Vulpes vulpes")
-bobcatcamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Lynx rufus")
-grsqrlcamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Sciurus carolinensis")
-raccooncamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Procyon lotor")
-opossumcamdata_coords_SI17<-subset(camdata_coords_SI17, Species =="Didelphis virginiana")
-unknownsqrlcamdata_coords_SI17<-subset(camdata_coords_SI17, Species == "Unknown Squirrel")
-
-###Find Capture Rate###
-#deercamdata_coords$Deploy.Duration<-camnightdata_SI17$Deploy.Duration
-#deercamdata_coords$Deploy.Duration<-as.numeric(deercamdata_coords$Deploy.Duration)
-#deercamdata_coords$Capture_Rate <- (deercamdata_coords$Number_of_Sequences/deercamdata_coords$Deploy.Duration) *100
+deerData<-subset(camdata, Species == "Odocoileus virginianus")
+bearData<-subset(camdata, Species == "Ursus americanus")
+coyoteData<-subset(camdata, Species == "Canis latrans")
+foxsqrlData<-subset(camdata, Species == "Sciurus niger")
+redfoxData<-subset(camdata, Species == "Vulpes vulpes")
+bobcatData<-subset(camdata, Species == "Lynx rufus")
+grsqrlData<-subset(camdata, Species == "Sciurus carolinensis")
+raccoonData<-subset(camdata, Species == "Procyon lotor")
+opossumData<-subset(camdata, Species =="Didelphis virginiana")
+unknownsqrlData<-subset(camdata, Species == "Unknown Squirrel")
 
 
 #Merge all squirrel species
-sqrlcamdata_coords_SI17<-merge(foxsqrlcamdata_coords_SI17, grsqrlcamdata_coords_SI17, by = "Deployment")
-sqrlcamdata_coords_SI17<-merge(sqrlcamdata_coords_SI17, unknownsqrlcamdata_coords_SI17, by = "Deployment")
-sqrlcamdata_coords_SI17$Number_of_Sequences_Tot<-sqrlcamdata_coords_SI17$Number_of_Sequences.x + 
-  sqrlcamdata_coords_SI17$Number_of_Sequences.y + sqrlcamdata_coords_SI17$Number_of_Sequences
+#sqrlcamdata_coords_SI17<-merge(foxsqrlcamdata_coords_SI17, grsqrlcamdata_coords_SI17, by = "Deployment")
+#sqrlcamdata_coords_SI17<-merge(sqrlcamdata_coords_SI17, unknownsqrlcamdata_coords_SI17, by = "Deployment")
 
 
-##################################
-#Bring in the different variables
-#Variable - Camera Height
-################################
+
+#Bring in the different variables####
+
+
+
+#Variable - Camera Height####
 #Bring in Camera Height Data
-Cam_heights_SI17<-read.csv("Camera_heights.csv")
-Cam_heights_SI17<-as.data.frame(Cam_heights_SI17)
-
-#Rename columns to match for merge
-names(Cam_heights_SI17)[1]<- "Deployment"
-names(Cam_heights_SI17)[3]<- "Camera_Height"
-
 #CAMERA HEIGHT is the distance in centimeters from the ground to the camera lens#
 
-#Check that 'Camera_Height' is an integer variable
-str(Cam_heights_SI17)
+camHeight<-read.csv("data/Camera_heights.csv")
+camdata <- merge(camdata, camHeight, by = "Deployment")
 
-############################################
-#Variable - Number of Trees in camera sight
-###########################################
+
+#Variable - Number of Trees in camera sight####
 #Working with SIGEO tree grid information to try to associate with capture rates from our
-#high resolution camera grid. Grid established summer 2017, running through summer 2018.
-#Coordinates should be UTM Zone 17S
+#high resolution camera grid. Coordinates should be UTM Zone 17S
 
 library(rgeos)
-library(rgdal)
+#library(rgdal)
 library(sp)
 library(maptools)
 library(raster)
-library(grid)
+#library(grid)
 
 #Bring in geo-reference tree data from entire SIGEO grid
-setwd("C:/Users/josey/Documents/CT Grid")
-list.files()
-SIGEOtrees_SI17<-read.csv("scbi.full2_vegdata.csv")
+trees<-read.csv("data/scbi.full2_vegdata.csv")
 
 #Change data frame into a Spatial Points Data frame
-head(SIGEOtrees_SI17)
-coordinates(SIGEOtrees_SI17)<- c("NAD83_X", "NAD83_Y")
-class(SIGEOtrees_SI17)
-#plot(SIGEOtrees)
+coordinates(trees)<- c("NAD83_X", "NAD83_Y")
+class(trees)
+#plot(SIGEOtrees) #this is a big file, and includes all trees in SIGEO plot, not just in our small grid
 
-#plot the coordinates
-plot(camdata_coordinates_SI17$NAD83_X,
-     camdata_coordinates_SI17$NAD83_Y,
+#plot the camera trap coordinates to check everything looks OK
+plot(camdata$NAD83_X,
+     camdata$NAD83_Y,
      xlim = c(747420, 747560),
      ylim = c(4308900,4309040))
 
 #Convert this trap coordinate information into a spatialpoints object
 #First need to have the xy coordinates as a separate matrix
-trapxy_SI17 <- camdata_coordinates_SI17[, c(2,3)]
-trapxy_sp_SI17 <- SpatialPointsDataFrame(coords = trapxy_SI17, data = camdata_coordinates_SI17,
-                                         proj4string = CRS(proj4string(SIGEOtrees_SI17)))
-plot(trapxy_SI17)
+trapxy <- camdata %>%
+  select(NAD83_X, NAD83_Y)
+
+trapxySP <- SpatialPointsDataFrame(coords = trapxy, data = camdata,
+                                         proj4string = CRS(proj4string(trees)))
+plot(trapxySP)
 
 #Create a clipping polygon to reduce the size of the SIGEO grid to just the area of interest
 #I'm setting the extent as 50m around the extreme trap coordinates
 c<-50
-CP_SI17 <- as(extent(min(trapxy_SI17$NAD83_X)-c, 
-                     max(trapxy_SI17$NAD83_X)+c,
-                     min(trapxy_SI17$NAD83_Y)-c,
-                     max(trapxy_SI17$NAD83_Y)+c),
+clp <- as(extent(min(trapxy$NAD83_X)-c, 
+                     max(trapxy$NAD83_X)+c,
+                     min(trapxy$NAD83_Y)-c,
+                     max(trapxy$NAD83_Y)+c),
               "SpatialPolygons")
 
-#Assign the coordinate reference system of SIGEOtrees to the new clipping polygon         
-proj4string(CP_SI17) <- CRS(proj4string(SIGEOtrees_SI17))
-plot(CP_SI17)
+#Assign the coordinate reference system of "trees" to the new clipping polygon         
+proj4string(clp) <- CRS(proj4string(trees))
+plot(clp)
 
 #You could also use gIntersect below but it does not preserve the original attribute data
-SIGEOsmall_SI17 <- intersect(SIGEOtrees_SI17, CP_SI17)
+treesSmall <- intersect(trees, clp)
 
 #plot grid with tree and cameras
-plot(SIGEOsmall_SI17, col = "darkgreen", pch = 3,cex.main = 4)
-plot(trapxy_sp_SI17, pch = 19, col = "red", add = T)
+plot(treesSmall, col = "darkgreen", pch = 3,cex.main = 4)
+plot(trapxySP, pch = 19, col = "red", add = T)
 
-#Add a legend
-par(font = 2)
-legend(747300,4308970, legend = c("Tree", "Camera"), col = c("darkgreen", "red"), 
-       pch = c(3,19), cex =1.5, bty = "n")
+#Add a legend (this needs to be tweaked, maybe we need to change plotting margins with "par"?)
+#par(font = 2)
+#legend(747300,4308970, legend = c("Tree", "Camera"), col = c("darkgreen", "red"), pch = c(3,19), cex =1.5, bty = "n")
 
-#Add scale
-scale.len <- 20
-x <- c(747308.5,747308.5+scale.len)
-y<- c(4308890, 4308890)
-lines(x,y,lwd = 2)
-text(747347.9, 4308890, '20m', cex = 1.5)
+#Add scale (this doesn't appear to be working)
+#scale.len <- 20
+#x1 <- c(747308.5,747308.5+scale.len)
+#y1<- c(4308890, 4308890)
+#lines(x1,y1,lwd = 2)
+#text(747347.9, 4308890, '20m', cex = 1.5)
 
 #Add Deployment label to each camera
-#pointLabel(coordinates(trapxy_sp),labels=trapxy_sp@data$Deployment, cex = 0.7, allowSmallOverlap = T)
+pointLabel(unique(coordinates(trapxySP)[,1]),unique(coordinates(trapxySP)[,2]),labels=as.character(unique(trapxySP@data$Deployment)), cex = 0.7, allowSmallOverlap = T)
 
-#########################################################
+#Josey, we will have to review this code below. I looked through it but did not understand it all. Will need to update names of files for sure. camdata_coordinates_SI17 is now camdata, but it has many more rows than before, because it has all 4 seasons' data.
+
 #Create 4 point polygon to represent camera view
 #Create data frame of the 4 points per camera
 camview_SI17 <- camdata_coordinates_SI17[, c(2,3,5)]
@@ -140,7 +120,7 @@ camview_SI17$X3<-(camview_SI17$NAD83_X - 6.84)
 camview_SI17$Y3<-(camview_SI17$NAD83_Y + 18.79)
 
 camview1_SI17<- camdata_coordinates_SI17 [,c(2,3,5)]
-camview1_SI17[28:54,]<-(camview_SI17[1:27, c(4:5,3)])
+camview1_SI17[28:54,]<-(camview_SI17[1:27, c(4:5,3)]) #Could not figure out why these rows were being called out in this way.
 camview1_SI17[55:81,]<-(camview_SI17[1:27, c(6:7,3)])
 camview1_SI17[82:108,]<-(camview_SI17[1:27, c(8:9,3)])
 
@@ -171,32 +151,32 @@ cvtreecount1_SI17<-aggregate(cvtreecount_SI17[,1], by = list(cvtreecount_SI17$d)
 colnames(cvtreecount1_SI17)[2]<-"Number_of_Trees"
 colnames(cvtreecount1_SI17)[1]<-"Deployment"
 
-######################
-#Variable - Oak Trees
-######################
+#____________________________
+#Variable - Oak Trees####
+#____________________________
 #Pull Oak Tree Data from grid
-Oak_Trees_SI17<-subset(SIGEOsmall_SI17,sp %in% c('qual','quru','quco','qufa','qupr','quve','qusp','qumi'))
-plot(Oak_Trees_SI17, pch = 19)
+Oaks <-subset(treesSmall,sp %in% c('qual','quru','quco','qufa','qupr','quve','qusp','qumi'))
+plot(Oaks, pch = 19)
 #plot camera locations in red
-plot(trapxy_sp_SI17, pch = 22, col = "red", add = T)
+plot(trapxySP, pch = 22, col = "red", add = T)
 
 #add column to study site tree info that divides trees into 5 color size cateories
-Oak_Trees_SI17$Size_Category[Oak_Trees_SI17$dbh <150]<-'461' #turqoise
-Oak_Trees_SI17$Size_Category[Oak_Trees_SI17$dbh >150]<-'68' #dark blue
-Oak_Trees_SI17$Size_Category[Oak_Trees_SI17$dbh >300]<-'47' #yellow
-Oak_Trees_SI17$Size_Category[Oak_Trees_SI17$dbh >600]<-'139' #green
-Oak_Trees_SI17$Size_Category[Oak_Trees_SI17$dbh >900]<-'8' #gray
-Oak_Trees_SI17$Size_Category[Oak_Trees_SI17$dbh >1200]<-'550' #pink
+Oaks$Size_Category[Oaks$dbh <150]<-'461' #turqoise
+Oaks$Size_Category[Oaks$dbh >150]<-'68' #dark blue
+Oaks$Size_Category[Oaks$dbh >300]<-'47' #yellow
+Oaks$Size_Category[Oaks$dbh >600]<-'139' #green
+Oaks$Size_Category[Oaks$dbh >900]<-'8' #gray
+Oaks$Size_Category[Oaks$dbh >1200]<-'550' #pink
 
 #plot Oak Tree sizes by color
 par(mar=c(5,17,4,2))
-plot(Oak_Trees_SI17,pch = 19, col = Oak_Trees_SI17$Size_Category, add = T)
+plot(Oaks,pch = 19, col = Oaks$Size_Category, add = T)
 
-#Legend matching color to size 
+#Legend matching color to size (not working for some reason)
 legend(747285,4309044, legend = c("< 15cm","> 15cm","> 30cm","> 60cm","> 90cm","> 120cm"), col = c("461", "68", "47","139", "8", "550"), pch = 19, title = "DBH of Oak Trees", bty = 'n')
 
 #Cut out oak tree data from within the cones
-library(rowr)
+library(rowr) #what is this for?
 polyoaktrees_SI17<-intersect(Oak_Trees_SI17, camview_spo.df_SI17)
 plot(polyoaktrees_SI17)
 polyoaktreesdf_SI17<-as.data.frame(polyoaktrees_SI17)
