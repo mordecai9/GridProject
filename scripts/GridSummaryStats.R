@@ -1,4 +1,4 @@
-#This file calculates various summary statistics for the SCBI Camera Grid project. It should call in the clean data object called "camdataAllClean" from the data folder in the git repository
+#This file calculates various summary statistics and figures for the SCBI Camera Grid project. It should call in the clean data object called "camdataAllClean" from the data folder in the git repository. This object is generated in the script 'CamDataPrep.R". 
 
 library(reshape)
 library(dplyr)
