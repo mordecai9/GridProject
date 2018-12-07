@@ -1,4 +1,4 @@
-#This file calculates various summary statistics and figures for the SCBI Camera Grid project. It should call in the clean data object called "camdataAllClean" from the data folder in the git repository. This object is generated in the script 'CamDataPrep.R". 
+#This file calculates various summary statistics and figures for the SCBI Camera Grid project. It should call in the clean data object called "camdataAllClean" from the data folder in the git repository (which brings in a df called "camdataMSeq". This object is generated in the script 'CamDataPrep.R". Note that sequences here have already been defined with a 10min independence threshold.
 
 library(reshape)
 library(dplyr)
@@ -7,7 +7,7 @@ load("data/CamdataAllClean.RData")
 
 alldata <- camdataMSeq #shorter name for ease of coding
 
-#Here I should remove unwanted species and categories right away.
+#Here I remove unwanted species and categories right away.
 badSP <- c("Animal Not on List", "Camera Misfire", "Camera Trapper", "Corvus brachyrhynchos", "Corvus corax", "Cyanocitta cristata", "Homo sapiens", "Meleagris gallopavo", "No Animal", "Other Bird species", "Owl species", "Raptor Species", "Time Lapse", "Unknown Animal", "Unknown Bird", "Unknown Canid", "Unknown Skunk_Badger")
 alldata <- subset(alldata, !alldata$Species.Name %in% badSP)
 levels(as.factor(alldata$Species.Name))
@@ -15,28 +15,49 @@ levels(as.factor(alldata$Species.Name))
 #Summarize Sequence Counts and Capture Rates for Whole Grid, All Seasons --------
 
 #create summary table of frequencies of sequences and convert it to a data frame
-camdata_summary<-table(alldata$Deployment_Name, 
-                             alldata$Species.Name)
-camdata_summary<-as.data.frame(camdata_summary)
+camdata_summary<-as.data.frame(table(alldata$Deployment_Name, 
+                             alldata$Species.Name))
 
 #change column names
 colnames(camdata_summary)<-c("Deployment_Name", "Species", "Number_of_Sequences")
 
-#get unique camera effort values from sequence data for each deployment. This immediately excludes cameras that had no sequences recorded, which is OK.
-effort <- camdataMSeq %>%
+#get unique camera effort values from sequence data for each deployment. This immediately excludes cameras that had no sequences recorded at all, which is OK.
+effort <- alldata %>%
   select(Deployment_Name, Deploy.Duration) %>%
   distinct
-totEffort <- sum(as.numeric(effort$Deploy.Duration))
+effort <- merge (effort, seasonID, by = "Deployment_Name")
+totEffort <- sum(as.numeric(effort$Deploy.Duration)) #Total camera nights over all 4 seasons
 
 #Overall Capture Rate per species, across everything (NOT THE MEAN)
 CRAll <- as.data.frame(tapply(camdata_summary$Number_of_Sequences, camdata_summary$Species, sum))
 names(CRAll)[1] <- "TotalSeqs"
 CRAll$TotCR <- (CRAll$TotalSeqs/totEffort)*100
 
+#Pull out season IDs
+seasonID <- alldata %>%
+  select(Deployment_Name, Season) %>%
+  distinct
+#Capture Rate by species by season
+camdata_summary <- merge(camdata_summary, seasonID, by = "Deployment_Name" )
+
+#Overall CapRates by Season (not MEANS)
+CRSeasonTots <- as.data.frame(tapply(camdata_summary$Number_of_Sequences, list(camdata_summary$Species, camdata_summary$Season), sum))
+names(CRSeasonTots) <- c("FallSeqs", "SpringSeqs", "SummerSeqs", "WinterSeqs")
+seasonEffort <- as.data.frame(tapply(effort$Deploy.Duration, effort$Season, sum))
+names(seasonEffort)[1] <- "camNights"
+CRSeasonTots$FallCR <- CRSeasonTots$FallSeqs/seasonEffort$camNights[1]*100
+CRSeasonTots$SpringCR <- CRSeasonTots$SpringSeqs/seasonEffort$camNights[2]*100
+CRSeasonTots$SummerCR <- CRSeasonTots$SummerSeqs/seasonEffort$camNights[3]*100
+CRSeasonTots$WinterCR <- CRSeasonTots$WinterSeqs/seasonEffort$camNights[4]*100
+
+CRSummary <- merge(CRSeasonTots, CRAll, by = "row.names")
+
 #Merge in the camera effort and calculate capture rate for each species and each deployment, as rate of sequences per 100 camera nights
 camdata_summary <- merge(camdata_summary, effort, by = "Deployment_Name" )
 camdata_summary$Deploy.Duration <- as.numeric(camdata_summary$Deploy.Duration)
 camdata_summary$CR <- (camdata_summary$Number_of_Sequences/camdata_summary$Deploy.Duration) *100
+
+
 
 #Shift table so species are along top and values are # of sequences, fill in blanks with zeros.Not sure if I need this format, but it is here just in case.
 camdata_summary_seqs<- spread(
@@ -149,10 +170,6 @@ Labels_all <- CR3 %>%
   distinct
 
 camdata_summary <- merge(camdata_summary, Labels_all, by = "Species")
-Season <- alldata %>%
-  select(Deployment_Name, Deployment_Name2, Season) %>%
-  distinct
-camdata_summary <- merge(camdata_summary, Season, by = "Deployment_Name")
 
 save(camdata_summary, file = "data/camdata_summary")
 
