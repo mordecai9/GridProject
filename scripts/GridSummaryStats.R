@@ -155,10 +155,40 @@ CRt<-t(CR_bD_bS2)
 #FIGURE OUT IF I ALREADY HAVE ALL THIS. MIGHT BE REDUNDANT
 CR1<-melt(CRt)
 colnames(CR1)<-c ("Deployment", "Species", "Detected")
+
 #Calculates proportion of cameras that captured each species
 CR2<-subset(CR1, Detected !=0)
 NumPres<-as.data.frame(table(CR2$Species))
 colnames(NumPres)<-c("Species","NumPres")
+
+#Same but for each season
+labelsFall <- SeasonsCR %>%
+  select(Species, Season, DetCount) %>%
+  filter(Season == "Fall 2017") %>%
+  mutate(FallDeployCt = 25) %>%
+  mutate(FallLabel = paste(Species,"|", DetCount, "/", FallDeployCt) ) %>%
+  rename(FallDetCount = DetCount)  
+
+labelsSum <- SeasonsCR %>%
+  select(Species, Season, DetCount) %>%
+  filter(Season == "Summer 2017") %>%
+  mutate(SumDeployCt = 27) %>%
+  mutate(SumLabel = paste(Species,"|", DetCount, "/", SumDeployCt) ) %>%
+  rename(SumDetCount = DetCount) 
+
+labelsWinter <- SeasonsCR %>%
+  select(Species, Season, DetCount) %>%
+  filter(Season == "Winter 2017") %>%
+  mutate(WinterDeployCt = 25) %>%
+  mutate(WinterLabel = paste(Species,"|", DetCount, "/", WinterDeployCt) ) %>%
+  rename(WinDetCount = DetCount) 
+
+labelsSpring <- SeasonsCR %>%
+  select(Species, Season, DetCount) %>%
+  filter(Season == "Spring 2018") %>%
+  mutate(SpringDeployCt = 27) %>%
+  mutate(SpringLabel = paste(Species,"|", DetCount, "/", SpringDeployCt) ) %>%
+  rename(SprDetCount = DetCount) 
 
 #Merge proportion dataframe with rest of data
 CR3<-merge(CR1, NumPres, by = "Species")
@@ -172,69 +202,77 @@ Labels_all <- CR3 %>%
   select(Species, labelAll) %>%
   distinct
 
-camdata_summary <- merge(camdata_summary, Labels_all, by = "Species")
-
+camdata_summaryL <- camdata_summary %>%
+  left_join(Labels_all, by = "Species") %>%
+  left_join(labelsSpring,by = "Species") %>%
+  left_join(labelsFall,by = "Species") %>%
+  left_join(labelsSum,by = "Species") %>%
+  left_join(labelsWinter,by = "Species") %>%
+  select(-c(Season.y, Season.x.x, Season.y.y, Season))          
+  
+  
 
 
 #Boxplot showing median capture rate per species, all seasons. Remember I can use "subset" here to just do a boxplot for summer, but it much more complicated to get the proportion of stations with presence in this way. Might need to redo all code above by season?? SHould consider doing this with mean in a bar lot with whiskers, instead of median.
 par(mar=c(9,17,4,2))
-plot<-boxplot(camdata_summary$CR~camdata_summary$labelAll,
+plot<-boxplot(camdata_summaryL$CR~camdata_summaryL$labelAll,
               cex.main = 2.5,
               main = "",
               cex.lab = 1.0,
               cex.axis = 1.0,
               horizontal = T, las = 2, cex.axis = 1,
-              names.arg = camdata_summary$Species, at=rank(tapply(camdata_summary$CR,camdata_summary$Species,median), ties.method = "random"))
+              names.arg = camdata_summaryL$Species, at=rank(tapply(camdata_summaryL$CR,camdata_summaryL$Species,median), ties.method = "random"))
 mtext(expression(bold("Species")), side = 2, line = 15, cex = 1.7)
 mtext(expression(bold("Total Capture Rate (events per 100 camera-nights)")), side = 1 , line = 4, cex = 1.3)
 
-#Plots for the 4 seasons. Need to correct the proportions in the labels, the current ones are just for overall
+#Plots for the 4 seasons capture rate by species#### 
+#Good to go, just need to figure out how to order the species either the same every time, or in order by season.
 par(mfrow = c(2,2))
 par(mar=c(9,17,4,2))
-plot<-boxplot(camdata_summary$CR~camdata_summary$labelAll,
+plot<-boxplot(camdata_summaryL$CR~camdata_summaryL$SumLabel,
               cex.main = 2.5,
               main = "",
               cex.lab = 1.0,
               cex.axis = 1.0,
               horizontal = T, las = 2, cex.axis = 1,
               ylim = c(0,450),
-              subset = Season == "Summer 2017",
-              names.arg = camdata_summary$Species, at=rank(tapply(camdata_summary$CR,camdata_summary$Species,median), ties.method = "random"))
+              subset = camdata_summaryL$Season.x == "Summer 2017",
+              names.arg = camdata_summaryL$Species, at=rank(tapply(camdata_summaryL$CR,camdata_summaryL$Species,median), ties.method = "random"))
 mtext(expression(bold("Species")), side = 2, line = 15, cex = 1.7)
 mtext(expression(bold("Summer CR")), side = 1 , line = 4, cex = 1.3)
 
-plot<-boxplot(camdata_summary$CR~camdata_summary$labelAll,
+plot<-boxplot(data = camdata_summaryL, CR~FallLabel,
               cex.main = 2.5,
               main = "",
               cex.lab = 1.0,
               cex.axis = 1.0,
               horizontal = T, las = 2, cex.axis = 1,
               ylim = c(0,450),
-              subset = Season == "Fall 2017",
-              names.arg = camdata_summary$Species, at=rank(tapply(camdata_summary$CR,camdata_summary$Species,median), ties.method = "random"))
+              subset = Season.x == "Fall 2017",
+              names.arg = camdata_summaryL$Species, at=rank(tapply(camdata_summaryL$CR,camdata_summaryL$Species,median), ties.method = "random"))
 mtext(expression(bold("Fall CR")), side = 1 , line = 4, cex = 1.3)
 
-plot<-boxplot(camdata_summary$CR~camdata_summary$labelAll,
+plot<-boxplot(data = camdata_summaryL, CR~WinterLabel,
               cex.main = 2.5,
               main = "",
               cex.lab = 1.0,
               cex.axis = 1.0,
               horizontal = T, las = 2, cex.axis = 1,
               ylim = c(0,450),
-              subset = Season == "Winter 2017",
-              names.arg = camdata_summary$Species, at=rank(tapply(camdata_summary$CR,camdata_summary$Species,median), ties.method = "random"))
+              subset = Season.x == "Winter 2017",
+              names.arg = camdata_summaryL$Species, at=rank(tapply(camdata_summaryL$CR,camdata_summaryL$Species,median), ties.method = "random"))
 mtext(expression(bold("Species")), side = 2, line = 15, cex = 1.7)
 mtext(expression(bold("Winter CR")), side = 1 , line = 4, cex = 1.3)
 
-plot<-boxplot(camdata_summary$CR~camdata_summary$labelAll,
+plot<-boxplot(data = camdata_summaryL, CR~SpringLabel,
               cex.main = 2.5,
               main = "",
               cex.lab = 1.0,
               cex.axis = 1.0,
               horizontal = T, las = 2, cex.axis = 1,
-              subset = Season == "Spring 2018",
+              subset = Season.x == "Spring 2018",
               ylim = c(0,450),
-              names.arg = camdata_summary$Species, at=rank(tapply(camdata_summary$CR,camdata_summary$Species,median), ties.method = "random"))
+              names.arg = camdata_summaryL$Species, at=rank(tapply(camdata_summaryL$CR,camdata_summaryL$Species,median), ties.method = "random"))
 mtext(expression(bold("Spring CR")), side = 1 , line = 4, cex = 1.3)
 
 #______________________________________________
