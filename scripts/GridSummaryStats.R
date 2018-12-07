@@ -21,43 +21,43 @@ camdata_summary<-as.data.frame(table(alldata$Deployment_Name,
 #change column names
 colnames(camdata_summary)<-c("Deployment_Name", "Species", "Number_of_Sequences")
 
+#Pull out season IDs for each Deployment Name
+seasonID <- alldata %>%
+  select(Deployment_Name, Season) %>%
+  distinct
+
 #get unique camera effort values from sequence data for each deployment. This immediately excludes cameras that had no sequences recorded at all, which is OK.
 effort <- alldata %>%
   select(Deployment_Name, Deploy.Duration) %>%
   distinct
 effort <- merge (effort, seasonID, by = "Deployment_Name")
 totEffort <- sum(as.numeric(effort$Deploy.Duration)) #Total camera nights over all 4 seasons
+seasonEffort <- as.data.frame(tapply(effort$Deploy.Duration, effort$Season, sum)) #Camera effort within each season
+names(seasonEffort)[1] <- "camNights"
 
 #Overall Capture Rate per species, across everything (NOT THE MEAN)
 CRAll <- as.data.frame(tapply(camdata_summary$Number_of_Sequences, camdata_summary$Species, sum))
 names(CRAll)[1] <- "TotalSeqs"
 CRAll$TotCR <- (CRAll$TotalSeqs/totEffort)*100
 
-#Pull out season IDs
-seasonID <- alldata %>%
-  select(Deployment_Name, Season) %>%
-  distinct
-#Capture Rate by species by season
+#Overall CapRates by Season (not MEANS)
 camdata_summary <- merge(camdata_summary, seasonID, by = "Deployment_Name" )
 
-#Overall CapRates by Season (not MEANS)
 CRSeasonTots <- as.data.frame(tapply(camdata_summary$Number_of_Sequences, list(camdata_summary$Species, camdata_summary$Season), sum))
 names(CRSeasonTots) <- c("FallSeqs", "SpringSeqs", "SummerSeqs", "WinterSeqs")
-seasonEffort <- as.data.frame(tapply(effort$Deploy.Duration, effort$Season, sum))
-names(seasonEffort)[1] <- "camNights"
 CRSeasonTots$FallCR <- CRSeasonTots$FallSeqs/seasonEffort$camNights[1]*100
 CRSeasonTots$SpringCR <- CRSeasonTots$SpringSeqs/seasonEffort$camNights[2]*100
 CRSeasonTots$SummerCR <- CRSeasonTots$SummerSeqs/seasonEffort$camNights[3]*100
 CRSeasonTots$WinterCR <- CRSeasonTots$WinterSeqs/seasonEffort$camNights[4]*100
 
-CRSummary <- merge(CRSeasonTots, CRAll, by = "row.names")
+CRSummary <- merge(CRSeasonTots, CRAll, by = "row.names") #Final Season by Species summary of capture rates including overall pooled sequences capture rate over whole study
 
 #Merge in the camera effort and calculate capture rate for each species and each deployment, as rate of sequences per 100 camera nights
 camdata_summary <- merge(camdata_summary, effort, by = "Deployment_Name" )
 camdata_summary$Deploy.Duration <- as.numeric(camdata_summary$Deploy.Duration)
 camdata_summary$CR <- (camdata_summary$Number_of_Sequences/camdata_summary$Deploy.Duration) *100
-
-
+camdata_summary$Season.y <- NULL
+names(camdata_summary)[4] <- "Season"
 
 #Shift table so species are along top and values are # of sequences, fill in blanks with zeros.Not sure if I need this format, but it is here just in case.
 camdata_summary_seqs<- spread(
@@ -79,13 +79,12 @@ camdata_summary_caprate <- dplyr::select(camdata_summary_caprate, -("Number_of_S
 
 
 #____________________________________________________
-# Summary Stats - CapRates All Seasons All Species ------------------------
+# Summary Stats - CapRates Overall and By Season ------------------------
 #____________________________________________________
 
-#calculating average capture rate for each species across the grid. This can be seen as a baseline number against which we can compare numbers at individual cameras. Note that in this case, this is across all 4 seasons, so we are averaging over more than 100 data points.
+#calculating average capture rate for each species across the grid. This can be seen as a baseline number against which we can compare numbers at individual cameras. Note that in this case, this is across all 4 seasons, so we are averaging over more than 100 data points. Can probably do this using summarize like I did for seasonal calcs
 
-baselinesAll<- tapply(camdata_summary$CR, camdata_summary$Species, mean)
-baselinesAll<- as.data.frame(baselinesAll)
+baselinesAll<- as.data.frame(tapply(camdata_summary$CR, camdata_summary$Species, mean))
 names(baselinesAll)[1] <- "Mean_CR"
 
 #SD of average number of sequences across the grid for each species
@@ -94,8 +93,7 @@ baselinesAll$sd<- baselinesAll_sd
 names(baselinesAll)[2] <- "StDev_CR"
 
 #Capture rate by species by camera, here with species as rows
-CR_bD_bS <- tapply(camdata_summary$CR, list(camdata_summary$Species, camdata_summary$Deployment_Name), mean)
-CR_bD_bS <- as.data.frame(CR_bD_bS)
+CR_bD_bS <- as.data.frame(tapply(camdata_summary$CR, list(camdata_summary$Species, camdata_summary$Deployment_Name), mean))
 
 #Min and max CR for each species across the grid
 baselinesAll$minCR <- apply(CR_bD_bS,1,min)
@@ -109,19 +107,7 @@ CR_bD_bS$StDev_CR<-baselinesAll$StDev_CR
 CR_bD_bS$Min_CR<-baselinesAll$Min_CR
 CR_bD_bS$Max_CR<-baselinesAll$Max_CR
 
-baselinesAll <- merge(baselinesAll, CRAll, by = "row.names")
-
-#Calculate Proportion of Camera Deployments Confirming Each Species####
-#Create replicate data frame and remove mean,sd,min,max columns
-CR_bD_bS2<- dplyr::select(CR_bD_bS,-c("Mean_CR", "StDev_CR", "Min_CR", "Max_CR"))
-
-#convert all values >0 to 1
-CR_bD_bS2<-as.data.frame((ifelse(CR_bD_bS2==0,0,1)))
-
-#create column of camera capture proportion per species for whole grid to original data frame
-CR_bD_bS$Prop_Grid<-rowSums(CR_bD_bS2)/length(unique(alldata$Deployment_Name))
-
-#At this point I just have baseline summary values for capture rates by species, across all seasons, in a few difffert formats for various uses later.
+baselinesAll <- merge(baselinesAll, CRSummary, by.x = "row.names", by.y = "Row.names")
 
 #Capture Rates and Proportion of Detections, by Season and Species####
 
@@ -139,7 +125,24 @@ SeasonsCR <- camdata_summary %>%
             DetCount = length(which(Number_of_Sequences >0)))
 SeasonsCR$lowCI <- ifelse(SeasonsCR$lowCI >= 0, SeasonsCR$lowCI, 0)
 
+#_______________________________
+#Calculate Proportion of Camera Deployments Confirming Each Species####
+#_______________________________
 
+#Create replicate data frame and remove mean,sd,min,max columns
+CR_bD_bS2<- dplyr::select(CR_bD_bS,-c("Mean_CR", "StDev_CR", "Min_CR", "Max_CR"))
+
+#convert all values >0 to 1
+CR_bD_bS2<-as.data.frame((ifelse(CR_bD_bS2==0,0,1)))
+
+#create column of camera capture proportion per species for whole grid to original data frame. SHOULD THINK ABOUT ADDING THIS INFO TO CR SUMMARY NOT CR_bD_bS
+CR_bD_bS$Prop_Grid<-rowSums(CR_bD_bS2)/length(unique(alldata$Deployment_Name))
+CR_bD_bS$DetCount <- rowSums(CR_bD_bS2)
+CR_bD_bS$TotDepl <- length(unique(camdata_summary$Deployment_Name))
+
+#At this point I just have baseline summary values for capture rates by species, across all seasons, in a few difffert formats for various uses later.
+
+save(camdata_summary, file = "data/camdata_summary")
 
 #_________________________________________________________
 #Boxplot of CapRates and Proportions of Deployments----
@@ -171,7 +174,7 @@ Labels_all <- CR3 %>%
 
 camdata_summary <- merge(camdata_summary, Labels_all, by = "Species")
 
-save(camdata_summary, file = "data/camdata_summary")
+
 
 #Boxplot showing median capture rate per species, all seasons. Remember I can use "subset" here to just do a boxplot for summer, but it much more complicated to get the proportion of stations with presence in this way. Might need to redo all code above by season?? SHould consider doing this with mean in a bar lot with whiskers, instead of median.
 par(mar=c(9,17,4,2))
