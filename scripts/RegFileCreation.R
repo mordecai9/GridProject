@@ -3,9 +3,19 @@
 load("data/camdata_summary")
 camdata <- camdata_summary
 
+#Remove Deployment_Name's seasonal tags from camdata to prepare for merge with grid coord data
+camdata$Deployment_Name<-sub(pattern = '_W17','',camdata$Deployment_Name)
+camdata$Deployment_Name<-sub(pattern = '-S17','',camdata$Deployment_Name)
+camdata$Deployment_Name<-sub(pattern = '_F17','',camdata$Deployment_Name)
+camdata$Deployment_Name<-sub(pattern = '_Sp18','',camdata$Deployment_Name)
+
+#Changes column name and data type to prepare for merge
+colnames(camdata)[1]<-"Deployment"#Facilitates merges later
+camdata$Deployment <- as.numeric(as.character(camdata$Deployment))
+
 #Bring in csv with correct coordinates
 gridXY <- read.csv("data/Grid_Coordinates.csv")
-camdata <- merge(camdata, gridXY, by.x = "Deployment_Name", by.y = "Deployment")
+camdata <- merge(camdata, gridXY, by = "Deployment")
 names(camdata)[1] <- "Deployment" #Facilitates merges later
 
 #create individual species data frames with species name, capture rate, and coordinates
