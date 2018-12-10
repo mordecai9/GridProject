@@ -33,8 +33,8 @@ unknownsqrlData<-subset(camdata, Species == "Unknown Squirrel")
 
 #For calculating Effective Detection Distance(EDD) all squirrel species were merged.
 #Since EDD will be a variable, the squirrel species will be merged now
-sqrlcamdata_coords_SI17<-merge(foxsqrlcamdata_coords_SI17, grsqrlcamdata_coords_SI17, by = "Deployment")
-sqrlcamdata_coords_SI17<-merge(sqrlcamdata_coords_SI17, unknownsqrlcamdata_coords_SI17, by = "Deployment")
+sqrlcamdata_coords<-merge(foxsqrlcamdata_coords, grsqrlcamdata_coords, by = "Deployment")
+sqrlcamdata_coords<-merge(sqrlcamdata_coords, unknownsqrlcamdata_coords, by = "Deployment")
 
 
 
