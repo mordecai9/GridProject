@@ -5,7 +5,7 @@ camdata <- camdata_summary
 
 #Bring in csv with correct coordinates
 gridXY <- read.csv("data/Grid_Coordinates.csv")
-camdata <- merge(camdata, gridXY, by.x = "Deployment_Name2", by.y = "Deployment")
+camdata <- merge(camdata, gridXY, by.x = "Deployment_Name", by.y = "Deployment")
 names(camdata)[1] <- "Deployment" #Facilitates merges later
 
 #create individual species data frames with species name, capture rate, and coordinates
