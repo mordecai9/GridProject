@@ -2,8 +2,6 @@
 
 load("data/camdata_summary")
 camdata <- camdata_summary
-
-camdata <- merge(camdata, gridXY, by = "Deployment")
 names(camdata)[1] <- "Deployment" #Facilitates merges later
 
 #create individual species data frames with species name, capture rate, and coordinates
@@ -21,15 +19,19 @@ unknownsqrlData<-subset(camdata, Species == "Unknown Squirrel")
 
 #For calculating Effective Detection Distance(EDD) all squirrel species were merged.
 #Since EDD will be a variable, the squirrel species will be merged now
-#Josey, I'm pretty sure we can't just merge like this. Things need to be added together so that things like sequence count and CR are calculated correctly. I think we'll likely need to create an "allsquirrel" category earlier on, in the GridSummaryStats.R script most likely. Let's ignore it for now and focus on getting the code to work for just fox squirrel for example.
 
-#sqrlData<-merge(foxsqrlData, grsqrlData, by = "Deployment")
-#sqrlData<-merge(sqrlData, unknownsqrlData, by = "Deployment")
+sqrlData<- foxsqrlData %>%
+  dplyr::select(Deployment, Deployment_Name, Species, Number_of_Sequences, CR) %>%
+  left_join(grsqrlData, by = "Deployment_Name") %>%
+  left_join(unknownsqrlData, by = "Deployment_Name" )
 
-
+sqrlData$allSqSeqs <- (sqrlData$Number_of_Sequences.x + sqrlData$Number_of_Sequences.y + sqrlData$Number_of_Sequences)
+sqrlData$allSqCR <- sqrlData$allSqSeqs/sqrlData$Deploy.Duration.x *100
+sqrlData <- sqrlData[, -c(3:8,11:12, 15:25)]
+sqrlData$Species <- "All Squirrels"
 
 ####Bring in the different variables####
-
+#We can merge in these new variables into each of our 4-5 focal species files individually, once we have the code working for all of them. Below I am doing it for the full camdata file. I'm not sure which is best really. The height, and both tree variables will not change per species or per season. The only thing season and species specific is the EDD, so we obviously can't easily merge the EDD data into the full camdata file.
 
 
 #Variable - Camera Height####
@@ -44,11 +46,11 @@ camdata <- merge(camdata, camHeight, by = "Deployment")
 #Working with SIGEO tree grid information to try to associate with capture rates from our high resolution camera grid. Coordinates should be UTM Zone 17S
 
 library(rgeos)
-#library(rgdal)
+library(rgdal)
 library(sp)
 library(maptools)
 library(raster)
-#library(grid)
+library(grid)
 
 #Bring in geo-reference tree data from entire SIGEO grid
 trees<-read.csv("data/scbi.full2_vegdata.csv")
