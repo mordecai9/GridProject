@@ -314,7 +314,7 @@ camdata_summary <- merge(camdata_summary, gridXY, by.x = "Deployment_Name2", by.
 #_____________________________________________
 ##CapRates Point Size Figures- DEER----
 #_____________________________________________
-#Would be nice to add proportion of cameras with hits, or to label cameras that had no detections. Would also be good to have a small key to circle size, maybe showing lower quartile, median and upper quartile values? Final figures will probably just have Season names, with the species in the caption? Need to add symbol for failed cameras in Fall and Winter.
+#Added info to labels in deer figure indicating proportion of cameras with detections - need to add to other species. Would also be good to have a small key to circle size, maybe showing lower quartile, median and upper quartile values? Final figures will probably just have Season names, with the species in the caption? 
 
 #call out failed points for Fall deployments
 idxf <- which(gridXY$Deployment == "505" | gridXY$Deployment == "206")
@@ -346,7 +346,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Deer - Summer", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = paste("Deer - Summer", "(", labelsSum$SumDetCount[which(labelsSum$Species == "Odocoileus virginianus")],"/", labelsSum$SumDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
 #DEER Fall
 s=12
@@ -370,7 +370,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Deer - Fall", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = paste("Deer - Fall", "(", labelsFall$FallDetCount[which(labelsFall$Species == "Odocoileus virginianus")],"/", labelsSum$SumDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxf], gridXY$NAD83_Y[idxf], cex = 1, pch = 8, col = "red")
 
 #DEER WINTER
@@ -395,7 +395,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Deer - Winter", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = paste("Deer - Winter", "(", labelsWinter$WinDetCount[which(labelsWinter$Species == "Odocoileus virginianus")],"/", labelsSum$SumDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxw], gridXY$NAD83_Y[idxw], cex = 1, pch = 8, col = "red")
 
 #DEER Spring
@@ -420,7 +420,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Deer - Spring", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = paste("Deer - Spring", "(", labelsSpring$SprDetCount[which(labelsSpring$Species == "Odocoileus virginianus")],"/", labelsSum$SumDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
 
 
@@ -451,7 +451,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Fox Sq. - Summer", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = "Fox Sq. - Summer", y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
 #Fox Squirrel Fall
 s=6
@@ -475,7 +475,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Fox sq. - Fall", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = "Fox sq. - Fall", y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxf], gridXY$NAD83_Y[idxf], cex = 1, pch = 8, col = "red")
 
 #Fox Squirrel Winter
@@ -500,7 +500,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Fox Sq. - Winter", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = "Fox Sq. - Winter", y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxw], gridXY$NAD83_Y[idxw], cex = 1, pch = 8, col = "red")
 
 #Fox Squirrel - Spring
@@ -525,7 +525,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Fox sq. - Spring", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = "Fox sq. - Spring", y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
 #_____________________________________________
 ##CapRates Point Size Figures- Gray Squirrel----
@@ -555,7 +555,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Gray Sq. - Summer", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = "Gray Sq. - Summer", y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
 #Gray Squirrel FALL
 s=6
@@ -579,7 +579,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Gray sq. - Fall", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = "Gray sq. - Fall", y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxf], gridXY$NAD83_Y[idxf], cex = 1, pch = 8, col = "red")
 
 #Gray Squirrel Winter
@@ -604,7 +604,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Gray sq. - Winter", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = "Gray sq. - Winter", y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxw], gridXY$NAD83_Y[idxw], cex = 1, pch = 8, col = "red")
 
 #Gray Squirrel Spring
@@ -629,7 +629,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Gray sq. - Spring", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = "Gray sq. - Spring", y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
 
 #_____________________________________________
@@ -660,7 +660,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Raccoon - Summer", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = "Raccoon - Summer", y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
 #Raccoon FALL
 s=5
@@ -684,7 +684,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Raccoon - Fall", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = "Raccoon - Fall", y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxf], gridXY$NAD83_Y[idxf], cex = 1, pch = 8, col = "red")
 
 #Raccoon Winter
@@ -709,7 +709,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Raccoon - Winter", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = "Raccoon - Winter", y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxw], gridXY$NAD83_Y[idxw], cex = 1, pch = 8, col = "red")
 
 #Raccoon Spring
@@ -734,7 +734,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Raccoon - Spring", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = "Raccoon - Spring", y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
 #_____________________________________________
 ##CapRates Point Size Figures- Bear----
@@ -764,7 +764,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Black Bear - Summer", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = "Black Bear - Summer", y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
 #Black Bear FALL
 s=1
@@ -788,7 +788,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Black Bear - Fall", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = "Black Bear - Fall", y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxf], gridXY$NAD83_Y[idxf], cex = 1, pch = 8, col = "red")
 
 #Black Bear Winter
@@ -813,7 +813,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Black Bear - Winter", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = "Black Bear - Winter", y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxw], gridXY$NAD83_Y[idxw], cex = 1, pch = 8, col = "red")
 
 #Black Bear Spring
@@ -838,4 +838,4 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = "Black Bear - Spring", y = 4309025, x = 747430, cex = 1.6, pos = 4)
+text(labels = "Black Bear - Spring", y = 4309030, x = 747425, cex = 1.6, pos = 4)
