@@ -13,7 +13,6 @@ library(dplyr)
 camdataRaw<-read.csv("data/rawGridData_4S_final.csv", stringsAsFactors = FALSE)
 levels(as.factor(camdataRaw$Deployment.Name))
 
-levels(as.factor(camdataRaw$Deployment.Name))
 #Substitute Deployment named '0104-SI17-2' to '0104-SI17'
 #This was the result of uploading this deployment on two seperate days to eMammal
 camdataRaw$Deployment.Name<-sub(pattern = '0104-SI17-2','0104-SI17',camdataRaw$Deployment.Name)
