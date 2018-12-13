@@ -59,8 +59,6 @@ camdata_summary$CR <- (camdata_summary$Number_of_Sequences/camdata_summary$Deplo
 camdata_summary$Season.y <- NULL
 names(camdata_summary)[4] <- "Season"
 
-save(camdata_summary, file = "data/camdata_summary")
-
 #Shift table so species are along top and values are # of sequences, fill in blanks with zeros.Not sure if I need this format, but it is here just in case.
 camdata_summary_seqs<- spread(
   data = camdata_summary,
@@ -310,6 +308,8 @@ deployCodes <- alldata %>%
 camdata_summary <- merge(camdata_summary, deployCodes, by.x = "Deployment_Name")
 
 camdata_summary <- merge(camdata_summary, gridXY, by.x = "Deployment_Name2", by.y = "Deployment")
+
+save(camdata_summary, file = "data/camdata_summary")
 
 #_____________________________________________
 ##CapRates Point Size Figures- DEER----
