@@ -3,18 +3,6 @@
 load("data/camdata_summary")
 camdata <- camdata_summary
 
-#Remove Deployment_Name's seasonal tags from camdata to prepare for merge with grid coord data
-camdata$Deployment_Name<-sub(pattern = '_W17','',camdata$Deployment_Name)
-camdata$Deployment_Name<-sub(pattern = '-S17','',camdata$Deployment_Name)
-camdata$Deployment_Name<-sub(pattern = '_F17','',camdata$Deployment_Name)
-camdata$Deployment_Name<-sub(pattern = '_Sp18','',camdata$Deployment_Name)
-
-#Changes column name and data type to prepare for merge
-colnames(camdata)[1]<-"Deployment"#Facilitates merges later
-camdata$Deployment <- as.numeric(as.character(camdata$Deployment))
-
-#Bring in csv with correct coordinates
-gridXY <- read.csv("data/Grid_Coordinates.csv")
 camdata <- merge(camdata, gridXY, by = "Deployment")
 names(camdata)[1] <- "Deployment" #Facilitates merges later
 
@@ -33,8 +21,10 @@ unknownsqrlData<-subset(camdata, Species == "Unknown Squirrel")
 
 #For calculating Effective Detection Distance(EDD) all squirrel species were merged.
 #Since EDD will be a variable, the squirrel species will be merged now
-sqrlData<-merge(foxsqrlData, grsqrlData, by = "Deployment")
-sqrlData<-merge(sqrlData, unknownsqrlData, by = "Deployment")
+#Josey, I'm pretty sure we can't just merge like this. Things need to be added together so that things like sequence count and CR are calculated correctly. I think we'll likely need to create an "allsquirrel" category earlier on, in the GridSummaryStats.R script most likely. Let's ignore it for now and focus on getting the code to work for just fox squirrel for example.
+
+#sqrlData<-merge(foxsqrlData, grsqrlData, by = "Deployment")
+#sqrlData<-merge(sqrlData, unknownsqrlData, by = "Deployment")
 
 
 
@@ -51,8 +41,7 @@ camdata <- merge(camdata, camHeight, by = "Deployment")
 
 
 #Variable - Number of Trees in camera sight####
-#Working with SIGEO tree grid information to try to associate with capture rates from our
-#high resolution camera grid. Coordinates should be UTM Zone 17S
+#Working with SIGEO tree grid information to try to associate with capture rates from our high resolution camera grid. Coordinates should be UTM Zone 17S
 
 library(rgeos)
 #library(rgdal)
@@ -78,7 +67,7 @@ plot(camdata$NAD83_X,
 #Convert this trap coordinate information into a spatialpoints object
 #First need to have the xy coordinates as a separate matrix
 trapxy <- camdata %>%
-  select(NAD83_X, NAD83_Y)
+  dplyr::select(NAD83_X, NAD83_Y)
 
 trapxySP <- SpatialPointsDataFrame(coords = trapxy, data = camdata,
                                          proj4string = CRS(proj4string(trees)))
