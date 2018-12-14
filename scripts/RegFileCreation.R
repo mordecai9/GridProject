@@ -92,8 +92,8 @@ plot(clp)
 treesSmall <- intersect(trees, clp)
 
 #plot grid with tree and cameras
-plot(treesSmall, col = "darkgreen", pch = 3,cex.main = 4)
-plot(trapxySP, pch = 19, col = "red", add = T)
+#plot(treesSmall, col = "darkgreen", pch = 3,cex.main = 4)
+#plot(trapxySP, pch = 19, col = "red", add = T)
 
 #Add a legend (this needs to be tweaked, maybe we need to change plotting margins with "par"?)
 #par(font = 2)
@@ -122,13 +122,13 @@ camview$Y2<-(camview$NAD83_Y + 20)
 camview$X3<-(camview$NAD83_X - 6.84)
 camview$Y3<-(camview$NAD83_Y + 18.79)
 
-camview1<- camdata [,c(1,9,10)]
++camview1<- camdata [,c(1,9,10)]
 camview1[28:54,]<-(camview[1:27, c(4:5,3)]) #Could not figure out why these rows were being called out in this way.
 camview1[55:81,]<-(camview[1:27, c(6:7,3)])
 camview1[82:108,]<-(camview[1:27, c(8:9,3)])
 
 camview_list<-split(camview, camview1$Deployment)
-camview_list<-lapply(camview_list, function(x) {x["Deployment"]<- NULL; x})
+camview<-lapply(camview_list, function(x) {x["Deployment"]<- NULL; x})
 
 #create sp object and convert coords to polygon to prepare for 
 cvpp <- lapply(camview_list, Polygon)
