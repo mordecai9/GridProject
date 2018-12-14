@@ -111,29 +111,30 @@ pointLabel(unique(coordinates(trapxySP)[,1]),unique(coordinates(trapxySP)[,2]),l
 
 #Josey, we will have to review this code below. I looked through it but did not understand it all. Will need to update names of files for sure. camdata_coordinates_SI17 is now camdata, but it has many more rows than before, because it has all 4 seasons' data.
 
-#Create 4 point polygon to represent camera view
+#Create 4 point polygon to represent camera view fo each camera
 #Create data frame of the 4 points per camera
-camview_SI17 <- camdata_coordinates_SI17[, c(2,3,5)]
-camview_SI17$X1<-(camview_SI17$NAD83_X + 6.84)
-camview_SI17$Y1<-(camview_SI17$NAD83_Y + 18.79)
-camview_SI17$X2<-(camview_SI17$NAD83_X)
-camview_SI17$Y2<-(camview_SI17$NAD83_Y + 20)
-camview_SI17$X3<-(camview_SI17$NAD83_X - 6.84)
-camview_SI17$Y3<-(camview_SI17$NAD83_Y + 18.79)
+#These numbers were chosen so the polygon cone extends 20 meters north of each camera point and covers a 40 degree view angle from the camera trap
+camview <- camdata[, c(1,9,10)]
+camview$X1<-(camview$NAD83_X + 6.84)
+camview$Y1<-(camview$NAD83_Y + 18.79)
+camview$X2<-(camview$NAD83_X)
+camview$Y2<-(camview$NAD83_Y + 20)
+camview$X3<-(camview$NAD83_X - 6.84)
+camview$Y3<-(camview$NAD83_Y + 18.79)
 
-camview1_SI17<- camdata_coordinates_SI17 [,c(2,3,5)]
-camview1_SI17[28:54,]<-(camview_SI17[1:27, c(4:5,3)]) #Could not figure out why these rows were being called out in this way.
-camview1_SI17[55:81,]<-(camview_SI17[1:27, c(6:7,3)])
-camview1_SI17[82:108,]<-(camview_SI17[1:27, c(8:9,3)])
+camview1<- camdata [,c(1,9,10)]
+camview1[28:54,]<-(camview[1:27, c(4:5,3)]) #Could not figure out why these rows were being called out in this way.
+camview1[55:81,]<-(camview[1:27, c(6:7,3)])
+camview1[82:108,]<-(camview[1:27, c(8:9,3)])
 
-camview_list_SI17<-split(camview1_SI17, camview1_SI17$Deployment)
-camview_list_SI17<-lapply(camview_list_SI17, function(x) {x["Deployment"]<- NULL; x})
+camview_list<-split(camview, camview1$Deployment)
+camview_list<-lapply(camview_list, function(x) {x["Deployment"]<- NULL; x})
 
 #create sp object and convert coords to polygon to prepare for 
-cvpp_SI17 <- lapply(camview_list_SI17, Polygon)
+cvpp <- lapply(camview_list, Polygon)
 
 #add id variable
-cvp_SI17<-lapply(seq_along(cvpp_SI17), function(i) Polygons(list(cvpp_SI17[[i]]),ID = names(camview_list_SI17)[i]))
+cvp<-lapply(seq_along(cvpp), function(i) Polygons(list(cvpp[[i]]),ID = names(camview_list)[i]))
 
 #create spobject
 camview_spo_SI17<-SpatialPolygons(cvp_SI17, proj4string = CRS(proj4string(SIGEOtrees_SI17)))
