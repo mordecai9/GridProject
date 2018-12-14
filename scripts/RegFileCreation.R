@@ -60,14 +60,14 @@ coordinates(trees)<- c("NAD83_X", "NAD83_Y")
 class(trees)
 #plot(SIGEOtrees) #this is a big file, and includes all trees in SIGEO plot, not just in our small grid
 
-#plot the camera trap coordinates to show only the grid of camera traps
+#plot the camera trap coordinates to show a point where the camera traps are in the grid
 plot(camdata$NAD83_X,
      camdata$NAD83_Y,
      xlim = c(747420, 747560),
      ylim = c(4308900,4309040))
 
-#Convert this grid coordinate information into a spatialpoints object
-#First need to have the xy coordinates as a separate matrix
+#Convert this grid coordinate information into a spatialpoints object so it is not plotted on a graph
+#First need to make the x and y coordinates a separate matrix
 trapxy <- camdata %>%
   dplyr::select(NAD83_X, NAD83_Y)
 
