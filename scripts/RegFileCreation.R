@@ -60,7 +60,7 @@ coordinates(trees)<- c("NAD83_X", "NAD83_Y")
 class(trees)
 #plot(SIGEOtrees) #this is a big file, and includes all trees in SIGEO plot, not just in our small grid
 
-#plot only the grid using the camera trap coordinates 
+#plot the camera trap coordinates to show only the grid of camera traps
 plot(camdata$NAD83_X,
      camdata$NAD83_Y,
      xlim = c(747420, 747560),
