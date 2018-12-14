@@ -55,18 +55,18 @@ library(grid)
 #Bring in geo-reference tree data from entire SIGEO grid
 trees<-read.csv("data/scbi.full2_vegdata.csv")
 
-#Change data frame into a Spatial Points Data frame
+#Change data frame into a Spatial Points Data frame using coordinates of the cameras
 coordinates(trees)<- c("NAD83_X", "NAD83_Y")
 class(trees)
 #plot(SIGEOtrees) #this is a big file, and includes all trees in SIGEO plot, not just in our small grid
 
-#plot the camera trap coordinates to check everything looks OK
+#plot only the grid using the camera trap coordinates 
 plot(camdata$NAD83_X,
      camdata$NAD83_Y,
      xlim = c(747420, 747560),
      ylim = c(4308900,4309040))
 
-#Convert this trap coordinate information into a spatialpoints object
+#Convert this grid coordinate information into a spatialpoints object
 #First need to have the xy coordinates as a separate matrix
 trapxy <- camdata %>%
   dplyr::select(NAD83_X, NAD83_Y)
