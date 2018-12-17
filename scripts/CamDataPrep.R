@@ -69,7 +69,7 @@ names(camdataRaw) <- sub(pattern = 'Deployment.', 'Deployment_',names(camdataRaw
 camdataM<-merge(camdataRaw, camopsAll, by = "Deployment_Name", all.x = TRUE)
 
 #remove rows that occur after end dates for deployments
-#Need to ensure there are no sequences for 0206 and 0505 for Fall. 0101 for Winter, 0401 for Winter, 
+#Need to ensure there are no sequences for 0206 and 0505 for Fall. 0101 for Winter, 0401 for Winter. Yes.
 camdataM<-subset(camdataM, Begin.Time>=Date.out&Begin.Time<=Date.in)
 camdataM<-subset(camdataM, End.Time<Shift.begin.1|Begin.Time>=Shift.end.1)
 camdataM<-subset(camdataM, End.Time<Shift.begin.2|Begin.Time>=Shift.end.2)
