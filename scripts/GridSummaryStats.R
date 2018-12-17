@@ -1,5 +1,6 @@
 #This file calculates various summary statistics and figures for the SCBI Camera Grid project. It should call in the clean data object called "camdataAllClean" from the data folder in the git repository (which brings in a df called "camdataMSeq". This object is generated in the script 'CamDataPrep.R". Note that sequences here have already been defined with a 10min independence threshold.
 
+
 library(reshape)
 library(dplyr)
 library(tidyverse)
@@ -184,28 +185,28 @@ labelsFall <- SeasonsCR %>%
   filter(Season == "Fall 2017") %>%
   mutate(FallDeployCt = 25) %>%
   mutate(FallLabel = paste(Species,"(", DetCount, "/", FallDeployCt, ")") ) %>%
-  rename(FallDetCount = DetCount)  
+  dplyr::rename(FallDetCount = DetCount)  
 
 labelsSum <- SeasonsCR %>%
   dplyr::select(Species, Season, DetCount) %>%
   filter(Season == "Summer 2017") %>%
   mutate(SumDeployCt = 27) %>%
   mutate(SumLabel = paste(Species,"(", DetCount, "/", SumDeployCt, ")") ) %>%
-  rename(SumDetCount = DetCount) 
+  dplyr::rename(SumDetCount = DetCount) 
 
 labelsWinter <- SeasonsCR %>%
   dplyr::select(Species, Season, DetCount) %>%
   filter(Season == "Winter 2017") %>%
   mutate(WinterDeployCt = 25) %>%
   mutate(WinterLabel = paste(Species,"(", DetCount, "/", WinterDeployCt, ")") ) %>%
-  rename(WinDetCount = DetCount) 
+  dplyr::rename(WinDetCount = DetCount) 
 
 labelsSpring <- SeasonsCR %>%
   dplyr::select(Species, Season, DetCount) %>%
   filter(Season == "Spring 2018") %>%
   mutate(SpringDeployCt = 27) %>%
   mutate(SpringLabel = paste(Species,"(", DetCount, "/", SpringDeployCt, ")") ) %>%
-  rename(SprDetCount = DetCount) 
+  dplyr::rename(SprDetCount = DetCount) 
 
 #Merge proportion dataframe with rest of data
 CR3<-merge(CR1, NumPres, by = "Species")
