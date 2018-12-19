@@ -9,20 +9,20 @@
 library(dplyr)
 
 
-#Bringing in emammal raw data from all deployments. it looks like for some reason we are missing all sequences from 0503_W17. Not sure why. Sent email to Jen Zhao. Looks like maybe we are also missing 0102-W17??
+#Bringing in emammal raw data from all deployments. 
 camdataRaw<-read.csv("data/rawGridData_4S_final.csv", stringsAsFactors = FALSE)
 levels(as.factor(camdataRaw$Deployment.Name))
 
 #Substitute Deployment named '0104-SI17-2' to '0104-SI17'
 #This was the result of uploading this deployment on two seperate days to eMammal
-camdataRaw$Deployment.Name<-sub(pattern = '0104-SI17-2','0104-SI17',camdataRaw$Deployment.Name)
+camdataRaw$Deployment.Name<-sub(pattern = '0104-S17-2','0104-S17',camdataRaw$Deployment.Name)
 
 #Substitute Deployment named '0403_F17-1' to '0403_F17'
 #This was the result of uploading this deployment on two seperate days to eMammal
 camdataRaw$Deployment.Name<-sub(pattern = '0403_F17-1','0403_F17',camdataRaw$Deployment.Name)
 
-#There should now be 27*4 = 108 levels of the "Deployment Name", but no sequences were recorded for 0101_W17 and 0401_W17. These were lost. Photos were also lost for 0505_F17. So we should end up with 105 levels. 0206_F17 cannot be used.
-levels(as.factor(camdataRaw$Deployment.Name))
+#There should now be 27*4 = 108 levels of the "Deployment Name", but no sequences were recorded for 0101_W17 and 0401_W17. These were lost. Photos were also lost for 0505_F17. So we should end up with 105 levels. 0206_F17 cannot be used ultimately but we are still bringing in the sequences from it here.
+length(unique(camdataRaw$Deployment.Name))
 
 #Convert Begin.Time and End.Time columns to date types
 #replace "T" in time columns with a space first
