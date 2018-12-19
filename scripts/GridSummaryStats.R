@@ -1,5 +1,8 @@
 #This file calculates various summary statistics and figures for the SCBI Camera Grid project. It should call in the clean data object called "camdataAllClean" from the data folder in the git repository (which brings in a df called "camdataMSeq". This object is generated in the script 'CamDataPrep.R". Note that sequences here have already been defined with a 10min independence threshold.
 
+#This script calculated a range of summary statistics for the project, and creates a boxplot of capture rates overall and for each season. It finally creates point maps for each species and each season, with point size of each camera location based on capture rate.
+
+#The script also saves the object "camdata_summary" which is a key object used in other analysis scripts for this project.
 
 library(reshape)
 library(dplyr)
