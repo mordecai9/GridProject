@@ -305,15 +305,17 @@ mtext(expression(bold("Spring CR")), side = 1 , line = 4, cex = 1.3)
 
 
 #______________________________________________
-#Test Plot CapRates for Each Season and Species in One Plot####
+#Plot CapRates for Each Season and Species in One Plot####
 #_____________________________________________
+#Need to figure out if I want just the one graph or if I want to show both the whole graph, and the zoomed into the rare species graphs as well.
+
 library(ggplot2)
 SeasonsCR$Species <- factor(SeasonsCR$Species, 
                            levels = baselinesAll$Row.names[order(baselinesAll$Mean_CR)])
 SeasonsCR$Species
 
 a <-
-  ggplot(SeasonsCR, aes(y = meanCR, x = Species, color = Season)) +
+  ggplot(data = SeasonsCR, aes(y = meanCR, x = Species, color = Season)) +
   geom_point(shape = 1.4,
              size = 2,
              position = position_dodge(.2)) +
@@ -326,9 +328,34 @@ a <-
   theme_classic() +
   ylab("Mean capture rate") +
   theme(panel.grid.major.x = element_line(color="gray", size = .5, linetype = "dashed"),
-        panel.grid.minor.x = element_line(color="gray", size = .5,linetype = "dashed"))
-ggsave("results/SeasonCRAll.tiff", width = 6.5, height = 4)
+        panel.grid.minor.x = element_line(color="gray", size = .5,linetype = "dashed"), legend.position = "none")
+  
+
 a
+#ggsave("results/SeasonCRAll.tiff", width = 6.5, height = 4)
+
+rare <- c("Mustela frenata", "Glaucomys volans", "Vulpes vulpes", "Lynx rufus", "Mephitis mephitis", "Urocyon cinereoargenteus", "Canis latrans", "Didelphis virginianus")
+b <-
+  ggplot(data = filter(SeasonsCR, Species %in% rare), aes(y = meanCR, x = Species, color = Season)) +
+  geom_point(shape = 1.4,
+             size = 2,
+             position = position_dodge(.2)) +
+  geom_errorbar(
+    aes(ymin = lowCI, ymax = highCI),
+    size = .5,
+    width = .1,
+    position = position_dodge(.2)) +
+  coord_flip()+
+  theme_classic() +
+  xlab("")+
+  ylab("Mean capture rate") +
+  theme(panel.grid.major.x = element_line(color="gray", size = .5, linetype = "dashed"),
+        panel.grid.minor.x = element_line(color="gray", size = .5,linetype = "dashed"))
+
+b
+
+multiplot(a,b, cols = 2) #http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
+
 
 #______________________________________________
 #Plot CapRates by Point Size on Grid####
