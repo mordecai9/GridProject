@@ -16,6 +16,9 @@ badSP <- c("Animal Not on List", "Camera Misfire", "Camera Trapper", "Corvus bra
 alldata <- subset(alldata, !alldata$Species.Name %in% badSP)
 levels(as.factor(alldata$Species.Name))
 
+alldata$Species.Name<-sub(pattern = 'Unknown Small Rodent','Unknown small rodent',alldata$Species.Name)
+alldata$Species.Name<-sub(pattern = 'Unknown Squirrel','Unknown squirrel',alldata$Species.Name)
+
 #Summarize Sequence Counts and Capture Rates for Whole Grid, All Seasons --------
 
 #create summary table of frequencies of sequences and convert it to a data frame
@@ -112,6 +115,7 @@ names(baselinesAll)[4]<-"Max_CR"
 #CR_bD_bS$Max_CR<-baselinesAll$Max_CR
 
 baselinesAll <- merge(baselinesAll, CRSummary, by.x = "row.names", by.y = "Row.names")
+baselinesAll$TotCV <- baselinesAll$Mean_CR/baselinesAll$StDev_CR
 
 #Capture Rates and Proportion of Detections, by Season and Species####
 
@@ -144,7 +148,7 @@ SeasonsCR <- SeasonsCR %>%
   left_join(NewCalcs, by = c("Season", "Species")) 
   
 SeasonsCR$lowCI <- ifelse(SeasonsCR$lowCI >= 0, SeasonsCR$lowCI, 0) #make negative CI limits 0.
-
+SeasonsCR$CV <- SeasonsCR$sdCR/SeasonsCR$meanCR
 
 
 
@@ -157,6 +161,7 @@ SeasonsCR$lowCI <- ifelse(SeasonsCR$lowCI >= 0, SeasonsCR$lowCI, 0) #make negati
 
 #convert all values >0 to 1
 CR_bD_bS2<-as.data.frame((ifelse(CR_bD_bS==0,0,1)))
+CR_bD_bS2<- CR_bD_bS2[,-c(105:107)]
 
 #create column of camera capture proportion per species for whole grid to original data frame. SHOULD THINK ABOUT ADDING THIS INFO TO CR SUMMARY NOT CR_bD_bS
 CR_bD_bS$Prop_Grid<-rowSums(CR_bD_bS2)/length(unique(alldata$Deployment_Name))
@@ -177,12 +182,13 @@ CRt<-t(CR_bD_bS2)
 CR1<-melt(CRt)
 colnames(CR1)<-c ("Deployment", "Species", "Detected")
 
+
 #Calculates proportion of cameras that captured each species
 CR2<-subset(CR1, Detected !=0)
 NumPres<-as.data.frame(table(CR2$Species))
 colnames(NumPres)<-c("Species","NumPres")
 
-#Same but for each season
+#Same but for each season. Would be better to have the deployment count generated instead of manually inserted
 labelsFall <- SeasonsCR %>%
   dplyr::select(Species, Season, DetCount) %>%
   filter(Season == "Fall 2017") %>%
@@ -296,6 +302,33 @@ plot<-boxplot(data = camdata_summaryL, CR~SpringLabel,
               ylim = c(0,450),
               names.arg = camdata_summaryL$Species, at=rank(tapply(camdata_summaryL$CR,camdata_summaryL$Species, median), ties.method = "random"))
 mtext(expression(bold("Spring CR")), side = 1 , line = 4, cex = 1.3)
+
+
+#______________________________________________
+#Test Plot CapRates for Each Season and Species in One Plot####
+#_____________________________________________
+library(ggplot2)
+SeasonsCR$Species <- factor(SeasonsCR$Species, 
+                           levels = baselinesAll$Row.names[order(baselinesAll$Mean_CR)])
+SeasonsCR$Species
+
+a <-
+  ggplot(SeasonsCR, aes(y = meanCR, x = Species, color = Season)) +
+  geom_point(shape = 1.4,
+             size = 2,
+             position = position_dodge(.2)) +
+  geom_errorbar(
+    aes(ymin = lowCI, ymax = highCI),
+    size = .5,
+    width = .1,
+    position = position_dodge(.2)) +
+  coord_flip()+
+  theme_classic() +
+  ylab("Mean capture rate") +
+  theme(panel.grid.major.x = element_line(color="gray", size = .5, linetype = "dashed"),
+        panel.grid.minor.x = element_line(color="gray", size = .5,linetype = "dashed"))
+ggsave("results/SeasonCRAll.tiff", width = 6.5, height = 4)
+a
 
 #______________________________________________
 #Plot CapRates by Point Size on Grid####
