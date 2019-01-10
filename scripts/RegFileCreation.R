@@ -162,7 +162,7 @@ camview_spo.df_SI17<-SpatialPolygonsDataFrame(camview_spo_SI17,data.frame(id = u
 plot(camview_spo.df_SI17, add = T)
 
 #Cut out tree data from within polygons
-clip_polys_SI17<-intersect(SIGEOsmall_SI17,camview_spo.df_SI17)
+clip_polys_SI17<-intersect(trees,camview_spo.df_SI17)
 plot(clip_polys_SI17)
 cvtrees_SI17<-as.data.frame(clip_polys_SI17)
 
