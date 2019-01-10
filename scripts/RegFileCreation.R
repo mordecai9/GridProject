@@ -109,8 +109,6 @@ plot(trapxySP, pch = 19, col = "red", add = T)
 #Add Deployment label to each camera
 pointLabel(unique(coordinates(trapxySP)[,1]),unique(coordinates(trapxySP)[,2]),labels=as.character(unique(trapxySP@data$Deployment)), cex = 0.7, allowSmallOverlap = T)
 
-#Josey, we will have to review this code below. I looked through it but did not understand it all. Will need to update names of files for sure. camdata_coordinates_SI17 is now camdata, but it has many more rows than before, because it has all 4 seasons' data.
-
 #Create 4 point polygon to represent camera view fo each camera
 #Create data frame of the 4 points per camera
 #These numbers were chosen so the polygon cone extends 20 meters north of each camera point and covers a 40 degree view angle from the camera trap
@@ -148,29 +146,30 @@ camview4<-rbind(camview3,cam_poly_points3)
 camview_list<-split(camview4, camview1$Deployment)
 camview5<-lapply(camview_list, function(x) {x["Deployment"]<- NULL; x})
 
-#create sp object and convert coords to polygon to prepare for 
+#create sp object and convert coords to polygon to prepare for plotting
 cvpp <- lapply(camview5, Polygon)
 
 #add id variable
+#this will help group individuals later
 cvp<-lapply(seq_along(cvpp), function(i) Polygons(list(cvpp[[i]]),ID = names(camview_list)[i]))
 
-#create spobject
-camview_spo_SI17<-SpatialPolygons(cvp, proj4string = CRS(proj4string(trees)))
+#create sp object
+camview_spo<-SpatialPolygons(cvp, proj4string = CRS(proj4string(trees)))
 
 #Create spdf with IDs (one unique ID per poly) and plot polygons
-camview_spo.df_SI17<-SpatialPolygonsDataFrame(camview_spo_SI17,data.frame(id = unique(camview1$Deployment),row.names = unique(camview1$Deployment)))
-plot(camview_spo.df_SI17, add = T)
+camview_spo.df<-SpatialPolygonsDataFrame(camview_spo,data.frame(id = unique(camview1$Deployment),row.names = unique(camview1$Deployment)))
+plot(camview_spo.df, add = T)
 
 #Cut out tree data from within polygons
-clip_polys_SI17<-intersect(trees,camview_spo.df_SI17)
-plot(clip_polys_SI17)
-cvtrees_SI17<-as.data.frame(clip_polys_SI17)
+clip_polys<-intersect(trees,camview_spo.df)
+plot(clip_polys)
+cvtrees<-as.data.frame(clip_poly)
 
 #Pull and total the # of trees per deployment and change column names
-cvtreecount_SI17<-cvtrees_SI17[,c(4,28)]
-cvtreecount1_SI17<-aggregate(cvtreecount_SI17[,1], by = list(cvtreecount_SI17$d),sum)
-colnames(cvtreecount1_SI17)[2]<-"Number_of_Trees"
-colnames(cvtreecount1_SI17)[1]<-"Deployment"
+cvtreecount<-cvtrees_SI17[,c(4,28)]
+cvtreecount1<-aggregate(cvtreecount[,1], by = list(cvtreecount$d),sum)
+colnames(cvtreecount1)[2]<-"Number_of_Trees"
+colnames(cvtreecount1)[1]<-"Deployment"
 
 #____________________________
 #Variable - Oak Trees####
