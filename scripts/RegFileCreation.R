@@ -163,10 +163,10 @@ plot(camview_spo.df, add = T)
 #Cut out tree data from within polygons
 clip_polys<-intersect(trees,camview_spo.df)
 plot(clip_polys)
-cvtrees<-as.data.frame(clip_poly)
+cvtrees<-as.data.frame(clip_polys)
 
 #Pull and total the # of trees per deployment and change column names
-cvtreecount<-cvtrees_SI17[,c(4,28)]
+cvtreecount<-cvtrees[,c(4,28)]
 cvtreecount1<-aggregate(cvtreecount[,1], by = list(cvtreecount$d),sum)
 colnames(cvtreecount1)[2]<-"Number_of_Trees"
 colnames(cvtreecount1)[1]<-"Deployment"
