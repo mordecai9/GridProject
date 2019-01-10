@@ -138,26 +138,27 @@ names(cam_poly_points2) <- c("Deployment", "NAD83_X","NAD83_Y")
 cam_poly_points3<-camview1 [,c(1,8:9)]
 names(cam_poly_points3) <- c("Deployment", "NAD83_X","NAD83_Y")
 
-#Rbind all df of points together
+#Rbind all df of coords together
 #Each camera will have 4 rows and each row will have a new XY coordinate pair
 camview2<-rbind(cam_poly_points,cam_poly_points1)
 camview3<-rbind(camview2,cam_poly_points2)
 camview4<-rbind(camview3,cam_poly_points3)
 
-#camview_list<-split(camview, camview1$Deployment)
-#camview<-lapply(camview, function(x) {x["Deployment"]<- NULL; x})
+
+camview_list<-split(camview4, camview1$Deployment)
+camview5<-lapply(camview_list, function(x) {x["Deployment"]<- NULL; x})
 
 #create sp object and convert coords to polygon to prepare for 
-cvpp <- lapply(camview4, Polygon)
+cvpp <- lapply(camview5, Polygon)
 
 #add id variable
 cvp<-lapply(seq_along(cvpp), function(i) Polygons(list(cvpp[[i]]),ID = names(camview_list)[i]))
 
 #create spobject
-camview_spo_SI17<-SpatialPolygons(cvp_SI17, proj4string = CRS(proj4string(SIGEOtrees_SI17)))
+camview_spo_SI17<-SpatialPolygons(cvp, proj4string = CRS(proj4string(trees)))
 
 #Create spdf with IDs (one unique ID per poly) and plot polygons
-camview_spo.df_SI17<-SpatialPolygonsDataFrame(camview_spo_SI17,data.frame(id = unique(camview1_SI17$Deployment),row.names = unique(camview1_SI17$Deployment)))
+camview_spo.df_SI17<-SpatialPolygonsDataFrame(camview_spo_SI17,data.frame(id = unique(camview1$Deployment),row.names = unique(camview1$Deployment)))
 plot(camview_spo.df_SI17, add = T)
 
 #Cut out tree data from within polygons
