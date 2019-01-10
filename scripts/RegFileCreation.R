@@ -139,7 +139,7 @@ cam_poly_points3<-camview1 [,c(1,8:9)]
 names(cam_poly_points3) <- c("Deployment", "NAD83_X","NAD83_Y")
 
 #Rbind all df of points together
-#Each camera will have 4 rows and each row will have a new XY coordinate point
+#Each camera will have 4 rows and each row will have a new XY coordinate pair
 camview2<-rbind(cam_poly_points,cam_poly_points1)
 camview3<-rbind(camview2,cam_poly_points2)
 camview4<-rbind(camview3,cam_poly_points3)
