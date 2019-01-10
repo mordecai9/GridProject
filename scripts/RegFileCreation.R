@@ -125,11 +125,23 @@ camview$Y3<-(camview$NAD83_Y + 18.79)
 #Remove repeated lines
 camview1<- dplyr::distinct(camview)
 
-#All XY coordinates need to be in the same X and Y column.
+#All XY coordinates need to be in the same X and Y column (three columns total).
 #This code will move all the points to the original NAD83 X and Y columns based on deloyment name
 #Each camera will have 4 rows and each row will have a new XY coordinate point
-camview2<-camview1 [,c(1:3)]
-camview2[<-rbind(camview2 [,c(4:5)])
+
+#Make a seperate df for each set of X,Y coords
+cam_poly_points<-camview1 [,c(1:3)]
+cam_poly_points1<-camview1 [,c(1,4:5)]
+cam_poly_points2<-camview1 [,c(1,6:7)]
+cam_poly_points3<-camview1 [,c(1,8:9)]
+
+#Rbind all df of points together
+#Each camera will have 4 rows and each row will have a new XY coordinate point
+camview2<-as.data.frame(cam_poly_points)
+camview2
+
+
+
 #camview1[28:54,]<-(camview[1:27, c(4:5,3)]) #Could not figure out why these rows were being called out in this way.
 #camview1[55:81,]<-(camview[1:27, c(6:7,3)])
 #camview1[82:108,]<-(camview[1:27, c(8:9,3)])
