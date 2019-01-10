@@ -132,25 +132,23 @@ camview1<- dplyr::distinct(camview)
 #Make a seperate df for each set of X,Y coords
 cam_poly_points<-camview1 [,c(1:3)]
 cam_poly_points1<-camview1 [,c(1,4:5)]
+names(cam_poly_points1) <- c("Deployment", "NAD83_X","NAD83_Y")
 cam_poly_points2<-camview1 [,c(1,6:7)]
+names(cam_poly_points2) <- c("Deployment", "NAD83_X","NAD83_Y")
 cam_poly_points3<-camview1 [,c(1,8:9)]
+names(cam_poly_points3) <- c("Deployment", "NAD83_X","NAD83_Y")
 
 #Rbind all df of points together
 #Each camera will have 4 rows and each row will have a new XY coordinate point
-camview2<-as.data.frame(cam_poly_points)
-camview2
-
-
-
-#camview1[28:54,]<-(camview[1:27, c(4:5,3)]) #Could not figure out why these rows were being called out in this way.
-#camview1[55:81,]<-(camview[1:27, c(6:7,3)])
-#camview1[82:108,]<-(camview[1:27, c(8:9,3)])
+camview2<-rbind(cam_poly_points,cam_poly_points1)
+camview3<-rbind(camview2,cam_poly_points2)
+camview4<-rbind(camview3,cam_poly_points3)
 
 #camview_list<-split(camview, camview1$Deployment)
 #camview<-lapply(camview, function(x) {x["Deployment"]<- NULL; x})
 
 #create sp object and convert coords to polygon to prepare for 
-cvpp <- lapply(camview, Polygon)
+cvpp <- lapply(camview4, Polygon)
 
 #add id variable
 cvp<-lapply(seq_along(cvpp), function(i) Polygons(list(cvpp[[i]]),ID = names(camview_list)[i]))
