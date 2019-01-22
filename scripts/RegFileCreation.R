@@ -1,4 +1,5 @@
 #Create Individual Species/Seasons Data frames with SeqCount and Covariates to be used in Poisson GLM regression analysis. I think here I can use "camdatasummary", not CR3, since it has the raw number of sequences and the camera effort, as well as season and both kinds of deployment names
+require(tidyverse)
 
 load("data/camdata_summary")
 camdata <- camdata_summary
@@ -171,6 +172,8 @@ cvtreecount1<-aggregate(cvtreecount[,1], by = list(cvtreecount$d),sum)
 colnames(cvtreecount1)[2]<-"Number_of_Trees"
 colnames(cvtreecount1)[1]<-"Deployment"
 
+#Probably need to merge this tree data into each species file here
+
 #____________________________
 #Variable - Oak Trees####
 #____________________________
@@ -194,6 +197,8 @@ plot(Oaks,pch = 19, col = Oaks$Size_Category, add = T)
 
 #Legend matching color to size (not working for some reason)
 legend(747285,4309044, legend = c("< 15cm","> 15cm","> 30cm","> 60cm","> 90cm","> 120cm"), col = c("461", "68", "47","139", "8", "550"), pch = 19, title = "DBH of Oak Trees", bty = 'n')
+
+#I guess we need to start here to clean the code and update it. 
 
 #Cut out oak tree data from within the cones
 library(rowr) #what is this for?
