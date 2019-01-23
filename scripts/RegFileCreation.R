@@ -4,8 +4,9 @@ require(tidyverse)
 load("data/camdata_summary")
 camdata <- camdata_summary
 names(camdata)[1] <- "Deployment" #Facilitates merges later
+names(camdata)[4] <- "nSeqs" #making shorter name here since this will be response variable
 
-#create individual species data frames with species name, capture rate, and coordinates
+#create individual species data frames with species name, capture rate, and coordinates, In reality we will only need squirrels, deer, bear and raccoon, but the others are here if needed.
 deerData<-subset(camdata, Species == "Odocoileus virginianus")
 bearData<-subset(camdata, Species == "Ursus americanus")
 coyoteData<-subset(camdata, Species == "Canis latrans")
@@ -22,25 +23,27 @@ unknownsqrlData<-subset(camdata, Species == "Unknown Squirrel")
 #Since EDD will be a variable, the squirrel species will be merged now
 
 sqrlData<- foxsqrlData %>%
-  dplyr::select(Deployment, Deployment_Name, Species, Number_of_Sequences, CR) %>%
+  dplyr::select(Deployment, Deployment_Name, Species, nSeqs, CR) %>%
   left_join(grsqrlData, by = "Deployment_Name") %>%
   left_join(unknownsqrlData, by = "Deployment_Name" )
 
-sqrlData$allSqSeqs <- (sqrlData$Number_of_Sequences.x + sqrlData$Number_of_Sequences.y + sqrlData$Number_of_Sequences)
+sqrlData$allSqSeqs <- (sqrlData$nSeqs.x + sqrlData$nSeqs.y + sqrlData$nSeqs)
 sqrlData$allSqCR <- sqrlData$allSqSeqs/sqrlData$Deploy.Duration.x *100
 sqrlData <- sqrlData[, -c(3:8,11:12, 15:25)]
 sqrlData$Species <- "All Squirrels"
+names(sqrlData) <- c("Deployment","Deployment_Name", "Season", "Deploy.Duration", "NAD83_X", "NAD83_Y", "nSeqs", "CR", "Species") 
 
 ####Bring in the different variables####
-#We can merge in these new variables into each of our 4-5 focal species files individually, once we have the code working for all of them. Below I am doing it for the full camdata file. I'm not sure which is best really. The height, and both tree variables will not change per species or per season. The only thing season and species specific is the EDD, so we obviously can't easily merge the EDD data into the full camdata file.
-
 
 #Variable - Camera Height####
 #Bring in Camera Height Data
 #CAMERA HEIGHT is the distance in centimeters from the ground to the camera lens#
 
 camHeight<-read.csv("data/Camera_heights.csv")
-camdata <- merge(camdata, camHeight, by = "Deployment")
+sqrlData <- merge(sqrlData, camHeight, by = "Deployment")
+deerData <- merge(deerData, camHeight, by = "Deployment")
+bearData <- merge(bearData, camHeight, by = "Deployment")
+raccoonData <- merge(raccoonData, camHeight, by = "Deployment")
 
 
 #Variable - Number of Trees in camera sight####
@@ -61,7 +64,7 @@ coordinates(trees)<- c("NAD83_X", "NAD83_Y")
 class(trees)
 #plot(SIGEOtrees) #this is a big file, and includes all trees in SIGEO plot, not just in our small grid
 
-#plot the camera trap coordinates to show a point where the camera traps are in the grid
+#plot the camera trap coordinates to show a point where the camera traps are in the grid. note that this plots each point many times. 
 plot(camdata$NAD83_X,
      camdata$NAD83_Y,
      xlim = c(747420, 747560),
@@ -70,7 +73,8 @@ plot(camdata$NAD83_X,
 #Convert this grid coordinate information into a spatialpoints object so it is not plotted on a graph
 #First need to make the x and y coordinates a separate matrix
 trapxy <- camdata %>%
-  dplyr::select(NAD83_X, NAD83_Y)
+  dplyr::select(NAD83_X, NAD83_Y) 
+  
 
 trapxySP <- SpatialPointsDataFrame(coords = trapxy, data = camdata,
                                          proj4string = CRS(proj4string(trees)))
@@ -93,24 +97,22 @@ plot(clp)
 treesSmall <- intersect(trees, clp)
 
 #plot grid with tree and cameras
+par(mar = c(3, 9, 3, 2.1), xpd = T) #xpd = T allows text to exist outside the plot area
 plot(treesSmall, col = "darkgreen", pch = 3,cex.main = 4)
 plot(trapxySP, pch = 19, col = "red", add = T)
+legend(747340,4308970, legend = c("Tree", "Camera"), col = c("darkgreen", "red"), pch = c(3,19), cex =1.0, bty = "n")
 
-#Add a legend (this needs to be tweaked, maybe we need to change plotting margins with "par"?)
-#par(font = 2)
-#legend(747300,4308970, legend = c("Tree", "Camera"), col = c("darkgreen", "red"), pch = c(3,19), cex =1.5, bty = "n")
-
-#Add scale (this doesn't appear to be working)
-#scale.len <- 20
-#x1 <- c(747308.5,747308.5+scale.len)
-#y1<- c(4308890, 4308890)
-#lines(x1,y1,lwd = 2)
-#text(747347.9, 4308890, '20m', cex = 1.5)
+#Add scale, try to move to put under legend
+scale.len <- 20
+x1 <- c(747338.5,747338.5+scale.len)
+y1<- c(4308890, 4308890)
+lines(x1,y1,lwd = 2)
+text(747372.9, 4308890, '20m', cex = 1.0)
 
 #Add Deployment label to each camera
 pointLabel(unique(coordinates(trapxySP)[,1]),unique(coordinates(trapxySP)[,2]),labels=as.character(unique(trapxySP@data$Deployment)), cex = 0.7, allowSmallOverlap = T)
 
-#Create 4 point polygon to represent camera view fo each camera
+#Create 4 point polygon to represent camera view of each camera
 #Create data frame of the 4 points per camera
 #These numbers were chosen so the polygon cone extends 20 meters north of each camera point and covers a 40 degree view angle from the camera trap
 camview <- camdata[, c(1,9,10)]
@@ -139,10 +141,10 @@ names(cam_poly_points3) <- c("Deployment", "NAD83_X","NAD83_Y")
 
 #Rbind all df of coords together
 #Each camera will have 4 rows and each row will have a new XY coordinate pair
+#I think this can be done in 1 line just listing all objects to rbind.
 camview2<-rbind(cam_poly_points,cam_poly_points1)
 camview3<-rbind(camview2,cam_poly_points2)
 camview4<-rbind(camview3,cam_poly_points3)
-
 
 camview_list<-split(camview4, camview1$Deployment)
 camview5<-lapply(camview_list, function(x) {x["Deployment"]<- NULL; x})
@@ -164,6 +166,7 @@ plot(camview_spo.df, add = T)
 #Cut out tree data from within polygons
 clip_polys<-intersect(trees,camview_spo.df)
 plot(clip_polys)
+plot(camview_spo.df, add = T)
 cvtrees<-as.data.frame(clip_polys)
 
 #Pull and total the # of trees per deployment and change column names
@@ -172,7 +175,13 @@ cvtreecount1<-aggregate(cvtreecount[,1], by = list(cvtreecount$d),sum)
 colnames(cvtreecount1)[2]<-"Number_of_Trees"
 colnames(cvtreecount1)[1]<-"Deployment"
 
-#Probably need to merge this tree data into each species file here
+#Merge this tree data into each species file here
+sqrlData <- merge(sqrlData, cvtreecount1, by = "Deployment")
+deerData <- merge(deerData, cvtreecount1, by = "Deployment")
+bearData <- merge(bearData, cvtreecount1, by = "Deployment")
+raccoonData <- merge(raccoonData, cvtreecount1, by = "Deployment")
+
+
 
 #____________________________
 #Variable - Oak Trees####
@@ -181,7 +190,7 @@ colnames(cvtreecount1)[1]<-"Deployment"
 Oaks <-subset(treesSmall,sp %in% c('qual','quru','quco','qufa','qupr','quve','qusp','qumi'))
 plot(Oaks, pch = 19)
 #plot camera locations in red
-plot(trapxySP, pch = 22, col = "red", add = T)
+plot(trapxySP, pch = 1, col = "red", add = T)
 
 #add column to study site tree info that divides trees into 5 color size cateories
 Oaks$Size_Category[Oaks$dbh <150]<-'461' #turqoise
@@ -192,112 +201,158 @@ Oaks$Size_Category[Oaks$dbh >900]<-'8' #gray
 Oaks$Size_Category[Oaks$dbh >1200]<-'550' #pink
 
 #plot Oak Tree sizes by color
+op <- par()
 par(mar=c(5,17,4,2))
-plot(Oaks,pch = 19, col = Oaks$Size_Category, add = T)
-
+plot(Oaks,pch = 19, col = Oaks$Size_Category)
+plot(trapxySP, pch = 1, col = "red", add = T)
 #Legend matching color to size (not working for some reason)
 legend(747285,4309044, legend = c("< 15cm","> 15cm","> 30cm","> 60cm","> 90cm","> 120cm"), col = c("461", "68", "47","139", "8", "550"), pch = 19, title = "DBH of Oak Trees", bty = 'n')
-
-#I guess we need to start here to clean the code and update it. 
+par(op)
 
 #Cut out oak tree data from within the cones
-library(rowr) #what is this for?
-polyoaktrees_SI17<-intersect(Oak_Trees_SI17, camview_spo.df_SI17)
-plot(polyoaktrees_SI17)
-polyoaktreesdf_SI17<-as.data.frame(polyoaktrees_SI17)
+#library(rowr) #what is this for?
+par(mar = c(5.1,4.1,4.1,2.1))
+polyoaktrees<-intersect(Oaks, camview_spo.df)
+plot(polyoaktrees)
+plot(camview_spo.df, add = T)
+polyoaktreesdf<-as.data.frame(polyoaktrees)
 
 #Pull # of oaks out of each deployment and rename columns to prepare for merge
-oakcount_SI17<-polyoaktreesdf_SI17[,c(4,29)]
-oakcount1_SI17<-aggregate(oakcount_SI17[,1],by=list(oakcount_SI17$d), sum)
-colnames(oakcount1_SI17)[2]<-"Num_Oaks"
-colnames(oakcount1_SI17)[1]<-"Deployment"
+oakcount<-polyoaktreesdf[,c(4,29)]
+oakcount1<-aggregate(oakcount[,1],by=list(oakcount$d), sum)
+colnames(oakcount1)[2]<-"Num_Oaks"
+colnames(oakcount1)[1]<-"Deployment"
 
 #Pull DBH of oaks from each deployment and add total
-Oak_DBH_SI17<-polyoaktreesdf_SI17[,c(11,29)]
-Oak_DBH1_SI17<-aggregate(Oak_DBH_SI17[,1],by=list(Oak_DBH_SI17$d), sum)
-colnames(Oak_DBH1_SI17)[1]<-"Deployment"
-colnames(Oak_DBH1_SI17)[2]<-"DBH"
+Oak_DBH<-polyoaktreesdf[,c(11,29)]
+Oak_DBH1<-aggregate(Oak_DBH[,1],by=list(Oak_DBH$d), sum)
+colnames(Oak_DBH1)[1]<-"Deployment"
+colnames(Oak_DBH1)[2]<-"OakDBH"
 
-#########################################
-#Variable - Estimated Detection Distance
-#########################################
+#Merge oak information into each species file
+
+sqrlData <- merge(sqrlData, Oak_DBH1, by = "Deployment", all = T)
+sqrlData[is.na(sqrlData)] <- 0
+deerData <- merge(deerData, Oak_DBH1, by = "Deployment", all = T)
+deerData[is.na(deerData)] <- 0
+bearData <- merge(bearData, Oak_DBH1, by = "Deployment", all = T)
+bearData[is.na(bearData)] <- 0
+raccoonData <- merge(raccoonData, Oak_DBH1, by = "Deployment", all = T)
+raccoonData[is.na(raccoonData)] <- 0
+
+
+# Variable - Log in View Y/N ----------------------------------------------
+
+camOpS<-read.csv("data/CameraOperation_SI17.csv")
+
+logView <- camOpS %>%
+  dplyr::select(c(Log.in.View, Deployment_Name2)) %>%
+  rename(Deployment = Deployment_Name2)
+
+sqrlData <- merge(sqrlData, logView, by = "Deployment")
+deerData <- merge(deerData, logView, by = "Deployment")
+bearData <- merge(bearData, logView, by = "Deployment")
+raccoonData <- merge(raccoonData, logView, by = "Deployment")
+
+# Variable - Effective Detection Distance ---------------------------------
 #Bring in Detection Distance Data for Each Species
-setwd("C:/Users/josey/Documents/CT Grid/Summer2017")
-#Deer EDD Data
-Deer_EDD_Summer2017<-read.csv("Deer_EDD_S17.csv")
-Deer_EDD_Summer2017<-as.data.frame(Deer_EDD_Summer2017)
+#We do not have unique detection distance data for each species in each season, although that would be ideal. We had to pool across seasons for most, and in some cases use data from other species. Details are below for each species.
 
-#Bear EDD Data
-#Squirrel EDD Data
-#Raccoon EDD Data
+#Deer EDD Data. For white-tailed deer, it was necessary to pool Summer/Fall data to get EDD information for Summer and Fall. Here we had a minimum # of observations of 31 for each camera. We also pooled Winter and Spring data for White-tailed deer, and here unfortunately had 5 cameras with less than 30 observations (min 18)
 
-############################################################
-#Deer Data Frame with XY coords
-Deercamdata_SI17<-deercamdata_coords_SI17[-c(2,5)]
+Deer_EDD<-read.csv("data/DeerEDD_4S.csv")
+#Might be interesting here to plot the EDDs for the two season blocks to compare them. At first glance it looks like there is consistent trend from SummFall to WintSpring
+deerData <- merge(deerData, Deer_EDD, by = "Deployment")
 
-#Add Variables to Data Frame
-Deercamdata_SI17$Cam_Nights<-camnightdata_SI17$Deploy.Duration
-Deercamdata_SI17$Log<-camnightdata_SI17$Log.in.View
-Deercamdata_SI17$EDD<-Deer_EDD_Summer2017$ESW.EDR
-Deercamdata_SI17$Cam_Height<-Cam_heights_SI17$Camera_Height
-Deercamdata_SI17$Num_Stems<-cvtreecount1_SI17$Number_of_Trees
+boxplot(Deer_EDD[, 2:3]) #So this makes sense, overall the cameras can see further when the vegetation is not there. Though I though it would be a bigger difference
+plot(Summer.Fall.EDD ~ Winter.Spring.EDD, data = Deer_EDD) # You would think this would show a much stronger correlation. The cameras with long detection distances in Summer/Fall should have longer detection distances in Winter/Spring. Generally it is true but the relationship is not strong.
+lm1 <- lm(Summer.Fall.EDD ~ Winter.Spring.EDD, data = Deer_EDD)
+summary(lm1)
+abline(lm1)
 
 
-#Merge because not all cameras have oak trees
-Deercamdata_SI17<-merge(Deercamdata_SI17, Oak_DBH1_SI17, all = TRUE)
-Deercamdata_SI17[is.na(Deercamdata_SI17)] <- 0
+deerDataSum <- deerData %>%
+  filter(Season == "Summer 2017") %>%
+  dplyr::select(-Winter.Spring.EDD)
+
+deerDataFall <- deerData %>%
+  filter(Season == "Fall 2017") %>%
+  dplyr::select(-Winter.Spring.EDD)
+
+deerDataWin <- deerData %>%
+  filter(Season == "Winter 2017") %>%
+  dplyr::select(-Summer.Fall.EDD)
+
+deerDataSpr <- deerData %>%
+  filter(Season == "Spring 2018") %>%
+  dplyr::select(-Summer.Fall.EDD)
 
 
-#######################################################
-#Bear Data Frame with XY coords
-Bearcamdata_SI17<-bearcamdata_coords_SI17[-c(2,5)]
 
-#Add Variables to Data Frame
-Bearcamdata_SI17$Cam_Nights<-camnightdata_SI17$Deploy.Duration
-Bearcamdata_SI17$Log<-camnightdata_SI17$Log.in.View
-#Bearcamdata_SI17$EDD<-Bear_EDD_Summer2017$ESW_EDR
-Bearcamdata_SI17$Cam_Height<-Cam_heights_SI17$Camera_Height
-Bearcamdata_SI17$Num_Stems<-cvtreecount1_SI17$Number_of_Trees
+#Bear EDD Data. For Black bear, we used EDD values for white-tailed deer. There were not sufficient data to estimate EDD for black bear in any season.
 
-#Merge because not all cameras have oak trees
-Bearcamdata_SI17<-merge(Bearcamdata_SI17, Oak_DBH1_SI17, all = TRUE)
-Bearcamdata_SI17[is.na(Bearcamdata_SI17)] <- 0
-########################################################
-#Squirrel Data Frame with XY coords
-Sqrlcamdata_SI17<-sqrlcamdata_coords_SI17[-c(2,5:19)]
+bearData <- merge(bearData, Deer_EDD, by = "Deployment")
 
-#Add Variables to Data Frame
-Sqrlcamdata_SI17$Cam_Nights<-camnightdata_SI17$Deploy.Duration
-Sqrlcamdata_SI17$Log<-camnightdata_SI17$Log.in.View
-#Sqrlcamdata_SI17$EDD<-Sqrl_EDD_Summer2017$ESW_EDR
-Sqrlcamdata_SI17$Cam_Height<-Cam_heights_SI17$Camera_Height
-Sqrlcamdata_SI17$Num_Stems<-cvtreecount1_SI17$Number_of_Trees
 
-#Merge because not all cameras have oak trees
-Sqrlcamdata_SI17<-merge(Sqrlcamdata_SI17, Oak_DBH1_SI17 , all = TRUE)
-Sqrlcamdata_SI17[is.na(Sqrlcamdata_SI17)] <- 0
+bearDataSum <- bearData %>%
+  filter(Season == "Summer 2017") %>%
+  dplyr::select(-Winter.Spring.EDD)
 
-#########################################################
-#Raccoon Data Frame with XY coords
-Raccooncamdata_SI17<-raccooncamdata_coords_SI17[-c(2,5)]
+bearDataFall <- bearData %>%
+  filter(Season == "Fall 2017") %>%
+  dplyr::select(-Winter.Spring.EDD)
 
-#Add Variables to Data Frame
-Raccooncamdata_SI17$Cam_Nights<-camnightdata_SI17$Deploy.Duration
-Raccooncamdata_SI17$Log<-camnightdata_SI17$Log.in.View
-#Raccooncamdata_SI17$EDD<-Raccoon_EDD_Summer2017$ESW_EDR
-Raccooncamdata_SI17$Cam_Height<-Cam_heights_SI17$Camera_Height
-Raccooncamdata_SI17$Num_Stems<-cvtreecount1_SI17$Number_of_Trees
+bearDataWin <- bearData %>%
+  filter(Season == "Winter 2017") %>%
+  dplyr::select(-Summer.Fall.EDD)
 
-#Merge because not all cameras have oak trees
-Raccooncamdata_SI17<-merge(Raccooncamdata_SI17, Oak_DBH1_SI17, all = TRUE)
-Raccooncamdata_SI17[is.na(Raccooncamdata_SI17)] <- 0
+bearDataSpr <- bearData %>%
+  filter(Season == "Spring 2018") %>%
+  dplyr::select(-Summer.Fall.EDD)
 
-########################################################
-#Save species data frames to bring in for Analysis later
-########################################################
-#Change working directory to general Camera Grid Folder
-setwd("C:/Users/josey/Documents/CT Grid")
-write.csv(Deercamdata_SI17, file = "Deer_DF.csv")
-write.csv(Bearrcamdata_SI17, file = "Bear_DF.csv")
-write.csv(Sqrlcamdata_SI17, file = "Sqrl_DF.csv")
-write.csv(Raccooncamdata_SI17, file = "Raccoon_DF.csv")
+#Squirrel EDD Data. For squirrels, we had adequate observations to estimate detection distance for squirrels in Winter/Spring when these seasons were pooled, but had to use pooled 4-season data for Summer and Fall analyses for squirrels. 
+#Waiting for clarification from Josey, because there is only one column of EDD data in the squirrel EDD csv file.
+
+sqEDD <- read.csv("data/SquirrelEDD_4S.csv") 
+
+sqrlData <- merge(sqrlData, sqEDD, by = "Deployment")
+
+sqDataSum <- sqrlData %>%
+  filter(Season == "Summer 2017") #%>%
+  #dplyr::select(-Winter.Spring.EDD)
+
+sqDataFall <- sqrlData %>%
+  filter(Season == "Fall 2017") #%>%
+  #dplyr::select(-Winter.Spring.EDD)
+
+sqDataWin <- sqrlData %>%
+  filter(Season == "Winter 2017") #%>%
+  #dplyr::select(-Summer.Fall.EDD)
+
+sqDataSpr <- sqrlData %>%
+  filter(Season == "Spring 2018") #%>%
+  #dplyr::select(-Summer.Fall.EDD)
+
+#Raccoon EDD Data. For raccoons, when pooling across all 4 seasons, approximately half the cameras failed to meet the 30 observation threshold. For those cameras with adequate observations we calculated EDD. For the remaining, we used the EDDs from DEER, which were determined to correlate better with raccoon EDD than squirrel. 
+
+racEDD <- read.csv("data/RaccoonEDD_4S.csv") 
+
+#The code below doesn't work because currently the raccoon EDD file has only 26 rows instead of 27. I'm waiting for Josey to try to figure out why.
+raccoonData <- merge(raccoonData, racEDD, by = "Deployment")
+
+racDataSum <- raccoonData %>%
+  filter(Season == "Summer 2017") 
+
+racDataFall <- raccoonData %>%
+  filter(Season == "Fall 2017") 
+
+racDataWin <- raccoonData %>%
+  filter(Season == "Winter 2017") 
+
+racDataSpr <- raccoonData %>%
+  filter(Season == "Spring 2018") 
+
+
+# Save either R objects or csv files for use in regression analysi --------
+
+
