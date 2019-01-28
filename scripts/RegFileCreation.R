@@ -174,7 +174,7 @@ cvtrees<-as.data.frame(clip_polys)
 #Pull and total the # of trees per deployment and change column names
 cvtreecount<-cvtrees[,c(4,28)]
 cvtreecount1<-aggregate(cvtreecount[,1], by = list(cvtreecount$d),sum)
-colnames(cvtreecount1)[2]<-"Number_of_Trees"
+colnames(cvtreecount1)[2]<-"Num_Stems"
 colnames(cvtreecount1)[1]<-"Deployment"
 
 #Merge this tree data into each species file here
