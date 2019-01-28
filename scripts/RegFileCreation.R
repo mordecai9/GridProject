@@ -1,4 +1,6 @@
-#Create Individual Species/Seasons Data frames with SeqCount and Covariates to be used in Poisson GLM regression analysis. I think here I can use "camdatasummary", not CR3, since it has the raw number of sequences and the camera effort, as well as season and both kinds of deployment names
+#Create Individual Species/Seasons Data frames with SeqCount and Covariates to be used in Poisson GLM regression analysis. This file starts working with the object "camdata_summary" which is created and cleaned in previous scripts including CamDataPrep.R
+
+
 require(tidyverse)
 
 load("data/camdata_summary")
@@ -201,21 +203,22 @@ Oaks$Size_Category[Oaks$dbh >900]<-'8' #gray
 Oaks$Size_Category[Oaks$dbh >1200]<-'550' #pink
 
 #plot Oak Tree sizes by color
-op <- par()
 par(mar=c(5,17,4,2))
 plot(Oaks,pch = 19, col = Oaks$Size_Category)
 plot(trapxySP, pch = 1, col = "red", add = T)
 #Legend matching color to size (not working for some reason)
 legend(747285,4309044, legend = c("< 15cm","> 15cm","> 30cm","> 60cm","> 90cm","> 120cm"), col = c("461", "68", "47","139", "8", "550"), pch = 19, title = "DBH of Oak Trees", bty = 'n')
-par(op)
+
 
 #Cut out oak tree data from within the cones
 #library(rowr) #what is this for?
+pardefault <- par(no.readonly = T)
 par(mar = c(5.1,4.1,4.1,2.1))
 polyoaktrees<-intersect(Oaks, camview_spo.df)
 plot(polyoaktrees)
 plot(camview_spo.df, add = T)
 polyoaktreesdf<-as.data.frame(polyoaktrees)
+par(pardefault)
 
 #Pull # of oaks out of each deployment and rename columns to prepare for merge
 oakcount<-polyoaktreesdf[,c(4,29)]
@@ -270,23 +273,26 @@ lm1 <- lm(Summer.Fall.EDD ~ Winter.Spring.EDD, data = Deer_EDD)
 summary(lm1)
 abline(lm1)
 
-
+#Create new dataframes specific to each season, removing the EDD data from the opposite season
 deerDataSum <- deerData %>%
   filter(Season == "Summer 2017") %>%
   dplyr::select(-Winter.Spring.EDD)
+save(deerDataSum, file = "data/deerDataSum.RData")
 
 deerDataFall <- deerData %>%
   filter(Season == "Fall 2017") %>%
   dplyr::select(-Winter.Spring.EDD)
+save(deerDataFall, file = "data/deerDataFall.RData")
 
 deerDataWin <- deerData %>%
   filter(Season == "Winter 2017") %>%
   dplyr::select(-Summer.Fall.EDD)
+save(deerDataWin, file = "data/deerDataWin.RData")
 
 deerDataSpr <- deerData %>%
   filter(Season == "Spring 2018") %>%
   dplyr::select(-Summer.Fall.EDD)
-
+save(deerDataSpr, file = "data/deerDataSpr.RData")
 
 
 #Bear EDD Data. For Black bear, we used EDD values for white-tailed deer. There were not sufficient data to estimate EDD for black bear in any season.
@@ -297,18 +303,22 @@ bearData <- merge(bearData, Deer_EDD, by = "Deployment")
 bearDataSum <- bearData %>%
   filter(Season == "Summer 2017") %>%
   dplyr::select(-Winter.Spring.EDD)
+save(bearDataSum, file = "data/bearDataSum.RData")
 
 bearDataFall <- bearData %>%
   filter(Season == "Fall 2017") %>%
   dplyr::select(-Winter.Spring.EDD)
+save(bearDataFall, file = "data/bearDataFall.RData")
 
 bearDataWin <- bearData %>%
   filter(Season == "Winter 2017") %>%
   dplyr::select(-Summer.Fall.EDD)
+save(bearDataWin, file = "data/bearDataWin.RData")
 
 bearDataSpr <- bearData %>%
   filter(Season == "Spring 2018") %>%
   dplyr::select(-Summer.Fall.EDD)
+save(bearDataSpr, file = "data/bearDataSpr.RData")
 
 #Squirrel EDD Data. For squirrels, we had adequate observations to estimate detection distance for squirrels in Winter/Spring when these seasons were pooled, but had to use pooled 4-season data for Summer and Fall analyses for squirrels. 
 #Waiting for clarification from Josey, because there is only one column of EDD data in the squirrel EDD csv file.
@@ -318,41 +328,43 @@ sqEDD <- read.csv("data/SquirrelEDD_4S.csv")
 sqrlData <- merge(sqrlData, sqEDD, by = "Deployment")
 
 sqDataSum <- sqrlData %>%
-  filter(Season == "Summer 2017") #%>%
-  #dplyr::select(-Winter.Spring.EDD)
+  filter(Season == "Summer 2017") %>%
+  dplyr::select(-Squirrel_EDD_WSp)
+save(sqDataSum, file = "data/sqDataSum.RData")
 
 sqDataFall <- sqrlData %>%
-  filter(Season == "Fall 2017") #%>%
-  #dplyr::select(-Winter.Spring.EDD)
+  filter(Season == "Fall 2017") %>%
+  dplyr::select(-Squirrel_EDD_WSp)
+save(sqDataFall, file = "data/sqDataFall.RData")
 
 sqDataWin <- sqrlData %>%
-  filter(Season == "Winter 2017") #%>%
-  #dplyr::select(-Summer.Fall.EDD)
+  filter(Season == "Winter 2017") %>%
+  dplyr::select(-Squirrel_EDD_4S)
+save(sqDataWin, file = "data/sqDataWin.RData")
 
 sqDataSpr <- sqrlData %>%
-  filter(Season == "Spring 2018") #%>%
-  #dplyr::select(-Summer.Fall.EDD)
+  filter(Season == "Spring 2018") %>%
+  dplyr::select(-Squirrel_EDD_4S)
+save(sqDataSpr, file = "data/sqDataSpr.RData")
 
 #Raccoon EDD Data. For raccoons, when pooling across all 4 seasons, approximately half the cameras failed to meet the 30 observation threshold. For those cameras with adequate observations we calculated EDD. For the remaining, we used the EDDs from DEER, which were determined to correlate better with raccoon EDD than squirrel. 
 
 racEDD <- read.csv("data/RaccoonEDD_4S.csv") 
 
-#The code below doesn't work because currently the raccoon EDD file has only 26 rows instead of 27. I'm waiting for Josey to try to figure out why.
 raccoonData <- merge(raccoonData, racEDD, by = "Deployment")
 
 racDataSum <- raccoonData %>%
   filter(Season == "Summer 2017") 
+save(racDataSum, file = "data/racDataSum.RData")
 
 racDataFall <- raccoonData %>%
   filter(Season == "Fall 2017") 
+save(racDataFall, file = "data/racDataFall.RData")
 
 racDataWin <- raccoonData %>%
   filter(Season == "Winter 2017") 
+save(racDataWin, file = "data/racDataWin.RData")
 
 racDataSpr <- raccoonData %>%
   filter(Season == "Spring 2018") 
-
-
-# Save either R objects or csv files for use in regression analysi --------
-
-
+save(racDataSpr, file = "data/racDataSpr.RData")
