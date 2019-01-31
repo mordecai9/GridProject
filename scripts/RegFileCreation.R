@@ -70,7 +70,11 @@ class(trees)
 plot(camdata$NAD83_X,
      camdata$NAD83_Y,
      xlim = c(747420, 747560),
-     ylim = c(4308900,4309040))
+     ylim = c(4308900,4309040),
+     xlab = "",
+     ylab = "",
+     pch = 19, 
+     col = "red")
 
 #Convert this grid coordinate information into a spatialpoints object so it is not plotted on a graph
 #First need to make the x and y coordinates a separate matrix
@@ -98,18 +102,21 @@ plot(clp)
 #You could also use gIntersect below but it does not preserve the original attribute data
 treesSmall <- intersect(trees, clp)
 
-#plot grid with tree and cameras
+#plot grid with tree and cameras. Still playing around with this.
 par(mar = c(3, 9, 3, 2.1), xpd = T) #xpd = T allows text to exist outside the plot area
-plot(treesSmall, col = "darkgreen", pch = 3,cex.main = 4)
+plot(treesSmall, col = rgb(.1,.8,.1, 0.5), pch = 3,cex.main = 4)
 plot(trapxySP, pch = 19, col = "red", add = T)
+axis(1, labels = T, at = c(747400,747450,747500,747550, 747600))
+axis(4, labels = T)
+
 legend(747340,4308970, legend = c("Tree", "Camera"), col = c("darkgreen", "red"), pch = c(3,19), cex =1.0, bty = "n")
 
-#Add scale, try to move to put under legend
+#Add scale
 scale.len <- 20
 x1 <- c(747338.5,747338.5+scale.len)
-y1<- c(4308890, 4308890)
+y1<- c(4308930, 4308930)
 lines(x1,y1,lwd = 2)
-text(747372.9, 4308890, '20m', cex = 1.0)
+text(747372.9, 4308930, '20m', cex = 1.0)
 
 #Add Deployment label to each camera
 pointLabel(unique(coordinates(trapxySP)[,1]),unique(coordinates(trapxySP)[,2]),labels=as.character(unique(trapxySP@data$Deployment)), cex = 0.7, allowSmallOverlap = T)
