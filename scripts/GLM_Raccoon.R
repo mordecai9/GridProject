@@ -6,14 +6,13 @@ source("scripts/pairsPannelFunctions.r")
 
 
 # Data Import and Exploration - Raccoon ---------------------------------------
-# We won't be using winter data here since bear really weren't detected in winter
 load("data/racDataSum.RData")
 load("data/racDataFall.RData")
 load("data/racDataWin.RData")
 load("data/racDataSpr.RData")
 
-pairs(bearDataSum[,c(4,7,13,14,15,17)], diag.panel = panel.hist, lower.panel = panel.smooth, upper.panel = panel.cor)
-str(bearDataSum)
+pairs(racDataSum[,c(4,7,13,14,15,17)], diag.panel = panel.hist, lower.panel = panel.smooth, upper.panel = panel.cor)
+str(racDataSum)
 
 #Looking at how many cameras picked up rac in each season. Looks like enough in each, though a bit low in summer
 barplot(racDataSum$nSeqs)
@@ -95,120 +94,178 @@ phi.po.fullSp <- sum.po.fullSp$deviance/sum.po.fullSp$df.residual
 
 # Negative Binomial Regression - Raccoon --------------------------------------
 #Summer
-#START FIXING CODE HERE
 
 glm.nb.fullS <-
   glm.nb(
-    nSeqs ~ Log.in.View + Summer.Fall.EDD + Height_cm + log10(Num_Stems) + OakDBH +
+    nSeqs ~ Log.in.View + Raccoon.EDD + Height_cm + log10(Num_Stems) + OakDBH +
       offset(log(Deploy.Duration)),
-    data = deerDataSum
+    data = racDataSum
   )
 summary(glm.nb.fullS)
 
-glm.nb.SI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = deerDataSum)
+glm.nb.SI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = racDataSum)
 
 glm.nb.Slog <-
-  glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = deerDataSum)
+  glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = racDataSum)
 
 glm.nb.Shgt <-
-  glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = deerDataSum)
+  glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = racDataSum)
 
 glm.nb.Soak <-
-  glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = deerDataSum)
+  glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = racDataSum)
 
 glm.nb.Sstems <-
-  glm.nb(nSeqs ~ Num_Stems + offset(log(Deploy.Duration)), data = deerDataSum)
+  glm.nb(nSeqs ~ Num_Stems + offset(log(Deploy.Duration)), data = racDataSum)
 
 glm.nb.Sedd <-
-  glm.nb(nSeqs ~ Summer.Fall.EDD + offset(log(Deploy.Duration)), data = deerDataSum)
+  glm.nb(nSeqs ~ Raccoon.EDD + offset(log(Deploy.Duration)), data = racDataSum)
 
 mod.namesDS <- c("Full", "log", "height", "oaks", "stems", "EDD", "Intercept")
 glmNBDS <- cbind(mod.namesDS, c(AICc(glm.nb.fullS), AICc(glm.nb.Slog), AICc(glm.nb.Shgt), AICc(glm.nb.Soak), AICc(glm.nb.Sstems), AICc(glm.nb.Sedd), AICc(glm.nb.SI)))
 glmNBDS
 
-summary(glm.nb.log)
+summary(glm.nb.Sstems) #For summer, raccoon captures are more common as the # of stems in front of the camera increases. 
 
 #Fall
-glm.nb.fullF <- glm.nb(nSeqs ~ Log.in.View + Summer.Fall.EDD + Height_cm + log10(Num_Stems) + OakDBH +offset(log(Deploy.Duration)), data = deerDataFall)
+glm.nb.fullF <- glm.nb(nSeqs ~ Log.in.View + Raccoon.EDD + Height_cm + log10(Num_Stems) + OakDBH +offset(log(Deploy.Duration)), data = racDataFall)
 summary(glm.nb.fullF)
 
-glm.nb.FI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = deerDataFall)
+glm.nb.FI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = racDataFall)
 
 glm.nb.Flog <-
-  glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = deerDataFall)
+  glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = racDataFall)
 
 glm.nb.Fhgt <-
-  glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = deerDataFall)
+  glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = racDataFall)
 
 glm.nb.FhgtLog <-
-  glm.nb(nSeqs ~ Height_cm + Log.in.View + offset(log(Deploy.Duration)), data = deerDataFall)
+  glm.nb(nSeqs ~ Height_cm + Log.in.View + offset(log(Deploy.Duration)), data = racDataFall)
 
 glm.nb.Foak <-
-  glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = deerDataFall)
+  glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = racDataFall)
 
 glm.nb.Fstems <-
-  glm.nb(nSeqs ~ Num_Stems + offset(log(Deploy.Duration)), data = deerDataFall)
+  glm.nb(nSeqs ~ Num_Stems + offset(log(Deploy.Duration)), data = racDataFall)
 
 glm.nb.Fedd <-
-  glm.nb(nSeqs ~ Summer.Fall.EDD + offset(log(Deploy.Duration)), data = deerDataFall)
+  glm.nb(nSeqs ~ Raccoon.EDD + offset(log(Deploy.Duration)), data = racDataFall)
 
 mod.namesDF <- c("Full", "log", "height", "log + height", "oaks", "stems", "EDD", "Intercept")
 glmNBDF <- cbind(mod.namesDF, c(AICc(glm.nb.fullF), AICc(glm.nb.Flog), AICc(glm.nb.Fhgt), AICc(glm.nb.FhgtLog), AICc(glm.nb.Foak), AICc(glm.nb.Fstems), AICc(glm.nb.Fedd), AICc(glm.nb.FI)))
 glmNBDF
 
+summary(glm.nb.Flog) #In Fall, raccoon detections are more common at cameras with a log in view
+
+
 #Winter
-glm.nb.fullW <- glm.nb(nSeqs ~ Log.in.View + Winter.Spring.EDD + Height_cm + log10(Num_Stems) + OakDBH +offset(log(Deploy.Duration)), data = deerDataWin)
+glm.nb.fullW <- glm.nb(nSeqs ~ Log.in.View + Raccoon.EDD + Height_cm + log10(Num_Stems) + OakDBH +offset(log(Deploy.Duration)), data = racDataWin)
 summary(glm.nb.fullW)
 
-glm.nb.WI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = deerDataWin)
+glm.nb.WI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = racDataWin)
 
 glm.nb.Wlog <-
-  glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = deerDataWin)
+  glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = racDataWin)
 
 glm.nb.Whgt <-
-  glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = deerDataWin)
+  glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = racDataWin)
 
-glm.nb.WhgtLog <-
-  glm.nb(nSeqs ~ Height_cm + Log.in.View + offset(log(Deploy.Duration)), data = deerDataWin)
+glm.nb.Whgt_stems <-
+  glm.nb(nSeqs ~ Height_cm + Num_Stems + offset(log(Deploy.Duration)), data = racDataWin)
 
 glm.nb.Woak <-
-  glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = deerDataWin)
+  glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = racDataWin)
 
 glm.nb.Wstems <-
-  glm.nb(nSeqs ~ Num_Stems + offset(log(Deploy.Duration)), data = deerDataWin)
+  glm.nb(nSeqs ~ Num_Stems + offset(log(Deploy.Duration)), data = racDataWin)
 
 glm.nb.Wedd <-
-  glm.nb(nSeqs ~ Winter.Spring.EDD + offset(log(Deploy.Duration)), data = deerDataWin)
+  glm.nb(nSeqs ~ Raccoon.EDD + offset(log(Deploy.Duration)), data = racDataWin)
 
-mod.namesDW <- c("Full", "log", "height", "log + height", "oaks", "stems", "EDD", "Intercept")
-glmNBDW <- cbind(mod.namesDW, c(AICc(glm.nb.fullW), AICc(glm.nb.Wlog), AICc(glm.nb.Whgt), AICc(glm.nb.WhgtLog), AICc(glm.nb.Woak), AICc(glm.nb.Wstems), AICc(glm.nb.Wedd), AICc(glm.nb.WI)))
+mod.namesDW <- c("Full", "log", "height", "stems + height", "oaks", "stems", "EDD", "Intercept")
+glmNBDW <- cbind(mod.namesDW, c(AICc(glm.nb.fullW), AICc(glm.nb.Wlog), AICc(glm.nb.Whgt), AICc(glm.nb.Whgt_stems), AICc(glm.nb.Woak), AICc(glm.nb.Wstems), AICc(glm.nb.Wedd), AICc(glm.nb.WI)))
 glmNBDW
 
+summary(glm.nb.Whgt_stems) #In Winter, raccoon captures are more frequent at cameras that are set lower and which have more tree stems in front of them
 
 #Spring
-glm.nb.fullSp <- glm.nb(nSeqs ~ Log.in.View + Winter.Spring.EDD + Height_cm + log10(Num_Stems) + OakDBH +offset(log(Deploy.Duration)), data = deerDataSpr)
+glm.nb.fullSp <- glm.nb(nSeqs ~ Log.in.View + Raccoon.EDD + Height_cm + log10(Num_Stems) + OakDBH +offset(log(Deploy.Duration)), data = racDataSpr)
 summary(glm.nb.fullSp)
 
-glm.nb.SpI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = deerDataSpr)
+glm.nb.SpI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = racDataSpr)
 
 glm.nb.Splog <-
-  glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = deerDataSpr)
+  glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = racDataSpr)
 
 glm.nb.Sphgt <-
-  glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = deerDataSpr)
+  glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = racDataSpr)
 
 glm.nb.SphgtLog <-
-  glm.nb(nSeqs ~ Height_cm + Log.in.View + offset(log(Deploy.Duration)), data = deerDataSpr)
+  glm.nb(nSeqs ~ Height_cm + Log.in.View + offset(log(Deploy.Duration)), data = racDataSpr)
 
 glm.nb.Spoak <-
-  glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = deerDataSpr)
+  glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = racDataSpr)
 
 glm.nb.Spstems <-
-  glm.nb(nSeqs ~ Num_Stems + offset(log(Deploy.Duration)), data = deerDataSpr)
+  glm.nb(nSeqs ~ Num_Stems + offset(log(Deploy.Duration)), data = racDataSpr)
 
 glm.nb.Spedd <-
-  glm.nb(nSeqs ~ Winter.Spring.EDD + offset(log(Deploy.Duration)), data = deerDataSpr)
+  glm.nb(nSeqs ~ Raccoon.EDD + offset(log(Deploy.Duration)), data = racDataSpr)
 
 mod.namesDSp <- c("Full", "log", "height", "log + height", "oaks", "stems", "EDD", "Intercept")
 glmNBDSp <- cbind(mod.namesDSp, c(AICc(glm.nb.fullSp), AICc(glm.nb.Splog), AICc(glm.nb.Sphgt), AICc(glm.nb.SphgtLog), AICc(glm.nb.Spoak), AICc(glm.nb.Spstems), AICc(glm.nb.Spedd), AICc(glm.nb.SpI)))
 glmNBDSp
+
+summary(glm.nb.Spoak) #In Spring there is some evidence that raccoon are more frequently captured in front of cameras that have smaller total dbh of oaks.
+
+#____________________________________
+#Response Curves for Covariates
+#____________________________________
+
+
+#Raccoon in Summer, influence of number of stems in front of camera on detection rates
+summary(glm.nb.Sstems)
+#This is highly influence by the amount of raccoons photographed at the single site with a ton of stems. I should also use a sequence on the log scale...
+
+
+#Response Curves for Num_Stems. No other parameters were important.
+summary(racDataSum$Num_Stems)
+seq.stems <- seq(min(racDataSum$Num_Stems), max(racDataSum$Num_Stems), length.out = 100)
+nd.seq.stems <- data.frame(Deploy.Duration = 61, Num_Stems = seq.stems)
+pred.stems <- predict(glm.nb.Sstems, newdata = nd.seq.stems, se=TRUE, type = "link")
+plot(nSeqs ~ Num_Stems, data=racDataSum, pch=16, col=rgb(.75,.25,0,.5), las=1, log = "x", xlab = "log(Total stems)", ylab = "# Raccoon Sequences in Summer")
+lines(nd.seq.stems$Num_Stems, exp(pred.stems$fit), col="dark olive green")
+lines(nd.seq.stems$Num_Stems, exp(pred.stems$fit + 1.96*pred.stems$se.fit), lty=2, col="dark olive green")
+lines(nd.seq.stems$Num_Stems, exp(pred.stems$fit - 1.96*pred.stems$se.fit), lty=2, col="dark olive green")
+
+
+#In Winter, raccoon captures are more frequent at cameras that are set lower and which have more tree stems in front of them
+
+summary(glm.nb.Whgt_stems) 
+
+seq.hgt <- seq(min(racDataWin$Height_cm), max(racDataWin$Height_cm), length.out = 100)
+med.stems <- median(racDataWin$Num_Stems)
+max.stems <- max(racDataWin$Num_Stems)
+min.stems <- min(racDataWin$Num_Stems)
+
+#seq.stems <- seq(min(racDataWin$Num_Stems), max(racDataWin$Num_Stems), length.out = 100)
+nd.seq.hgt <- data.frame(Deploy.Duration = 61, Height_cm = seq.hgt, Num_Stems = med.stems)
+nd.seq.hgt.minstems <- data.frame(Deploy.Duration = 61, Height_cm = seq.hgt, Num_Stems = min.stems)
+nd.seq.hgt.maxstems <- data.frame(Deploy.Duration = 61, Height_cm = seq.hgt, Num_Stems = max.stems)
+
+pred.hgt <- predict(glm.nb.Whgt_stems, newdata = nd.seq.hgt, se=TRUE, type = "link")
+pred.hgt.maxstems <- predict(glm.nb.Whgt_stems, newdata = nd.seq.hgt.maxstems, se=TRUE, type = "link")
+pred.hgt.minstems <- predict(glm.nb.Whgt_stems, newdata = nd.seq.hgt.minstems, se=TRUE, type = "link")
+
+
+plot(nSeqs ~ Height_cm, data=racDataWin, pch=16, col=rgb(.75,.25,0,.5), las=1, log = "x", xlab = "Camera Height (cm)", ylab = "# Raccoon Sequences in Winter")
+lines(nd.seq.hgt$Height_cm, exp(pred.hgt$fit), col="dark olive green")
+lines(nd.seq.hgt$Height_cm, exp(pred.hgt$fit + 1.96*pred.hgt$se.fit), lty=2, col="dark olive green")
+lines(nd.seq.hgt$Height_cm, exp(pred.hgt$fit - 1.96*pred.hgt$se.fit), lty=2, col="dark olive green")
+
+lines(nd.seq.hgt.maxstems$Height_cm, exp(pred.hgt.maxstems$fit), col="red")
+lines(nd.seq.hgt.maxstems$Height_cm, exp(pred.hgt.maxstems$fit + 1.96*pred.hgt$se.fit), lty=2, col="red")
+lines(nd.seq.hgt.maxstems$Height_cm, exp(pred.hgt.maxstems$fit - 1.96*pred.hgt$se.fit), lty=2, col="red")
+
+lines(nd.seq.hgt.minstems$Height_cm, exp(pred.hgt.minstems$fit), col="blue")
+lines(nd.seq.hgt.minstems$Height_cm, exp(pred.hgt.minstems$fit + 1.96*pred.hgt$se.fit), lty=2, col="blue")
+lines(nd.seq.hgt.minstems$Height_cm, exp(pred.hgt.minstems$fit - 1.96*pred.hgt$se.fit), lty=2, col="blue")

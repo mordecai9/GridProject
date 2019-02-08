@@ -114,11 +114,15 @@ glm.nb.Sstems <-
 glm.nb.Sedd <-
   glm.nb(nSeqs ~ Summer.Fall.EDD + offset(log(Deploy.Duration)), data = deerDataSum)
 
-mod.namesDS <- c("Full", "log", "height", "oaks", "stems", "EDD", "Intercept")
-glmNBDS <- cbind(mod.namesDS, c(AICc(glm.nb.fullS), AICc(glm.nb.Slog), AICc(glm.nb.Shgt), AICc(glm.nb.Soak), AICc(glm.nb.Sstems), AICc(glm.nb.Sedd), AICc(glm.nb.SI)))
+glm.nb.Slog_stems <-
+  glm.nb(nSeqs ~ Log.in.View + Num_Stems + offset(log(Deploy.Duration)), data = deerDataSum)
+
+mod.namesDS <- c("Full", "log", "height", "oaks", "stems", "EDD", "Log + Stems", "Intercept")
+glmNBDS <- cbind(mod.namesDS, c(AICc(glm.nb.fullS), AICc(glm.nb.Slog), AICc(glm.nb.Shgt), AICc(glm.nb.Soak), AICc(glm.nb.Sstems), AICc(glm.nb.Sedd), AICc(glm.nb.Slog_stems), AICc(glm.nb.SI)))
+
 glmNBDS
 
-summary(glm.nb.log)
+summary(glm.nb.Slog) #Likely to be best model, deer detections in Summer much less likely when a log is in view
 
 #Fall
 glm.nb.fullF <- glm.nb(nSeqs ~ Log.in.View + Summer.Fall.EDD + Height_cm + log10(Num_Stems) + OakDBH +offset(log(Deploy.Duration)), data = deerDataFall)
@@ -146,7 +150,7 @@ glm.nb.Fedd <-
 
 mod.namesDF <- c("Full", "log", "height", "log + height", "oaks", "stems", "EDD", "Intercept")
 glmNBDF <- cbind(mod.namesDF, c(AICc(glm.nb.fullF), AICc(glm.nb.Flog), AICc(glm.nb.Fhgt), AICc(glm.nb.FhgtLog), AICc(glm.nb.Foak), AICc(glm.nb.Fstems), AICc(glm.nb.Fedd), AICc(glm.nb.FI)))
-glmNBDF
+glmNBDF  #No real significant parameters it looks like in Fall for deer.
 
 #Winter
 glm.nb.fullW <- glm.nb(nSeqs ~ Log.in.View + Winter.Spring.EDD + Height_cm + log10(Num_Stems) + OakDBH +offset(log(Deploy.Duration)), data = deerDataWin)
@@ -174,7 +178,7 @@ glm.nb.Wedd <-
 
 mod.namesDW <- c("Full", "log", "height", "log + height", "oaks", "stems", "EDD", "Intercept")
 glmNBDW <- cbind(mod.namesDW, c(AICc(glm.nb.fullW), AICc(glm.nb.Wlog), AICc(glm.nb.Whgt), AICc(glm.nb.WhgtLog), AICc(glm.nb.Woak), AICc(glm.nb.Wstems), AICc(glm.nb.Wedd), AICc(glm.nb.WI)))
-glmNBDW
+glmNBDW #Nothing too interesting in winter
 
 
 #Spring
@@ -203,12 +207,12 @@ glm.nb.Spedd <-
 
 mod.namesDSp <- c("Full", "log", "height", "log + height", "oaks", "stems", "EDD", "Intercept")
 glmNBDSp <- cbind(mod.namesDSp, c(AICc(glm.nb.fullSp), AICc(glm.nb.Splog), AICc(glm.nb.Sphgt), AICc(glm.nb.SphgtLog), AICc(glm.nb.Spoak), AICc(glm.nb.Spstems), AICc(glm.nb.Spedd), AICc(glm.nb.SpI)))
-glmNBDSp
+glmNBDSp #Nothing too interesting in Spring either...
 
 #____________________________________
 #Response Curves for our Covariates
 #____________________________________
-
+# NEED TO EDIT TEXT BELOW THIS LINE
 meanEDD <- mean(deerDataSum$EDD)
 medoak <- median(deerDataSum$Num_Oaks)
 medstems <- median(deerDataSum$Num_Stems)
