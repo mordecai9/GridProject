@@ -119,7 +119,7 @@ baselinesAll$TotCV <- baselinesAll$Mean_CR/baselinesAll$StDev_CR
 
 #Capture Rates and Proportion of Detections, by Season and Species####
 
-#Note that the total count for cameras in Fall was 25, winter was 25, summer and spring were both 27, so need to take this into account when lookign at proportion of cameras with detections. 
+#Note that the total count for cameras in Fall was 25, winter was 25, summer and spring were both 27, so need to take this into account when lookign at proportion of cameras with detections. May need to do these as bootstrap CIs.
 
 SeasonsCR <- camdata_summary %>%
   group_by(.dots = c("Season", "Species")) %>%
@@ -487,7 +487,15 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        ylim = c(4308910,4309030))
 text(labels = paste("Deer - Spring", "(", labelsSpring$SprDetCount[which(labelsSpring$Species == "Odocoileus virginianus")],"/", labelsSpring$SpringDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
-
+#max CR for deer is 461.819. Need to tweak the legend format to space the points more
+tempVals <- seq(1, 200, length.out = 5)
+legend(x = "bottomright",
+  legend = tempVals,
+  pt.cex = tempVals/ s,
+  pch = 20,
+  col = "black",
+  bty = 'n'
+)
 
 #_____________________________________________
 ##CapRates Point Size Figures- Fox Squirrel----

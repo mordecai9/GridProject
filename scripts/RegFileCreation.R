@@ -18,22 +18,21 @@ bobcatData<-subset(camdata, Species == "Lynx rufus")
 grsqrlData<-subset(camdata, Species == "Sciurus carolinensis")
 raccoonData<-subset(camdata, Species == "Procyon lotor")
 opossumData<-subset(camdata, Species =="Didelphis virginiana")
-unknownsqrlData<-subset(camdata, Species == "Unknown Squirrel")
+unknownsqrlData<-subset(camdata, Species == "Unknown squirrel")
 
 
 #For calculating Effective Detection Distance(EDD) all squirrel species were merged.
 #Since EDD will be a variable, the squirrel species will be merged now
 
 sqrlData<- foxsqrlData %>%
-  dplyr::select(Deployment, Deployment_Name, Species, nSeqs, CR) %>%
   left_join(grsqrlData, by = "Deployment_Name") %>%
   left_join(unknownsqrlData, by = "Deployment_Name" )
 
 sqrlData$allSqSeqs <- (sqrlData$nSeqs.x + sqrlData$nSeqs.y + sqrlData$nSeqs)
 sqrlData$allSqCR <- sqrlData$allSqSeqs/sqrlData$Deploy.Duration.x *100
-sqrlData <- sqrlData[, -c(3:8,11:12, 15:25)]
+sqrlData <- sqrlData[, c(1:2,5:6, 8:11, 32:33)]
 sqrlData$Species <- "All Squirrels"
-names(sqrlData) <- c("Deployment","Deployment_Name", "Season", "Deploy.Duration", "NAD83_X", "NAD83_Y", "nSeqs", "CR", "Species") 
+names(sqrlData) <- c("Deployment","Deployment_Name", "Season", "Deploy.Duration", "CameraID", "NAD83_X", "NAD83_Y", "CamModel", "nSeqs", "CR", "Species") 
 
 ####Bring in the different variables####
 

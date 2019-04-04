@@ -4,56 +4,232 @@ library(tidyverse)
 
 load("data/camdata_summary")
 
-#Create species by season files for focal species. Think about creating these in RegressionPrep file and using them here? May have to create them again there, and I need to pool squirrels here, like I do there.
-#Deer
-deerSumCR <- camdata_summary %>%
-  filter(Species == "Odocoileus virginianus" & Season == "Summer 2017") %>%
-  dplyr::select(c("Deployment_Name2", "CR","NAD83_X", "NAD83_Y"))
+#Create species by season files for focal species. 
 
-deerWinCR <- camdata_summary %>%
-  filter(Species == "Odocoileus virginianus" & Season == "Winter 2017") %>%
-  dplyr::select(c("Deployment_Name2", "CR","NAD83_X", "NAD83_Y"))
+# Data Import and Exploration - WTD ---------------------------------------
 
-deerSprCR <- camdata_summary %>%
-  filter(Species == "Odocoileus virginianus" & Season == "Spring 2018") %>%
-  dplyr::select(c("Deployment_Name2", "CR","NAD83_X", "NAD83_Y"))
+load("data/deerDataSum.RData")
+load("data/deerDataFall.RData")
+load("data/deerDataWin.RData")
+load("data/deerDataSpr.RData")
 
-deerFallCR <- camdata_summary %>%
-  filter(Species == "Odocoileus virginianus" & Season == "Fall 2017") %>%
-  dplyr::select(c("Deployment_Name2", "CR","NAD83_X", "NAD83_Y"))
-#Bear
-bearSumCR <- camdata_summary %>%
-  filter(Species == "Ursus americanus" & Season == "Summer 2017") %>%
-  dplyr::select(c("Deployment_Name2", "CR","NAD83_X", "NAD83_Y"))
+deerSumCR <- deerDataSum %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
 
-bearWinCR <- camdata_summary %>%
-  filter(Species == "Ursus americanus" & Season == "Winter 2017") %>%
-  dplyr::select(c("Deployment_Name2", "CR","NAD83_X", "NAD83_Y"))
+deerWinCR <- deerDataWin %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
 
-bearSprCR <- camdata_summary %>%
-  filter(Species == "Ursus americanus" & Season == "Spring 2018") %>%
-  dplyr::select(c("Deployment_Name2", "CR","NAD83_X", "NAD83_Y"))
+deerSprCR <- deerDataSpr %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
 
-bearFallCR <- camdata_summary %>%
-  filter(Species == "Ursus americanus" & Season == "Fall 2017") %>%
-  dplyr::select(c("Deployment_Name2", "CR","NAD83_X", "NAD83_Y"))
+deerFallCR <- deerDataFall %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+# Data Import and Exploration - Bear ---------------------------------------
+load("data/bearDataSum.RData")
+load("data/bearDataFall.RData")
+load("data/bearDataWin.RData")
+load("data/bearDataSpr.RData")
+
+bearSumCR <- bearDataSum %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+bearWinCR <- bearDataWin %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+bearSprCR <- bearDataSpr %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+bearFallCR <- bearDataFall %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+# Data Import and Exploration - Raccoon ---------------------------------------
+load("data/racDataSum.RData")
+load("data/racDataFall.RData")
+load("data/racDataWin.RData")
+load("data/racDataSpr.RData")
 
 #raccoon
-raccoonSumCR <- camdata_summary %>%
-  filter(Species == "Procyon lotor" & Season == "Summer 2017") %>%
-  dplyr::select(c("Deployment_Name2", "CR","NAD83_X", "NAD83_Y"))
+raccoonSumCR <- racDataSum %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
 
-raccoonWinCR <- camdata_summary %>%
-  filter(Species == "Procyon lotor" & Season == "Winter 2017") %>%
-  dplyr::select(c("Deployment_Name2", "CR","NAD83_X", "NAD83_Y"))
+raccoonWinCR <- racDataWin %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
 
-raccoonSprCR <- camdata_summary %>%
-  filter(Species == "Procyon lotor" & Season == "Spring 2018") %>%
-  dplyr::select(c("Deployment_Name2", "CR","NAD83_X", "NAD83_Y"))
+raccoonSprCR <- racDataSpr %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
 
-raccoonFallCR <- camdata_summary %>%
-  filter(Species == "Procyon lotor" & Season == "Fall 2017") %>%
-  dplyr::select(c("Deployment_Name2", "CR","NAD83_X", "NAD83_Y"))
+raccoonFallCR <- racDataFall %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+# Data Import and Exploration - All Squirrels ---------------------------------------
+
+load("data/sqDataSum.RData")
+load("data/sqDataFall.RData")
+load("data/sqDataWin.RData")
+load("data/sqDataSpr.RData")
+
+squirrelSumCR <- sqDataSum %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+squirrelWinCR <- sqDataWin %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+squirrelSprCR <- sqDataSpr %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+squirrelFallCR <- sqDataFall %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+
+
+# Correlograms ------------------------------------------------------------
+
+library(ncf)
+d <- 80 #max distance for correlograms
+
+#White Tailed Deer. Will need to format as high res tiff if used in paper.
+par.default <- par(no.readonly = T)
+par(mfrow = c(2,2))
+
+Correlog_DeerSum <- spline.correlog(x = deerDataSum[, "NAD83_X"],
+                                    y = deerDataSum[, "NAD83_Y"],
+                                    z = deerDataSum[, "CR"],
+                                    xmax = d)
+plot(Correlog_DeerSum)
+abline(v = 20, lty = 2)
+text(x = 1, y = 0.8, "A", cex = 2)
+
+Correlog_DeerFall <- spline.correlog(
+  x = deerDataFall[, "NAD83_X"],
+  y = deerDataFall[, "NAD83_Y"],
+  z = deerDataFall[, "CR"],
+  xmax = d)
+plot(Correlog_DeerFall)
+abline(v = 20, lty = 2)
+text(x = 1, y = 0.8, "B", cex = 2)
+
+Correlog_DeerWin <- spline.correlog(
+  x = deerDataWin[, "NAD83_X"],
+  y = deerDataWin[, "NAD83_Y"],
+  z = deerDataWin[, "CR"],
+  xmax = d)
+plot(Correlog_DeerWin)
+abline(v = 20, lty = 2)
+text(x = 1, y = 0.8, "C", cex = 2)
+
+Correlog_DeerSpr <- spline.correlog(x = deerDataSpr[, "NAD83_X"],
+                                    y = deerDataSpr[, "NAD83_Y"],
+                                    z = deerDataSpr[, "CR"],
+                                    xmax = d)
+plot(Correlog_DeerSpr)
+abline(v = 20, lty = 2)
+text(x = 1, y = 0.8, "D", cex = 2)
+
+par(par.default)
+
+#Black Bear, ignoring Winter here
+
+par.default <- par(no.readonly = T)
+par(mfrow = c(2,2))
+
+Correlog_BearSum <- spline.correlog(x = bearDataSum[, "NAD83_X"],
+                                    y = bearDataSum[, "NAD83_Y"],
+                                    z = bearDataSum[, "CR"],
+                                    xmax = d)
+plot(Correlog_BearSum, main = "Bear/Summer")
+abline(v = 20, lty = 2)
+
+Correlog_BearFall <- spline.correlog(
+  x = bearDataFall[, "NAD83_X"],
+  y = bearDataFall[, "NAD83_Y"],
+  z = bearDataFall[, "CR"],
+  xmax = d)
+plot(Correlog_BearFall, main = "Bear/Fall")
+abline(v = 20, lty = 2)
+
+
+
+Correlog_BearSpr <- spline.correlog(x = bearDataSpr[, "NAD83_X"],
+                                    y = bearDataSpr[, "NAD83_Y"],
+                                    z = bearDataSpr[, "CR"],
+                                    xmax = d)
+plot(Correlog_BearSpr, main = "Bear/Spring")
+abline(v = 20, lty = 2)
+
+par(par.default)
+
+#Raccoons
+par.default <- par(no.readonly = T)
+par(mfrow = c(2,2))
+
+Correlog_RacSum <- spline.correlog(x = racDataSum[, "NAD83_X"],
+                                    y = racDataSum[, "NAD83_Y"],
+                                    z = racDataSum[, "CR"],
+                                    xmax = d)
+plot(Correlog_RacSum, main = "Raccoon/Summer")
+abline(v = 20, lty = 2)
+
+Correlog_RacFall <- spline.correlog(
+  x = racDataFall[, "NAD83_X"],
+  y = racDataFall[, "NAD83_Y"],
+  z = racDataFall[, "CR"],
+  xmax = d)
+plot(Correlog_RacFall, main = "Raccoon/Fall")
+abline(v = 20, lty = 2)
+
+Correlog_RacWin <- spline.correlog(
+  x = racDataWin[, "NAD83_X"],
+  y = racDataWin[, "NAD83_Y"],
+  z = racDataWin[, "CR"],
+  xmax = d)
+plot(Correlog_RacWin,   main = "Raccoon/Winter")
+abline(v = 20, lty = 2)
+
+Correlog_RacSpr <- spline.correlog(x = racDataSpr[, "NAD83_X"],
+                                    y = racDataSpr[, "NAD83_Y"],
+                                    z = racDataSpr[, "CR"],
+                                    xmax = d)
+plot(Correlog_RacSpr, main = "Raccoon/Spring")
+abline(v = 20, lty = 2)
+
+par(par.default)
+
+#Squirrels
+par.default <- par(no.readonly = T)
+par(mfrow = c(2,2))
+
+Correlog_SqSum <- spline.correlog(x = sqDataSum[, "NAD83_X"],
+                                   y = sqDataSum[, "NAD83_Y"],
+                                   z = sqDataSum[, "CR"],
+                                   xmax = d)
+plot(Correlog_SqSum, main = "Squirrel/Summer")
+abline(v = 20, lty = 2)
+
+Correlog_SqFall <- spline.correlog(
+  x = sqDataFall[, "NAD83_X"],
+  y = sqDataFall[, "NAD83_Y"],
+  z = sqDataFall[, "CR"],
+  xmax = d)
+plot(Correlog_SqFall, main = "Squirrel/Fall")
+abline(v = 20, lty = 2)
+
+Correlog_SqWin <- spline.correlog(
+  x = sqDataWin[, "NAD83_X"],
+  y = sqDataWin[, "NAD83_Y"],
+  z = sqDataWin[, "CR"],
+  xmax = d)
+plot(Correlog_SqWin,   main = "Squirrel/Winter")
+abline(v = 20, lty = 2)
+
+Correlog_SqSpr <- spline.correlog(x = sqDataSpr[, "NAD83_X"],
+                                   y = sqDataSpr[, "NAD83_Y"],
+                                   z = sqDataSpr[, "CR"],
+                                   xmax = d)
+plot(Correlog_SqSpr, main = "Squirrel/Spring")
+abline(v = 20, lty = 2)
+
+par(par.default)
 
 #________________________________________________
 #Calculating Moran's I - Spatial Autocorrelation
@@ -65,6 +241,14 @@ library(geoR) #for variograms
 #Generate distance matrix, one per season because of differing # of active points
 #Then take inverse of distance matrix and fill diagonals with 0
 distMatS<-as.matrix(dist(cbind(deerSumCR$NAD83_X, deerSumCR$NAD83_Y)))
+
+#Checking min and max intercamera distance, which is 15.82 and 114.7292
+diag(distMatS) <- NA
+min(distMatS[!is.na(distMatS)])
+max(distMatS[!is.na(distMatS)])
+
+distMatS<-as.matrix(dist(cbind(deerSumCR$NAD83_X, deerSumCR$NAD83_Y))) #return to normal
+
 invDistMatS <- 1/distMatS
 diag(invDistMatS)<-0
 
@@ -156,7 +340,6 @@ plot(RvarioF, xlim = c(0,120), ylim = c(0,400), main = "Fall", var.lines = T)
 #Calculate Moran's I for Raccoon for all Seasons. There may not be enough captures in winter or spring to warrant running those tests.
 bearSumMoran<-Moran.I(bearSumCR$CR, invDistMatS)
 bearFallMoran<-Moran.I(bearFallCR$CR, invDistMatF)
-bearWinMoran<-Moran.I(bearWinCR$CR, invDistMatW) #significant
 bearSprMoran<-Moran.I(bearSprCR$CR, invDistMatSp) #nearly sig 0.094 
 
 #bear Variograms for 4 Seasons. Need to remove the cameras with no data from Fall and Winter to have it work
@@ -178,7 +361,14 @@ BvarioF<-variog(coords = XYmatrixF, data = bearFallCR$CR, breaks = seq(0, 150,20
                 option = "bin")
 plot(BvarioF, xlim = c(0,120), ylim = c(0,150), main = "Fall")
 
+#################################
+#Squirrel Analysis####
+#Calculate Moran's I for squirrel for all Seasons. 
 
+sqSumMoran<-Moran.I(squirrelSumCR$CR, invDistMatS)
+sqFallMoran<-Moran.I(squirrelFallCR$CR, invDistMatF)
+sqWinMoran<-Moran.I(squirrelWinCR$CR, invDistMatW)
+sqSprMoran<-Moran.I(squirrelSprCR$CR, invDistMatSp)
 
 #########################################
 #Plotting Covariance
