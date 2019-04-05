@@ -485,6 +485,13 @@ modnamesF <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stem
 modtabFallDeer <- aictab(cand.set = ModListFallDeer, modnames = modnamesF)
 modtabFallDeer #Intercept is the best model!
 
+#Summed Model Weights for Deer in Fall from Full Table
+FallSW_edd <- sum(modtabFallDeer$AICcWt[grep("EDD", modtabFallDeer$Modnames)])
+FallSW_OakDBH <- sum(modtabFallDeer$AICcWt[grep("Oak", modtabFallDeer$Modnames)])
+FallSW_Stems <- sum(modtabFallDeer$AICcWt[grep("Stems", modtabFallDeer$Modnames)])
+FallSW_Log <- sum(modtabFallDeer$AICcWt[grep("Log", modtabFallDeer$Modnames)])
+FallSW_Height <- sum(modtabFallDeer$AICcWt[grep("Height", modtabFallDeer$Modnames)])
+
 #Explained Deviance of best model (Intercept)
 1 - glm.nb.FI$deviance / glm.nb.FI$null.deviance #0.0
 #Explained Deviance of Full Model
@@ -604,6 +611,13 @@ ModListWinDeer[[25]] <- glm.nb.WHgtOakLog <-
 modnamesW <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log")
 modtabWinDeer <- aictab(cand.set = ModListWinDeer, modnames = modnamesW)
 modtabWinDeer #intercept model is the best
+
+#Summed Model Weights for Deer in Winter from full table. 
+WinSW_edd <- sum(modtabWinDeer$AICcWt[grep("EDD", modtabWinDeer$Modnames)])
+WinSW_OakDBH <- sum(modtabWinDeer$AICcWt[grep("Oak", modtabWinDeer$Modnames)])
+WinSW_Stems <- sum(modtabWinDeer$AICcWt[grep("Stems", modtabWinDeer$Modnames)])
+WinSW_Log <- sum(modtabWinDeer$AICcWt[grep("Log", modtabWinDeer$Modnames)])
+WinSW_Height <- sum(modtabWinDeer$AICcWt[grep("Height", modtabWinDeer$Modnames)])
 
 #Explained Deviance of best model (Intercept)
 1 - glm.nb.WI$deviance / glm.nb.WI$null.deviance #0.0
@@ -725,6 +739,13 @@ ModListSprDeer[[25]] <- glm.nb.SPHgtOakLog <-
 modnamesSP <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log")
 modtabSprDeer <- aictab(cand.set = ModListSprDeer, modnames = modnamesSP)
 modtabSprDeer #Intercept Only model is best 
+
+#Summed Model Weights for Deer in Spring from full table. 
+SprSW_edd <- sum(modtabSprDeer$AICcWt[grep("EDD", modtabSprDeer$Modnames)])
+SprSW_OakDBH <- sum(modtabSprDeer$AICcWt[grep("Oak", modtabSprDeer$Modnames)])
+SprSW_Stems <- sum(modtabSprDeer$AICcWt[grep("Stems", modtabSprDeer$Modnames)])
+SprSW_Log <- sum(modtabSprDeer$AICcWt[grep("Log", modtabSprDeer$Modnames)])
+SprSW_Height <- sum(modtabSprDeer$AICcWt[grep("Height", modtabSprDeer$Modnames)])
 
 #Explained Deviance of best model (Intercept)
 1 - glm.nb.SPI$deviance / glm.nb.SPI$null.deviance #0.0

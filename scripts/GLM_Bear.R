@@ -84,8 +84,7 @@ sum.po.fullSp <- summary(glm.po.fullSp)
 phi.po.fullSp <- sum.po.fullSp$deviance/sum.po.fullSp$df.residual 
 
 
-# Negative Binomial Regression - Black Bear --------------------------------------
-#Summer
+# Negative Binomial Regression - Black Bear in Summer---------------------------------
 
 ModListSumBear <- list(NA)
 
@@ -200,8 +199,15 @@ modnamesS <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stem
 modtabSumBear <- aictab(cand.set = ModListSumBear, modnames = modnamesS)
 modtabSumBear
 
-summary(glm.nb.Slog) #This is likely the best model. Indicates bear are captured less frequenctly when there is a log in view, in summer.
-summary(glm.nb.Sedd) #this model also has some support
+summary(glm.nb.Slog) #This is the best model. Indicates bear are captured less frequently when there is a log in view, in summer.
+
+#Summed Model Weights for Squirrels in Summer from full table. 
+SumSW_edd <- sum(modtabSumBear$AICcWt[grep("EDD", modtabSumBear$Modnames)])
+SumSW_OakDBH <- sum(modtabSumBear$AICcWt[grep("Oak", modtabSumBear$Modnames)])
+SumSW_Stems <- sum(modtabSumBear$AICcWt[grep("Stems", modtabSumBear$Modnames)])
+SumSW_Log <- sum(modtabSumBear$AICcWt[grep("Log", modtabSumBear$Modnames)])
+SumSW_Height <- sum(modtabSumBear$AICcWt[grep("Height", modtabSumBear$Modnames)])
+
 
 #Explained deviance of best model
 1 - glm.nb.Slog$deviance / glm.nb.Slog$null.deviance #0.1688
@@ -326,10 +332,37 @@ modtabFallBear
 
 summary(glm.nb.FEdd_oak) # Seems like best model, indicates bear more likely to be photographed in front of cameras with more/bigger oaks in front of it, in the Fall
 
+#Summed Model Weights Bears in Fall from full table. Note interaction not included at the moment
+FallSW_edd <- sum(modtabFallBear$AICcWt[grep("EDD", modtabFallBear$Modnames)])
+FallSW_OakDBH <- sum(modtabFallBear$AICcWt[grep("Oak", modtabFallBear$Modnames)])
+FallSW_Stems <- sum(modtabFallBear$AICcWt[grep("Stems", modtabFallBear$Modnames)])
+FallSW_Log <- sum(modtabFallBear$AICcWt[grep("Log", modtabFallBear$Modnames)])
+FallSW_Height <- sum(modtabFallBear$AICcWt[grep("Height", modtabFallBear$Modnames)])
+
 #Explained deviance of best model
 1 - glm.nb.FEdd_oak$deviance / glm.nb.FEdd_oak$null.deviance #0.2167876
 #Explained deviance of full model
 1 - glm.nb.fullF$deviance / glm.nb.fullF$null.deviance #0.2523777
+
+#Response Curve of Oak DBH
+summary(bearDataFall$OakDBH)
+seq.oak <- seq(min(bearDataFall$OakDBH), max(bearDataFall$OakDBH), length.out = 100)
+nd.seq.oak <- data.frame(Deploy.Duration = 61, OakDBH = seq.oak, Summer.Fall.EDD = median(bearDataFall$Summer.Fall.EDD))
+pred.oak <- predict(glm.nb.FEdd_oak, newdata = nd.seq.oak, se=TRUE, type = "link")
+plot(nSeqs ~ OakDBH, data=bearDataFall, pch=16, col=rgb(.75,.25,0,.5), las=1, xlab = "Total DBH Oak", ylab = "# Bear Sequences in Fall")
+lines(nd.seq.oak$OakDBH, exp(pred.oak$fit), col="dark olive green")
+lines(nd.seq.oak$OakDBH, exp(pred.oak$fit + 1.96*pred.oak$se.fit), lty=2, col="dark olive green")
+lines(nd.seq.oak$OakDBH, exp(pred.oak$fit - 1.96*pred.oak$se.fit), lty=2, col="dark olive green")
+
+#Response Curve of EDD
+summary(bearDataFall$OakDBH)
+seq.edd <- seq(min(bearDataFall$Summer.Fall.EDD), max(bearDataFall$Summer.Fall.EDD), length.out = 100)
+nd.seq.edd <- data.frame(Deploy.Duration = 61, OakDBH = median(bearDataFall$OakDBH), Summer.Fall.EDD = seq.edd)
+pred.edd <- predict(glm.nb.FEdd_oak, newdata = nd.seq.edd, se=TRUE, type = "link")
+plot(nSeqs ~ Summer.Fall.EDD, data=bearDataFall, pch=16, col=rgb(.75,.25,0,.5), las=1, xlab = "Effective Detection Distance (m)", ylab = "# Bear Sequences in Fall")
+lines(nd.seq.edd$Summer.Fall.EDD, exp(pred.edd$fit), col="dark olive green")
+lines(nd.seq.edd$Summer.Fall.EDD, exp(pred.edd$fit + 1.96*pred.edd$se.fit), lty=2, col="dark olive green")
+lines(nd.seq.edd$Summer.Fall.EDD, exp(pred.edd$fit - 1.96*pred.edd$se.fit), lty=2, col="dark olive green")
 
 
 # Bear in Spring NB Full Model Selection ----------------------------------
@@ -446,28 +479,15 @@ modnamesSP <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Ste
 modtabSprBear <- aictab(cand.set = ModListSprBear, modnames = modnamesSP)
 modtabSprBear
 
+#Summed Model Weights for Bears in Spring from full table. 
+SprSW_edd <- sum(modtabSprBear$AICcWt[grep("EDD", modtabSprBear$Modnames)])
+SprSW_OakDBH <- sum(modtabSprBear$AICcWt[grep("Oak", modtabSprBear$Modnames)])
+SprSW_Stems <- sum(modtabSprBear$AICcWt[grep("Stems", modtabSprBear$Modnames)])
+SprSW_Log <- sum(modtabSprBear$AICcWt[grep("Log", modtabSprBear$Modnames)])
+SprSW_Height <- sum(modtabSprBear$AICcWt[grep("Height", modtabSprBear$Modnames)])
+
 #Nothing useful in Spring. Intercept is best model.
 #Explained deviance of best model
 1 - glm.nb.SPI$deviance / glm.nb.SPI$null.deviance #0.0
 #Explained deviance of full model
 1 - glm.nb.fullSP$deviance / glm.nb.fullSP$null.deviance #0.1462535
-
-#EDIT CODE BELOW AND MOVE ABOVE
-#____________________________________
-#Response Curves for Covariates
-#____________________________________
-
-
-#Bear in Fall, influence of dbh of oaks in front of camera on detection rates
-summary(glm.nb.Foak)
-
-
-#Response Curves for OakDBH. No other parameters were important.
-summary(bearDataFall$OakDBH)
-seq.oak <- seq(min(bearDataFall$OakDBH), max(bearDataFall$OakDBH), length.out = 100)
-nd.seq.oak <- data.frame(Deploy.Duration = 61, OakDBH = seq.oak)
-pred.oak <- predict(glm.nb.Foak, newdata = nd.seq.oak, se=TRUE, type = "link")
-plot(nSeqs ~ OakDBH, data=bearDataFall, pch=16, col=rgb(.75,.25,0,.5), las=1, xlab = "Total DBH Oak", ylab = "# Bear Sequences in Fall")
-lines(nd.seq.oak$OakDBH, exp(pred.oak$fit), col="dark olive green")
-lines(nd.seq.oak$OakDBH, exp(pred.oak$fit + 1.96*pred.oak$se.fit), lty=2, col="dark olive green")
-lines(nd.seq.oak$OakDBH, exp(pred.oak$fit - 1.96*pred.oak$se.fit), lty=2, col="dark olive green")

@@ -87,7 +87,7 @@ sum.po.fullSp <- summary(glm.po.fullSp)
 phi.po.fullSp <- sum.po.fullSp$deviance/sum.po.fullSp$df.residual 
 
 
-# Negative Binomial Regression - Squirrels --------------------------------------
+# Negative Binomial Regression - Squirrels in Summer --------------------------------
 #maybe quadratic on height?
 
 ModListSumSq <- list(NA)
@@ -205,11 +205,85 @@ modtabSumSq
 
 #Best model has height, EDD and log
 summary(glm.nb.SHgtEddLog)
+AICc(glm.nb.SHgtEddLog)
+
+#Summed Model Weights for Squirrels in Summer from full table. 
+SumSW_edd <- sum(modtabSumSq$AICcWt[grep("EDD", modtabSumSq$Modnames)])
+SumSW_OakDBH <- sum(modtabSumSq$AICcWt[grep("Oak", modtabSumSq$Modnames)])
+SumSW_Stems <- sum(modtabSumSq$AICcWt[grep("Stems", modtabSumSq$Modnames)])
+SumSW_Log <- sum(modtabSumSq$AICcWt[grep("Log", modtabSumSq$Modnames)])
+SumSW_Height <- sum(modtabSumSq$AICcWt[grep("Height", modtabSumSq$Modnames)])
+
+#See if this model is better with EDD and log interaction
+glm.nb.SHgtEddXLog <-
+  glm.nb(
+    nSeqs ~ Height_cm + Log.in.View * Squirrel_EDD_4S +
+      offset(log(Deploy.Duration)),
+    data = sqDataSum
+  )
+AICc(glm.nb.SHgtEddXLog) #not worth having the interaction here
+summary(glm.nb.SHgtEddXLog)
+
+#Compare height alone to height quadratic
+glm.nb.SHgt2 <-
+  glm.nb(
+    nSeqs ~ poly(Height_cm, 2, raw = T) +
+      offset(log(Deploy.Duration)),
+    data = sqDataSum
+  )
+AICc(glm.nb.SHgt2)
+AICc(glm.nb.Shgt) #no support for quadratic effect
+
+#Compare best model with height as quadratic in same model
+glm.nb.SHgt2EddLog <-
+  glm.nb(
+    nSeqs ~ poly(Height_cm, 2, raw = T) + Log.in.View + Squirrel_EDD_4S +
+      offset(log(Deploy.Duration)),
+    data = sqDataSum
+  )
+AICc(glm.nb.SHgt2EddLog) #no support for quadratic effect
 
 #Explained deviance of best model
 1 - glm.nb.SHgtEddLog$deviance / glm.nb.SHgtEddLog$null.deviance #0.4791487
 #Explained deviance of full model
 1 - glm.nb.fullS$deviance / glm.nb.fullS$null.deviance #0.5029752
+
+#Response curves here for EDD with and without logs
+
+seq.SEdd <- seq(min(sqDataSum$Squirrel_EDD_4S), max(sqDataSum$Squirrel_EDD_4S), length.out = 100)
+
+nd.seq.SEdd <- data.frame(Deploy.Duration = 61, Squirrel_EDD_4S = seq.SEdd, Log.in.View = "YES", Height_cm = median(sqDataSum$Height_cm))
+nd.seq.SEddNo <- data.frame(Deploy.Duration = 61, Squirrel_EDD_4S = seq.SEdd, Log.in.View = "NO", Height_cm = median(sqDataSum$Height_cm))
+
+pred.SEdd <- predict(glm.nb.SHgtEddLog, newdata = nd.seq.SEdd, se=TRUE, type = "link")
+pred.SEddNo <- predict(glm.nb.SHgtEddLog, newdata = nd.seq.SEddNo, se=TRUE, type = "link")
+
+plot(nSeqs ~ Squirrel_EDD_4S, data=sqDataSum, pch=16, col=sqDataSum$Log.in.View, las=1, xlab = "Effective Detection Distance (m)", ylab = "# Squirrel Sequences in Summer")
+lines(nd.seq.SEdd$Squirrel_EDD_4S, exp(pred.SEdd$fit), col="red")
+lines(nd.seq.SEdd$Squirrel_EDD_4S, exp(pred.SEdd$fit + 1.96*pred.SEdd$se.fit), lty=2, col="red")
+lines(nd.seq.SEdd$Squirrel_EDD_4S, exp(pred.SEdd$fit - 1.96*pred.SEdd$se.fit), lty=2, col="red")
+
+lines(nd.seq.SEdd$Squirrel_EDD_4S, exp(pred.SEddNo$fit), col="black")
+lines(nd.seq.SEdd$Squirrel_EDD_4S, exp(pred.SEddNo$fit + 1.96*pred.SEddNo$se.fit), lty=2, col="black")
+lines(nd.seq.SEdd$Squirrel_EDD_4S, exp(pred.SEddNo$fit - 1.96*pred.SEddNo$se.fit), lty=2, col="black")
+
+#Response curves of height, with and without logs
+seq.SHgt <- seq(min(sqDataSum$Height_cm), max(sqDataSum$Height_cm), length.out = 100)
+
+nd.seq.SHgt <- data.frame(Deploy.Duration = 61, Squirrel_EDD_4S = median(sqDataSum$Squirrel_EDD_4S), Log.in.View = "YES", Height_cm = seq.SHgt)
+nd.seq.SHgtNo <- data.frame(Deploy.Duration = 61, Squirrel_EDD_4S = median(sqDataSum$Squirrel_EDD_4S), Log.in.View = "NO", Height_cm = seq.SHgt)
+
+pred.SHgtY <- predict(glm.nb.SHgtEddLog, newdata = nd.seq.SHgt, se=TRUE, type = "link")
+pred.SHgtN <- predict(glm.nb.SHgtEddLog, newdata = nd.seq.SHgtNo, se=TRUE, type = "link")
+
+plot(nSeqs ~ Height_cm, data=sqDataSum, pch=16, col=sqDataSum$Log.in.View, las=1, xlab = "Camera Height (cm)", ylab = "# Squirrel Sequences in Summer")
+lines(nd.seq.SHgt$Height_cm, exp(pred.SHgtY$fit), col="red")
+lines(nd.seq.SHgt$Height_cm, exp(pred.SHgtY$fit + 1.96*pred.SHgtY$se.fit), lty=2, col="red")
+lines(nd.seq.SHgt$Height_cm, exp(pred.SHgtY$fit - 1.96*pred.SHgtY$se.fit), lty=2, col="red")
+
+lines(nd.seq.SHgt$Height_cm, exp(pred.SHgtN$fit), col="black")
+lines(nd.seq.SHgt$Height_cm, exp(pred.SHgtN$fit + 1.96*pred.SHgtN$se.fit), lty=2, col="black")
+lines(nd.seq.SHgt$Height_cm, exp(pred.SHgtN$fit - 1.96*pred.SHgtN$se.fit), lty=2, col="black")
 
 
 # Squirrel in Fall NB Full Model Selection --------------------------------
@@ -243,7 +317,7 @@ ModListFallSq[[7]] <- glm.nb.Fedd <-
 ModListFallSq[[8]] <- glm.nb.Flog_stems <-
   glm.nb(nSeqs ~ Log.in.View + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[9]] <-glm.nb.Flog_Edd <-
+ModListFallSq[[9]] <- glm.nb.Flog_Edd <-
   glm.nb(nSeqs ~ Log.in.View + Squirrel_EDD_4S + offset(log(Deploy.Duration)), data = sqDataFall)
 
 ModListFallSq[[10]] <- glm.nb.Flog_Oak <-
@@ -330,11 +404,51 @@ modtabFallSq
 #Best model is clear as log and EDD
 summary(glm.nb.Flog_Edd)
 
-#Explained Deviance of best model
-1 - glm.nb.Flog_Edd$deviance / glm.nb.Flog_Edd$null.deviance #0.4271167
-#Explained Deviance of best model
-1 - glm.nb.fullF$deviance / glm.nb.fullF$null.deviance #0.4430968
+#Summed Model Weights Squirrels in Fall from full table. Note interaction not included at the moment
+FallSW_edd <- sum(modtabFallSq$AICcWt[grep("EDD", modtabFallSq$Modnames)])
+FallSW_OakDBH <- sum(modtabFallSq$AICcWt[grep("Oak", modtabFallSq$Modnames)])
+FallSW_Stems <- sum(modtabFallSq$AICcWt[grep("Stems", modtabFallSq$Modnames)])
+FallSW_Log <- sum(modtabFallSq$AICcWt[grep("Log", modtabFallSq$Modnames)])
+FallSW_Height <- sum(modtabFallSq$AICcWt[grep("Height", modtabFallSq$Modnames)])
 
+#Compare height alone to height quadratic
+glm.nb.FHgt2 <-
+  glm.nb(
+    nSeqs ~ poly(Height_cm, 2, raw = T) +
+      offset(log(Deploy.Duration)),
+    data = sqDataFall
+  )
+AICc(glm.nb.FHgt2)
+AICc(glm.nb.Fhgt) #no support for quadratic effect
+
+#See if log by EDD interaction improves the best model
+glm.nb.FlogXEdd <-
+  glm.nb(nSeqs ~ Log.in.View * Squirrel_EDD_4S + offset(log(Deploy.Duration)), data = sqDataFall)
+AICc(glm.nb.FlogXEdd) #This is now the best model
+summary(glm.nb.FlogXEdd)
+
+#Explained Deviance of best model
+1 - glm.nb.FlogXEdd$deviance / glm.nb.FlogXEdd$null.deviance #0.49976
+#Explained Deviance of best model
+#1 - glm.nb.fullF$deviance / glm.nb.fullF$null.deviance #0.4430968
+
+#Response Curve for EDD impact, with and without log present
+seq.FEdd <- seq(min(sqDataFall$Squirrel_EDD_4S), max(sqDataFall$Squirrel_EDD_4S), length.out = 100)
+
+nd.seq.FEdd <- data.frame(Deploy.Duration = 61, Squirrel_EDD_4S = seq.FEdd, Log.in.View = "YES")
+nd.seq.FEddNo <- data.frame(Deploy.Duration = 61, Squirrel_EDD_4S = seq.FEdd, Log.in.View = "NO")
+
+pred.FEdd <- predict(glm.nb.FlogXEdd, newdata = nd.seq.FEdd, se=TRUE, type = "link")
+pred.FEddNo <- predict(glm.nb.FlogXEdd, newdata = nd.seq.FEddNo, se=TRUE, type = "link")
+
+plot(nSeqs ~ Squirrel_EDD_4S, data=sqDataFall, pch=16, col=sqDataFall$Log.in.View, las=1, xlab = "Effective Detection Distance (m)", ylab = "# Squirrel Sequences in Fall")
+lines(nd.seq.FEdd$Squirrel_EDD_4S, exp(pred.FEdd$fit), col="red")
+lines(nd.seq.FEdd$Squirrel_EDD_4S, exp(pred.FEdd$fit + 1.96*pred.FEdd$se.fit), lty=2, col="red")
+lines(nd.seq.FEdd$Squirrel_EDD_4S, exp(pred.FEdd$fit - 1.96*pred.FEdd$se.fit), lty=2, col="red")
+
+lines(nd.seq.FEdd$Squirrel_EDD_4S, exp(pred.FEddNo$fit), col="black")
+lines(nd.seq.FEdd$Squirrel_EDD_4S, exp(pred.FEddNo$fit + 1.96*pred.FEddNo$se.fit), lty=2, col="black")
+lines(nd.seq.FEdd$Squirrel_EDD_4S, exp(pred.FEddNo$fit - 1.96*pred.FEddNo$se.fit), lty=2, col="black")
 
 
 #Winter Squirrel NB Full Model Selection --------------------------------
@@ -451,7 +565,24 @@ modnamesW <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stem
 modtabWinSq <- aictab(cand.set = ModListWinSq, modnames = modnamesW)
 modtabWinSq
 
-summary(glm.nb.Wlog)
+summary(glm.nb.Wlog) #best model only has log effects
+
+#Summed Model Weights for Squirrels in Winter from full table. 
+WinSW_edd <- sum(modtabWinSq$AICcWt[grep("EDD", modtabWinSq$Modnames)])
+WinSW_OakDBH <- sum(modtabWinSq$AICcWt[grep("Oak", modtabWinSq$Modnames)])
+WinSW_Stems <- sum(modtabWinSq$AICcWt[grep("Stems", modtabWinSq$Modnames)])
+WinSW_Log <- sum(modtabWinSq$AICcWt[grep("Log", modtabWinSq$Modnames)])
+WinSW_Height <- sum(modtabWinSq$AICcWt[grep("Height", modtabWinSq$Modnames)])
+
+#Compare height alone to height quadratic
+glm.nb.WHgt2 <-
+  glm.nb(
+    nSeqs ~ poly(Height_cm, 2, raw = T) +
+      offset(log(Deploy.Duration)),
+    data = sqDataWin
+  )
+AICc(glm.nb.WHgt2)
+AICc(glm.nb.Whgt) #no support for quadratic effect
 
 #Explained deviance of best model
 1 - glm.nb.Wlog$deviance / glm.nb.Wlog$null.deviance #0.1418821
@@ -573,7 +704,24 @@ modnamesSP <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Ste
 modtabSprSq <- aictab(cand.set = ModListSprSq, modnames = modnamesSP)
 modtabSprSq
 
-summary(glm.nb.SPlog)
+summary(glm.nb.SPlog) #best model has only log
+
+#Summed Model Weights for Squirrels in Spring from full table. 
+SprSW_edd <- sum(modtabSprSq$AICcWt[grep("EDD", modtabSprSq$Modnames)])
+SprSW_OakDBH <- sum(modtabSprSq$AICcWt[grep("Oak", modtabSprSq$Modnames)])
+SprSW_Stems <- sum(modtabSprSq$AICcWt[grep("Stems", modtabSprSq$Modnames)])
+SprSW_Log <- sum(modtabSprSq$AICcWt[grep("Log", modtabSprSq$Modnames)])
+SprSW_Height <- sum(modtabSprSq$AICcWt[grep("Height", modtabSprSq$Modnames)])
+
+#Compare height alone to height quadratic
+glm.nb.SPHgt2 <-
+  glm.nb(
+    nSeqs ~ poly(Height_cm, 2, raw = T) +
+      offset(log(Deploy.Duration)),
+    data = sqDataSpr
+  )
+AICc(glm.nb.SPHgt2)
+AICc(glm.nb.SPhgt) #no support for quadratic effect
 
 #Explained deviance of best model
 1 - glm.nb.SPlog$deviance / glm.nb.SPlog$null.deviance #0.1237157

@@ -224,6 +224,13 @@ modnamesS <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stem
 modtabSumRac <- aictab(cand.set = ModListSumRac, modnames = modnamesS)
 modtabSumRac
 
+#Summed Model Weights for Raccoons in Summer from full table. 
+SumSW_edd <- sum(modtabSumRac$AICcWt[grep("EDD", modtabSumRac$Modnames)])
+SumSW_OakDBH <- sum(modtabSumRac$AICcWt[grep("Oak", modtabSumRac$Modnames)])
+SumSW_Stems <- sum(modtabSumRac$AICcWt[grep("Stems", modtabSumRac$Modnames)])
+SumSW_Log <- sum(modtabSumRac$AICcWt[grep("Log", modtabSumRac$Modnames)])
+SumSW_Height <- sum(modtabSumRac$AICcWt[grep("Height", modtabSumRac$Modnames)])
+
 #Explained Deviance of best model
 1 - glm.nb.Sstems$deviance / glm.nb.Sstems$null.deviance #0.1365
 #Explained Deviance of best 3 variable model
@@ -361,6 +368,12 @@ modtabFallRac <- aictab(cand.set = ModListFallRac, modnames = modnamesF)
 modtabFallRac #The log model is best, not much support for EDD, but the Stems + Oak model also has reasonable support. Should discuss all three.
 summary(glm.nb.Fstems_oak)
 
+#Summed Model Weights Raccoons in Fall from full table. 
+FallSW_edd <- sum(modtabFallRac$AICcWt[grep("EDD", modtabFallRac$Modnames)])
+FallSW_OakDBH <- sum(modtabFallRac$AICcWt[grep("Oak", modtabFallRac$Modnames)])
+FallSW_Stems <- sum(modtabFallRac$AICcWt[grep("Stems", modtabFallRac$Modnames)])
+FallSW_Log <- sum(modtabFallRac$AICcWt[grep("Log", modtabFallRac$Modnames)])
+FallSW_Height <- sum(modtabFallRac$AICcWt[grep("Height", modtabFallRac$Modnames)])
 
 #Explained Deviance of best model A
 1 - glm.nb.Flog$deviance / glm.nb.Flog$null.deviance #0.140
@@ -513,6 +526,13 @@ modtabWinRac
 summary(glm.nb.Wlog_Hgt)
 summary(glm.nb.Wstems_hgt)
 
+#Summed Model Weights for Raccoon in Winter from full table. 
+WinSW_edd <- sum(modtabWinRac$AICcWt[grep("EDD", modtabWinRac$Modnames)])
+WinSW_OakDBH <- sum(modtabWinRac$AICcWt[grep("Oak", modtabWinRac$Modnames)])
+WinSW_Stems <- sum(modtabWinRac$AICcWt[grep("Stems", modtabWinRac$Modnames)])
+WinSW_Log <- sum(modtabWinRac$AICcWt[grep("Log", modtabWinRac$Modnames)])
+WinSW_Height <- sum(modtabWinRac$AICcWt[grep("Height", modtabWinRac$Modnames)])
+
 #Explained Deviance of Best Model
 1 - glm.nb.Wlog_Hgt$deviance / glm.nb.Wlog_Hgt$null.deviance #0.284
 #Explained Deviance of best 3 variable model
@@ -658,6 +678,13 @@ modtabSprRac <- aictab(cand.set = ModListSprRac, modnames = modnamesSP)
 modtabSprRac
 
 summary(glm.nb.SPoak) #In Spring there is some evidence that raccoon are more frequently captured in front of cameras that have smaller total dbh of oaks.
+
+#Summed Model Weights for Raccoon in Spring from full table. 
+SprSW_edd <- sum(modtabSprRac$AICcWt[grep("EDD", modtabSprRac$Modnames)])
+SprSW_OakDBH <- sum(modtabSprRac$AICcWt[grep("Oak", modtabSprRac$Modnames)])
+SprSW_Stems <- sum(modtabSprRac$AICcWt[grep("Stems", modtabSprRac$Modnames)])
+SprSW_Log <- sum(modtabSprRac$AICcWt[grep("Log", modtabSprRac$Modnames)])
+SprSW_Height <- sum(modtabSprRac$AICcWt[grep("Height", modtabSprRac$Modnames)])
 
 #Explained Deviance of Best Model
 1 - glm.nb.SPoak$deviance / glm.nb.SPoak$null.deviance #0.095165
