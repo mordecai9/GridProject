@@ -45,7 +45,8 @@ sqrlData <- merge(sqrlData, camHeight, by = "Deployment")
 deerData <- merge(deerData, camHeight, by = "Deployment")
 bearData <- merge(bearData, camHeight, by = "Deployment")
 raccoonData <- merge(raccoonData, camHeight, by = "Deployment")
-
+foxsqrlData <- merge(foxsqrlData, camHeight, by = "Deployment")
+grsqrlData <- merge(grsqrlData, camHeight, by = "Deployment")
 
 #Variable - Number of Trees in camera sight####
 #Working with SIGEO tree grid information to try to associate with capture rates from our high resolution camera grid. Coordinates should be UTM Zone 17S
@@ -188,8 +189,8 @@ sqrlData <- merge(sqrlData, cvtreecount1, by = "Deployment")
 deerData <- merge(deerData, cvtreecount1, by = "Deployment")
 bearData <- merge(bearData, cvtreecount1, by = "Deployment")
 raccoonData <- merge(raccoonData, cvtreecount1, by = "Deployment")
-
-
+foxsqrlData <- merge(foxsqrlData, cvtreecount1, by = "Deployment")
+grsqrlData <- merge(grsqrlData, cvtreecount1, by = "Deployment")
 
 #____________________________
 #Variable - Oak Trees####
@@ -248,7 +249,10 @@ bearData <- merge(bearData, Oak_DBH1, by = "Deployment", all = T)
 bearData[is.na(bearData)] <- 0
 raccoonData <- merge(raccoonData, Oak_DBH1, by = "Deployment", all = T)
 raccoonData[is.na(raccoonData)] <- 0
-
+foxsqrlData <- merge(foxsqrlData, Oak_DBH1, by = "Deployment", all = T)
+foxsqrlData[is.na(foxsqrlData)] <- 0
+grsqrlData <- merge(grsqrlData, Oak_DBH1, by = "Deployment", all = T)
+grsqrlData[is.na(grsqrlData)] <- 0
 
 # Variable - Log in View Y/N ----------------------------------------------
 
@@ -262,6 +266,8 @@ sqrlData <- merge(sqrlData, logView, by = "Deployment")
 deerData <- merge(deerData, logView, by = "Deployment")
 bearData <- merge(bearData, logView, by = "Deployment")
 raccoonData <- merge(raccoonData, logView, by = "Deployment")
+foxsqrlData <- merge(foxsqrlData, logView, by = "Deployment")
+grsqrlData <- merge(grsqrlData, logView, by = "Deployment")
 
 # Variable - Effective Detection Distance ---------------------------------
 #Bring in Detection Distance Data for Each Species
@@ -327,7 +333,7 @@ bearDataSpr <- bearData %>%
 save(bearDataSpr, file = "data/bearDataSpr.RData")
 
 #Squirrel EDD Data. For squirrels, we had adequate observations to estimate detection distance for squirrels in Winter/Spring when these seasons were pooled, but had to use pooled 4-season data for Summer and Fall analyses for squirrels. 
-#Waiting for clarification from Josey, because there is only one column of EDD data in the squirrel EDD csv file.
+
 
 sqEDD <- read.csv("data/SquirrelEDD_4S.csv") 
 
@@ -352,6 +358,54 @@ sqDataSpr <- sqrlData %>%
   filter(Season == "Spring 2018") %>%
   dplyr::select(-Squirrel_EDD_4S)
 save(sqDataSpr, file = "data/sqDataSpr.RData")
+
+#Repeating for Fox Squirrels
+
+foxsqrlData <- merge(foxsqrlData, sqEDD, by = "Deployment")
+
+foxsqDataSum <- foxsqrlData %>%
+  filter(Season == "Summer 2017") %>%
+  dplyr::select(-Squirrel_EDD_WSp)
+save(foxsqDataSum, file = "data/foxsqDataSum.RData")
+
+foxsqDataFall <- foxsqrlData %>%
+  filter(Season == "Fall 2017") %>%
+  dplyr::select(-Squirrel_EDD_WSp)
+save(foxsqDataFall, file = "data/foxsqDataFall.RData")
+
+foxsqDataWin <- foxsqrlData %>%
+  filter(Season == "Winter 2017") %>%
+  dplyr::select(-Squirrel_EDD_4S)
+save(foxsqDataWin, file = "data/foxsqDataWin.RData")
+
+foxsqDataSpr <- foxsqrlData %>%
+  filter(Season == "Spring 2018") %>%
+  dplyr::select(-Squirrel_EDD_4S)
+save(foxsqDataSpr, file = "data/foxsqDataSpr.RData")
+
+#Repeating for Gray Squirrels
+
+grsqrlData <- merge(grsqrlData, sqEDD, by = "Deployment")
+
+grsqDataSum <- grsqrlData %>%
+  filter(Season == "Summer 2017") %>%
+  dplyr::select(-Squirrel_EDD_WSp)
+save(grsqDataSum, file = "data/grsqDataSum.RData")
+
+grsqDataFall <- grsqrlData %>%
+  filter(Season == "Fall 2017") %>%
+  dplyr::select(-Squirrel_EDD_WSp)
+save(grsqDataFall, file = "data/grsqDataFall.RData")
+
+grsqDataWin <- grsqrlData %>%
+  filter(Season == "Winter 2017") %>%
+  dplyr::select(-Squirrel_EDD_4S)
+save(grsqDataWin, file = "data/grsqDataWin.RData")
+
+grsqDataSpr <- grsqrlData %>%
+  filter(Season == "Spring 2018") %>%
+  dplyr::select(-Squirrel_EDD_4S)
+save(grsqDataSpr, file = "data/grsqDataSpr.RData")
 
 #Raccoon EDD Data. For raccoons, when pooling across all 4 seasons, approximately half the cameras failed to meet the 30 observation threshold. For those cameras with adequate observations we calculated EDD. For the remaining, we used the EDDs from DEER, which were determined to correlate better with raccoon EDD than squirrel. 
 
