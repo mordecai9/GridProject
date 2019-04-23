@@ -332,7 +332,7 @@ a <-
   
 
 a
-ggsave("results/SeasonCRAll.tiff", width = 6.5, height = 4)
+#ggsave("results/SeasonCRAll.tiff", width = 6.5, height = 4)
 
 rare <- c("Mustela frenata", "Glaucomys volans", "Vulpes vulpes", "Lynx rufus", "Mephitis mephitis", "Urocyon cinereoargenteus", "Canis latrans", "Didelphis virginianus")
 b <-
@@ -353,14 +353,16 @@ b <-
         panel.grid.minor.x = element_line(color="gray", size = .5,linetype = "dashed"))
 
 b
-ggsave("results/SeasonCR_Rare.tiff", width = 6.5, height = 4)
+#ggsave("results/SeasonCR_Rare.tiff", width = 6.5, height = 4)
 
-multiplot(a,b, cols = 2) #http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
+
+
+
+#multiplot(a,b, cols = 2) #http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
 
 
 #______________________________________________
 #Plot CapRates by Point Size on Grid####
-#Remember to somehow label cameras that were not operating. This goes for Winter and Fall figures.
 #_____________________________________________
 
 #Bring in XY data for grid
@@ -374,7 +376,7 @@ camdata_summary <- merge(camdata_summary, deployCodes, by.x = "Deployment_Name")
 
 camdata_summary <- merge(camdata_summary, gridXY, by.x = "Deployment_Name2", by.y = "Deployment")
 
-save(camdata_summary, file = "data/camdata_summary")
+#save(camdata_summary, file = "data/camdata_summary") already saved. but need to resave if any changes made to the file
 
 #_____________________________________________
 ##CapRates Point Size Figures- DEER----
@@ -386,20 +388,27 @@ idxf <- which(gridXY$Deployment == "505" | gridXY$Deployment == "206")
 #call out failed points for Winter deployments
 idxw <- which(gridXY$Deployment == "101" | gridXY$Deployment == "401")
 
-par(mar = c(1,1,1,1))
-par(mfrow = c(2,2))
 
-#DEER SUMMER
+tiff("results/AllSpeciesGridCR.tiff", width = 10, height = 8, units = 'in', res = 300, compression = 'lzw')
+
+#Remember margins are bottom, left, top, right
+
+par(mfrow = c(5,4))
+par(mar = c(0.5,2.5,2,1), mgp = c(1,1,0))
+#DEER SUMMER - gets row and column label for large figure. Can't figure out how to get row label using the ylab for some reason
+ #first number in mgp tells where to put axis title. this says put in first line, isntead of defauly which I think is line 4
 s=12
 camdata_summary %>%
   filter(Species == "Odocoileus virginianus") %>%
   filter(Season == "Summer 2017") %>%
-  with(plot(NAD83_X, NAD83_Y,main = "",
+  with(plot(NAD83_X, NAD83_Y,main = "Summer",
             axes = F,
-            cex.main = 2.2,
-            xlab = "", ylab = "",
+            cex.main = 2.0,
+            xlab = "", ylab = "White-tailed Deer",
+            cex.lab = 1.5,
             cex = CR/s, 
-            pch = 20,  
+            pch = 20,
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -411,19 +420,21 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Deer - Summer", "(", labelsSum$SumDetCount[which(labelsSum$Species == "Odocoileus virginianus")],"/", labelsSum$SumDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Deer - Summer", "(", labelsSum$SumDetCount[which(labelsSum$Species == "Odocoileus virginianus")],"/", labelsSum$SumDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
-#DEER Fall
+#DEER Fall - gets column heading
+par(mar = c(0.5,1,2,1))
 s=12
 camdata_summary %>%
   filter(Species == "Odocoileus virginianus") %>%
   filter(Season == "Fall 2017") %>%
-  with(plot(NAD83_X, NAD83_Y,main = "",
+  with(plot(NAD83_X, NAD83_Y,main = "Fall",
             axes = F,
-            cex.main = 2.2,
+            cex.main = 2.0,
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -435,20 +446,21 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Deer - Fall", "(", labelsFall$FallDetCount[which(labelsFall$Species == "Odocoileus virginianus")],"/", labelsFall$FallDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Deer - Fall", "(", labelsFall$FallDetCount[which(labelsFall$Species == "Odocoileus virginianus")],"/", labelsFall$FallDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxf], gridXY$NAD83_Y[idxf], cex = 1, pch = 8, col = "red")
 
-#DEER WINTER
+#DEER WINTER -gets column heading
 s=12
 camdata_summary %>%
   filter(Species == "Odocoileus virginianus") %>%
   filter(Season == "Winter 2017") %>%
-  with(plot(NAD83_X, NAD83_Y,main = "",
+  with(plot(NAD83_X, NAD83_Y,main = "Winter",
             axes = F,
-            cex.main = 2.2,
+            cex.main = 2.0,
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -460,20 +472,22 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Deer - Winter", "(", labelsWinter$WinDetCount[which(labelsWinter$Species == "Odocoileus virginianus")],"/", labelsWinter$WinterDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Deer - Winter", "(", labelsWinter$WinDetCount[which(labelsWinter$Species == "Odocoileus virginianus")],"/", labelsWinter$WinterDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxw], gridXY$NAD83_Y[idxw], cex = 1, pch = 8, col = "red")
 
-#DEER Spring
+#DEER Spring, gets column heading - needs legend for point size on right margin
+par(mar = c(0.5,1,2,5.5))
 s=12
 camdata_summary %>%
   filter(Species == "Odocoileus virginianus") %>%
   filter(Season == "Spring 2018") %>%
-  with(plot(NAD83_X, NAD83_Y,main = "",
+  with(plot(NAD83_X, NAD83_Y,main = "Spring",
             axes = F,
-            cex.main = 2.2,
+            cex.main = 2.0,
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -485,16 +499,23 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Deer - Spring", "(", labelsSpring$SprDetCount[which(labelsSpring$Species == "Odocoileus virginianus")],"/", labelsSpring$SpringDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Deer - Spring", "(", labelsSpring$SprDetCount[which(labelsSpring$Species == "Odocoileus virginianus")],"/", labelsSpring$SpringDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
-#max CR for deer is 461.819. Need to tweak the legend format to space the points more
-tempVals <- seq(1, 200, length.out = 5)
-legend(x = "bottomright",
+#Will use 1st and 3rd quartiles and median for point sizes in legends
+camdata_summary %>%
+  filter(Species == "Odocoileus virginianus") %>%
+  select(CR) %>%
+  summary
+
+tempVals <- c(34.4, 60.6, 99.6)
+legend(x = 747570, y = 4309030,
   legend = tempVals,
   pt.cex = tempVals/ s,
   pch = 20,
-  col = "black",
-  bty = 'n'
+  col = rgb(0,0,1,.25),
+  bty = 'n',
+  xpd = T,
+  y.intersp=2
 )
 
 #_____________________________________________
@@ -503,6 +524,7 @@ legend(x = "bottomright",
 #Might want to map unknown squirrels to see if "expert review" varied in calling squirrel ID over seasons
 
 #Fox Squirrel SUMMER
+par(mar = c(0.5,2.5,2,1)) #margins for left most column
 s=6
 camdata_summary %>%
   filter(Species == "Sciurus niger") %>%
@@ -510,9 +532,11 @@ camdata_summary %>%
   with(plot(NAD83_X, NAD83_Y,main = "",
             axes = F,
             cex.main = 2.2,
-            xlab = "", ylab = "",
+            xlab = "", ylab = "Fox Squirrel",
+            cex.lab = 1.5,
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -524,9 +548,10 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Fox Squirrel - Summer", "(", labelsSum$SumDetCount[which(labelsSum$Species == "Sciurus niger")],"/", labelsSum$SumDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Fox Squirrel - Summer", "(", labelsSum$SumDetCount[which(labelsSum$Species == "Sciurus niger")],"/", labelsSum$SumDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
 #Fox Squirrel Fall
+par(mar = c(0.5,1,2,1))
 s=6
 camdata_summary %>%
   filter(Species == "Sciurus niger") %>%
@@ -537,6 +562,7 @@ camdata_summary %>%
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -548,7 +574,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Fox squirrel - Fall", "(", labelsFall$FallDetCount[which(labelsFall$Species == "Sciurus niger")],"/", labelsFall$FallDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Fox squirrel - Fall", "(", labelsFall$FallDetCount[which(labelsFall$Species == "Sciurus niger")],"/", labelsFall$FallDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxf], gridXY$NAD83_Y[idxf], cex = 1, pch = 8, col = "red")
 
 #Fox Squirrel Winter
@@ -562,6 +588,7 @@ camdata_summary %>%
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -573,10 +600,11 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Fox squirrel - Winter", "(", labelsWinter$WinDetCount[which(labelsWinter$Species == "Sciurus niger")],"/", labelsWinter$WinterDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Fox squirrel - Winter", "(", labelsWinter$WinDetCount[which(labelsWinter$Species == "Sciurus niger")],"/", labelsWinter$WinterDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxw], gridXY$NAD83_Y[idxw], cex = 1, pch = 8, col = "red")
 
-#Fox Squirrel - Spring
+#Fox Squirrel - Spring - needs legend for point size on right margin
+par(mar = c(0.5,1,2,5.5))
 s=6
 camdata_summary %>%
   filter(Species == "Sciurus niger") %>%
@@ -587,6 +615,7 @@ camdata_summary %>%
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -598,15 +627,33 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Fox Squirrel - Spring", "(", labelsSpring$SprDetCount[which(labelsSpring$Species == "Sciurus niger")],"/", labelsSpring$SpringDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Fox Squirrel - Spring", "(", labelsSpring$SprDetCount[which(labelsSpring$Species == "Sciurus niger")],"/", labelsSpring$SpringDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+
+#Will use 1st and 3rd quartiles and median for point sizes in legends
+camdata_summary %>%
+  filter(Species == "Sciurus niger") %>%
+  select(CR) %>%
+  summary
+
+tempVals <- c(9.6, 24.3, 43.3)
+legend(x = 747570, y = 4309030,
+       legend = tempVals,
+       pt.cex = tempVals/ s,
+       pch = 20,
+       col = rgb(0,0,1,.25),
+       bty = 'n',
+       xpd = T,
+       y.intersp=2
+)
 
 #_____________________________________________
 ##CapRates Point Size Figures- Gray Squirrel----
 #_____________________________________________
 
-par(mfrow = c(2,2))
+#par(mfrow = c(2,2))
 
 #Gray Squirrel Summer
+par(mar = c(0.5,2.5,2,1))
 s=6
 camdata_summary %>%
   filter(Species == "Sciurus carolinensis") %>%
@@ -614,9 +661,11 @@ camdata_summary %>%
   with(plot(NAD83_X, NAD83_Y,main = "",
             axes = F,
             cex.main = 2.2,
-            xlab = "", ylab = "",
+            xlab = "", ylab = "Gray Squirrel",
+            cex.lab = 1.5,
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -628,9 +677,10 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Gray Squirrel - Summer", "(", labelsSum$SumDetCount[which(labelsSum$Species == "Sciurus carolinensis")],"/", labelsSum$SumDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Gray Squirrel - Summer", "(", labelsSum$SumDetCount[which(labelsSum$Species == "Sciurus carolinensis")],"/", labelsSum$SumDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
 #Gray Squirrel FALL
+par(mar = c(0.5,1,2,1))
 s=6
 camdata_summary %>%
   filter(Species == "Sciurus carolinensis") %>%
@@ -641,6 +691,7 @@ camdata_summary %>%
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -652,7 +703,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Gray Squirrel - Fall", "(", labelsFall$FallDetCount[which(labelsFall$Species == "Sciurus carolinensis")],"/", labelsFall$FallDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Gray Squirrel - Fall", "(", labelsFall$FallDetCount[which(labelsFall$Species == "Sciurus carolinensis")],"/", labelsFall$FallDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxf], gridXY$NAD83_Y[idxf], cex = 1, pch = 8, col = "red")
 
 #Gray Squirrel Winter
@@ -666,6 +717,7 @@ camdata_summary %>%
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -677,10 +729,11 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Gray Squirrel - Winter", "(", labelsWinter$WinDetCount[which(labelsWinter$Species == "Sciurus carolinensis")],"/", labelsWinter$WinterDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Gray Squirrel - Winter", "(", labelsWinter$WinDetCount[which(labelsWinter$Species == "Sciurus carolinensis")],"/", labelsWinter$WinterDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxw], gridXY$NAD83_Y[idxw], cex = 1, pch = 8, col = "red")
 
-#Gray Squirrel Spring
+#Gray Squirrel Spring - needs legend for point size on right margin
+par(mar = c(0.5,1,2,5.5))
 s=6
 camdata_summary %>%
   filter(Species == "Sciurus carolinensis") %>%
@@ -691,6 +744,7 @@ camdata_summary %>%
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -702,16 +756,33 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Gray Squirrel - Spring", "(", labelsSpring$SprDetCount[which(labelsSpring$Species == "Sciurus carolinensis")],"/", labelsSpring$SpringDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Gray Squirrel - Spring", "(", labelsSpring$SprDetCount[which(labelsSpring$Species == "Sciurus carolinensis")],"/", labelsSpring$SpringDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
+#Will use 1st and 3rd quartiles and median for point sizes in legends
+camdata_summary %>%
+  filter(Species == "Sciurus carolinensis") %>%
+  select(CR) %>%
+  summary
+
+tempVals <- c(3.1, 10.5, 32.8)
+legend(x = 747570, y = 4309030,
+       legend = tempVals,
+       pt.cex = tempVals/ s,
+       pch = 20,
+       col = rgb(0,0,1,.25),
+       bty = 'n',
+       xpd = T,
+       y.intersp=2
+)
 
 #_____________________________________________
 ##CapRates Point Size Figures- Raccoon----
 #_____________________________________________
 
-par(mfrow = c(2,2))
+#par(mfrow = c(2,2))
 
 #Raccoon Summer
+par(mar = c(0.5,2.5,2,1))
 s=5
 camdata_summary %>%
   filter(Species == "Procyon lotor") %>%
@@ -719,9 +790,11 @@ camdata_summary %>%
   with(plot(NAD83_X, NAD83_Y,main = "",
             axes = F,
             cex.main = 2.2,
-            xlab = "", ylab = "",
+            xlab = "", ylab = "Raccoon",
+            cex.lab = 1.5,
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -733,9 +806,10 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Raccoon - Summer", "(", labelsSum$SumDetCount[which(labelsSum$Species == "Procyon lotor")],"/", labelsSum$SumDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Raccoon - Summer", "(", labelsSum$SumDetCount[which(labelsSum$Species == "Procyon lotor")],"/", labelsSum$SumDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
 #Raccoon FALL
+par(mar = c(0.5,1,2,1))
 s=5
 camdata_summary %>%
   filter(Species == "Procyon lotor") %>%
@@ -746,6 +820,7 @@ camdata_summary %>%
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -757,7 +832,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Raccoon - Fall", "(", labelsFall$FallDetCount[which(labelsFall$Species == "Procyon lotor")],"/", labelsFall$FallDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Raccoon - Fall", "(", labelsFall$FallDetCount[which(labelsFall$Species == "Procyon lotor")],"/", labelsFall$FallDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxf], gridXY$NAD83_Y[idxf], cex = 1, pch = 8, col = "red")
 
 #Raccoon Winter
@@ -771,6 +846,7 @@ camdata_summary %>%
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -782,10 +858,11 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Raccoon - Winter", "(", labelsWinter$WinDetCount[which(labelsWinter$Species == "Procyon lotor")],"/", labelsWinter$WinterDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Raccoon - Winter", "(", labelsWinter$WinDetCount[which(labelsWinter$Species == "Procyon lotor")],"/", labelsWinter$WinterDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxw], gridXY$NAD83_Y[idxw], cex = 1, pch = 8, col = "red")
 
-#Raccoon Spring
+#Raccoon Spring - needs legend for point size on right margin
+par(mar = c(0.5,1,2,5.5))
 s=5
 camdata_summary %>%
   filter(Species == "Procyon lotor") %>%
@@ -796,6 +873,7 @@ camdata_summary %>%
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -807,15 +885,33 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Raccoon - Spring", "(", labelsSpring$SprDetCount[which(labelsSpring$Species == "Procyon lotor")],"/", labelsSpring$SpringDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Raccoon - Spring", "(", labelsSpring$SprDetCount[which(labelsSpring$Species == "Procyon lotor")],"/", labelsSpring$SpringDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+
+#Will use 1st and 3rd quartiles and median for point sizes in legends
+camdata_summary %>%
+  filter(Species == "Procyon lotor") %>%
+  select(CR) %>%
+  summary
+
+tempVals <- c(4.6, 10.0, 21.8)
+legend(x = 747570, y = 4309030,
+       legend = tempVals,
+       pt.cex = tempVals/ s,
+       pch = 20,
+       col = rgb(0,0,1,.25),
+       bty = 'n',
+       xpd = T,
+       y.intersp=2
+)
 
 #_____________________________________________
 ##CapRates Point Size Figures- Bear----
 #_____________________________________________
 
-par(mfrow = c(2,2))
+#par(mfrow = c(2,2))
 
 #Black Bear Summer
+par(mar = c(0.5,2.5,2,1))
 s=1
 camdata_summary %>%
   filter(Species == "Ursus americanus") %>%
@@ -823,9 +919,11 @@ camdata_summary %>%
   with(plot(NAD83_X, NAD83_Y,main = "",
             axes = F,
             cex.main = 2.2,
-            xlab = "", ylab = "",
+            xlab = "", ylab = "Black Bear",
+            cex.lab = 1.5,
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -837,9 +935,10 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Black Bear - Summer", "(", labelsSum$SumDetCount[which(labelsSum$Species == "Ursus americanus")],"/", labelsSum$SumDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Black Bear - Summer", "(", labelsSum$SumDetCount[which(labelsSum$Species == "Ursus americanus")],"/", labelsSum$SumDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 
 #Black Bear FALL
+par(mar = c(0.5,1,2,1))
 s=1
 camdata_summary %>%
   filter(Species == "Ursus americanus") %>%
@@ -850,6 +949,7 @@ camdata_summary %>%
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -861,7 +961,7 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Black Bear - Fall", "(", labelsFall$FallDetCount[which(labelsFall$Species == "Ursus americanus")],"/", labelsFall$FallDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Black Bear - Fall", "(", labelsFall$FallDetCount[which(labelsFall$Species == "Ursus americanus")],"/", labelsFall$FallDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxf], gridXY$NAD83_Y[idxf], cex = 1, pch = 8, col = "red")
 
 #Black Bear Winter
@@ -875,6 +975,7 @@ camdata_summary %>%
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -886,10 +987,11 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Black Bear - Winter", "(", labelsWinter$WinDetCount[which(labelsWinter$Species == "Ursus americanus")],"/", labelsWinter$WinterDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Black Bear - Winter", "(", labelsWinter$WinDetCount[which(labelsWinter$Species == "Ursus americanus")],"/", labelsWinter$WinterDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
 points(gridXY$NAD83_X[idxw], gridXY$NAD83_Y[idxw], cex = 1, pch = 8, col = "red")
 
-#Black Bear Spring
+#Black Bear Spring - needs legend for point size on right margin
+par(mar = c(0.5,1,2,5.5))
 s=1
 camdata_summary %>%
   filter(Species == "Ursus americanus") %>%
@@ -900,6 +1002,7 @@ camdata_summary %>%
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
+            col = rgb(0,0,1,.25),
             xlim = c(747430, 747550),
             ylim = c(4308910,4309030)))
 axis(side = 2,tck = 0.02, labels = F)
@@ -911,4 +1014,22 @@ points(camdata_summary$NAD83_X, camdata_summary$NAD83_Y,
        pch = 3,  
        xlim = c(747430, 747550),
        ylim = c(4308910,4309030))
-text(labels = paste("Black Bear - Spring", "(", labelsSpring$SprDetCount[which(labelsSpring$Species == "Ursus americanus")],"/", labelsSpring$SpringDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+#text(labels = paste("Black Bear - Spring", "(", labelsSpring$SprDetCount[which(labelsSpring$Species == "Ursus americanus")],"/", labelsSpring$SpringDeployCt[1], ")"), y = 4309030, x = 747425, cex = 1.6, pos = 4)
+
+#Will use 1st and 3rd quartiles and median for point sizes in legends
+camdata_summary %>%
+  filter(Species == "Ursus americanus") %>%
+  select(CR) %>%
+  summary
+
+tempVals <- c(0.1, 1.7, 4.9)
+legend(x = 747570, y = 4309030,
+       legend = tempVals,
+       pt.cex = tempVals/ s,
+       pch = 20,
+       col = rgb(0,0,1,.25),
+       bty = 'n',
+       xpd = T,
+       y.intersp=2
+)
+dev.off() #turns off tiff building
