@@ -1,5 +1,7 @@
 ###Regression Analysis of SCBI Camera Grid Data for Raccoon
 
+rm(list = ls())
+
 require(AICcmodavg)
 require(MASS) #for glm.nb function
 source("scripts/pairsPannelFunctions.r")
@@ -14,7 +16,7 @@ load("data/racDataSpr.RData")
 pairs(racDataSum[,c(4,7,13,14,15,17)], diag.panel = panel.hist, lower.panel = panel.smooth, upper.panel = panel.cor)
 str(racDataSum)
 
-#Looking at how many cameras picked up rac in each season. Looks like enough in each, though a bit low in summer
+#Looking at how many cameras picked up rac in each season. Looks like enough in each, though a bit low in summer. 17 cameras had either zero or 1 detection in summer. 
 
 par.default <- par(no.readonly = T)
 par (mfrow = c(2,2))
@@ -109,7 +111,7 @@ phi.po.fullSp <- sum.po.fullSp$deviance/sum.po.fullSp$df.residual
 
 
 # Negative Binomial Regression - Raccoon Summer--------------------------------------
-#Summer
+#Summer. i will not include summer in the manuscript for the models due to low variation in sequences, most of which were 0 or 1.
 
 ModListSumRac <- list(NA)
 
@@ -253,6 +255,16 @@ lines(nd.seq.stems$Num_Stems, exp(pred.stems$fit - 1.96*pred.stems$se.fit), lty=
 
 # Raccoon in Fall NB Full Model Selection ---------------------------------
 
+#First test to see if interaction between log and EDD improves that two variable model, just out of curiosity
+
+glm.nb.Flog_Edd <-
+  glm.nb(nSeqs ~ Log.in.View + Raccoon.EDD + offset(log(Deploy.Duration)), data = racDataFall)
+AICc(glm.nb.Flog_Edd)
+
+glm.nb.FlogXEdd <-
+  glm.nb(nSeqs ~ Log.in.View * Raccoon.EDD + offset(log(Deploy.Duration)), data = racDataFall)
+AICc(glm.nb.FlogXEdd) #No support for interaction
+
 
 ModListFallRac <- list(NA)
 
@@ -366,6 +378,7 @@ ModListFallRac[[25]] <- glm.nb.FHgtOakLog <-
 modnamesF <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log")
 modtabFallRac <- aictab(cand.set = ModListFallRac, modnames = modnamesF)
 modtabFallRac #The log model is best, not much support for EDD, but the Stems + Oak model also has reasonable support. Should discuss all three.
+summary(glm.nb.Flog)
 summary(glm.nb.Fstems_oak)
 
 #Summed Model Weights Raccoons in Fall from full table. 
@@ -541,19 +554,17 @@ WinSW_Height <- sum(modtabWinRac$AICcWt[grep("Height", modtabWinRac$Modnames)])
 1 - glm.nb.fullW$deviance / glm.nb.fullW$null.deviance #0.361776
 
 #Plotting Height Effects for Raccoon in Winter
-summary(glm.nb.Wlog_stems)
-summary(glm.nb.Whgt_stems) #In Winter, raccoon captures are more frequent at cameras that are set lower and which have more tree stems in front of them. Height seems the most important.
+
+summary(glm.nb.Wstems_hgt) #In Winter, raccoon captures are more frequent at cameras that are set lower and which have more tree stems in front of them. Height seems the most important.
 
 #In Winter, raccoon captures are more frequent at cameras that are set lower and which have more tree stems in front of them
-
-summary(glm.nb.Whgt_stems) 
 
 seq.hgt <- seq(min(racDataWin$Height_cm), max(racDataWin$Height_cm), length.out = 100)
 med.stems <- median(racDataWin$Num_Stems)
 
 nd.seq.hgt <- data.frame(Deploy.Duration = 61, Height_cm = seq.hgt, Num_Stems = med.stems)
 
-pred.hgt <- predict(glm.nb.Whgt_stems, newdata = nd.seq.hgt, se=TRUE, type = "link")
+pred.hgt <- predict(glm.nb.Wstems_hgt, newdata = nd.seq.hgt, se=TRUE, type = "link")
 
 plot(nSeqs ~ Height_cm, data=racDataWin, pch=16, col=rgb(.75,.25,0,.5), las=1, xlab = "Camera Height (cm)", ylab = "# Raccoon Sequences in Winter")
 lines(nd.seq.hgt$Height_cm, exp(pred.hgt$fit), col="dark olive green")

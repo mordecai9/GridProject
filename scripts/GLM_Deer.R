@@ -52,6 +52,11 @@ par(par.default)
 
 hist(deerDataSum$Deploy.Duration, breaks = 5)
 
+#Looking at how many cameras picked up deer in each season, and how often
+barplot(deerDataSum$nSeqs, xlab = "Summer", ylab = "# of Seqs per camera")
+barplot(deerDataFall$nSeqs, xlab = "Fall", ylab = "# of Seqs per camera")
+barplot(deerDataWin$nSeqs, xlab = "Winter", ylab = "# of Seqs per camera")
+barplot(deerDataSpr$nSeqs, xlab = "Spring", ylab = "# of Seqs per camera")
 
 # Full Poisson GLM and Overdispersion -------------------------------------
 
@@ -352,7 +357,11 @@ modtabSumDeer <- modtabSumDeer[order(modtabSumDeer$AICc),]
 modtabSumDeer$DeltaAICc <- modtabSumDeer$AICc - min(modtabSumDeer$AICc)
 modtabSumDeer$ModelL <- exp(-0.5*(modtabSumDeer$DeltaAICc))  
 modtabSumDeer$ModelW <- modtabSumDeer$ModelL/sum(modtabSumDeer$ModelL)
-write.csv(modtabSumDeer, "DeerSummerModTable.csv", row.names = F)
+modtabSumDeer
+#write.csv(modtabSumDeer, "DeerSummerModTable.csv", row.names = F)
+
+#The best model has only log as a covariate. Presence of a log reduces # of sequences for deer
+summary(glm.nb.Slog)
 
 #Explained Deviance of best model
 1 - glm.nb.Slog$deviance / glm.nb.Slog$null.deviance #0.3784

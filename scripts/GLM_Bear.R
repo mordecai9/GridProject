@@ -15,11 +15,15 @@ load("data/bearDataSpr.RData")
 pairs(bearDataSum[,c(4,7,13,14,15,17)], diag.panel = panel.hist, lower.panel = panel.smooth, upper.panel = panel.cor)
 str(bearDataSum)
 
+#none of the 5 potential covariates are highly correlated. 
+
 #Looking at how many cameras picked up bear in each season
 barplot(bearDataSum$nSeqs, xlab = "Summer", ylab = "# of Seqs per camera")
 barplot(bearDataFall$nSeqs, xlab = "Fall", ylab = "# of Seqs per camera")
 barplot(bearDataWin$nSeqs, xlab = "Winter", ylab = "# of Seqs per camera")
 barplot(bearDataSpr$nSeqs, xlab = "Spring", ylab = "# of Seqs per camera")
+
+#We really do not have enough detections to present results of bear models in any season except for summer and fall, but I went through the full process anyway.
 
 hist(bearDataSum$Num_Stems)
 hist(log10(bearDataSum$Num_Stems)) #because one site has so many stems, we need to log10 transform this parameter for all models
@@ -344,7 +348,7 @@ FallSW_Height <- sum(modtabFallBear$AICcWt[grep("Height", modtabFallBear$Modname
 #Explained deviance of full model
 1 - glm.nb.fullF$deviance / glm.nb.fullF$null.deviance #0.2523777
 
-#Response Curve of Oak DBH
+#Response Curve of Oak DBH. Good curve for paper
 summary(bearDataFall$OakDBH)
 seq.oak <- seq(min(bearDataFall$OakDBH), max(bearDataFall$OakDBH), length.out = 100)
 nd.seq.oak <- data.frame(Deploy.Duration = 61, OakDBH = seq.oak, Summer.Fall.EDD = median(bearDataFall$Summer.Fall.EDD))
@@ -354,7 +358,7 @@ lines(nd.seq.oak$OakDBH, exp(pred.oak$fit), col="dark olive green")
 lines(nd.seq.oak$OakDBH, exp(pred.oak$fit + 1.96*pred.oak$se.fit), lty=2, col="dark olive green")
 lines(nd.seq.oak$OakDBH, exp(pred.oak$fit - 1.96*pred.oak$se.fit), lty=2, col="dark olive green")
 
-#Response Curve of EDD
+#Response Curve of EDD. Good curve for paper
 summary(bearDataFall$OakDBH)
 seq.edd <- seq(min(bearDataFall$Summer.Fall.EDD), max(bearDataFall$Summer.Fall.EDD), length.out = 100)
 nd.seq.edd <- data.frame(Deploy.Duration = 61, OakDBH = median(bearDataFall$OakDBH), Summer.Fall.EDD = seq.edd)

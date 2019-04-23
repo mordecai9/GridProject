@@ -1,9 +1,10 @@
 ###Regression Analysis of SCBI Camera Grid Data
 
+rm(list = ls())
+
 require(AICcmodavg)
 require(MASS) #for glm.nb function
 source("scripts/pairsPannelFunctions.r")
-
 
 # Data Import and Exploration - All Squirrels ---------------------------------------
 
@@ -12,7 +13,7 @@ load("data/sqDataFall.RData")
 load("data/sqDataWin.RData")
 load("data/sqDataSpr.RData")
 
-pairs(sqDataSum[,c(4,7,8,11,12,13,15)], diag.panel = panel.hist, lower.panel = panel.smooth, upper.panel = panel.cor)
+pairs(sqDataSum[,c(4,9,10,12,13,15,17)], diag.panel = panel.hist, lower.panel = panel.smooth, upper.panel = panel.cor)
 str(sqDataSum)
 
 hist(sqDataSum$Num_Stems)
@@ -88,7 +89,29 @@ phi.po.fullSp <- sum.po.fullSp$deviance/sum.po.fullSp$df.residual
 
 
 # Negative Binomial Regression - Squirrels in Summer --------------------------------
-#maybe quadratic on height?
+
+#First test to see if interaction between log and EDD improves that two variable model
+
+glm.nb.Slog_Edd <-
+  glm.nb(nSeqs ~ Log.in.View + Squirrel_EDD_4S + offset(log(Deploy.Duration)), data = sqDataSum)
+AICc(glm.nb.Slog_Edd)
+
+glm.nb.SlogXEdd <-
+  glm.nb(nSeqs ~ Log.in.View * Squirrel_EDD_4S + offset(log(Deploy.Duration)), data = sqDataSum)
+AICc(glm.nb.SlogXEdd) #No support for interaction 
+
+
+#Compare height alone to height quadratic
+glm.nb.SHgt2 <-
+  glm.nb(
+    nSeqs ~ poly(Height_cm, 2, raw = T) +
+      offset(log(Deploy.Duration)),
+    data = sqDataSum
+  )
+AICc(glm.nb.SHgt2)
+AICc(glm.nb.Shgt) #no support for quadratic effect
+
+#Full Model Selection for Squirrels in Summer
 
 ModListSumSq <- list(NA)
 
@@ -214,7 +237,7 @@ SumSW_Stems <- sum(modtabSumSq$AICcWt[grep("Stems", modtabSumSq$Modnames)])
 SumSW_Log <- sum(modtabSumSq$AICcWt[grep("Log", modtabSumSq$Modnames)])
 SumSW_Height <- sum(modtabSumSq$AICcWt[grep("Height", modtabSumSq$Modnames)])
 
-#See if this model is better with EDD and log interaction
+#See if this model is better with EDD and log interaction, just out of curiosity
 glm.nb.SHgtEddXLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View * Squirrel_EDD_4S +
@@ -224,17 +247,8 @@ glm.nb.SHgtEddXLog <-
 AICc(glm.nb.SHgtEddXLog) #not worth having the interaction here
 summary(glm.nb.SHgtEddXLog)
 
-#Compare height alone to height quadratic
-glm.nb.SHgt2 <-
-  glm.nb(
-    nSeqs ~ poly(Height_cm, 2, raw = T) +
-      offset(log(Deploy.Duration)),
-    data = sqDataSum
-  )
-AICc(glm.nb.SHgt2)
-AICc(glm.nb.Shgt) #no support for quadratic effect
 
-#Compare best model with height as quadratic in same model
+#Compare best model with height as quadratic in same model, just out of curiosity
 glm.nb.SHgt2EddLog <-
   glm.nb(
     nSeqs ~ poly(Height_cm, 2, raw = T) + Log.in.View + Squirrel_EDD_4S +
@@ -288,11 +302,37 @@ lines(nd.seq.SHgt$Height_cm, exp(pred.SHgtN$fit - 1.96*pred.SHgtN$se.fit), lty=2
 
 # Squirrel in Fall NB Full Model Selection --------------------------------
 
+#First test to see if interaction between log and EDD improves that two variable model
+
+glm.nb.Flog_Edd <-
+  glm.nb(nSeqs ~ Log.in.View + Squirrel_EDD_4S + offset(log(Deploy.Duration)), data = sqDataFall)
+AICc(glm.nb.Flog_Edd)
+
+glm.nb.FlogXEdd <-
+  glm.nb(nSeqs ~ Log.in.View * Squirrel_EDD_4S + offset(log(Deploy.Duration)), data = sqDataFall)
+AICc(glm.nb.FlogXEdd) #There is support for interaction, so this has to be added to each model where these two appear together.
+
+
+#Compare height alone to height quadratic
+glm.nb.FHgt2 <-
+  glm.nb(
+    nSeqs ~ poly(Height_cm, 2, raw = T) +
+      offset(log(Deploy.Duration)),
+    data = sqDataFall
+  )
+
+glm.nb.Fhgt <-
+  glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = sqDataFall)
+
+AICc(glm.nb.FHgt2)
+AICc(glm.nb.Fhgt) #no support for quadratic effect
+
+
 ModListFallSq <- list(NA)
 
 ModListFallSq[[1]] <- glm.nb.fullF <-
   glm.nb(
-    nSeqs ~ Log.in.View + Squirrel_EDD_4S + Height_cm + log10(Num_Stems) + OakDBH +
+    nSeqs ~ Log.in.View * Squirrel_EDD_4S + Height_cm + log10(Num_Stems) + OakDBH +
       offset(log(Deploy.Duration)),
     data = sqDataFall
   )
@@ -317,8 +357,8 @@ ModListFallSq[[7]] <- glm.nb.Fedd <-
 ModListFallSq[[8]] <- glm.nb.Flog_stems <-
   glm.nb(nSeqs ~ Log.in.View + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[9]] <- glm.nb.Flog_Edd <-
-  glm.nb(nSeqs ~ Log.in.View + Squirrel_EDD_4S + offset(log(Deploy.Duration)), data = sqDataFall)
+ModListFallSq[[9]] <- glm.nb.FlogXEdd <-
+  glm.nb(nSeqs ~ Log.in.View * Squirrel_EDD_4S + offset(log(Deploy.Duration)), data = sqDataFall)
 
 ModListFallSq[[10]] <- glm.nb.Flog_Oak <-
   glm.nb(nSeqs ~ Log.in.View + OakDBH + offset(log(Deploy.Duration)), data = sqDataFall)
@@ -360,7 +400,7 @@ ModListFallSq[[19]] <- glm.nb.FlogStemsOak <-
 
 ModListFallSq[[20]] <- glm.nb.FlogStemsEdd <-
   glm.nb(
-    nSeqs ~ Log.in.View + Squirrel_EDD_4S + log10(Num_Stems) +
+    nSeqs ~ Log.in.View * Squirrel_EDD_4S + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataFall
   )
@@ -387,7 +427,7 @@ ModListFallSq[[23]] <- glm.nb.FHgtEddOak <-
   )
 ModListFallSq[[24]] <- glm.nb.FHgtEddLog <-
   glm.nb(
-    nSeqs ~ Height_cm + Log.in.View + Squirrel_EDD_4S +
+    nSeqs ~ Height_cm + Log.in.View * Squirrel_EDD_4S +
       offset(log(Deploy.Duration)),
     data = sqDataFall
   )
@@ -397,42 +437,27 @@ ModListFallSq[[25]] <- glm.nb.FHgtOakLog <-
       offset(log(Deploy.Duration)),
     data = sqDataFall
   )
-modnamesF <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log")
+modnamesF <- c("Full (with Log:EDD Int)","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log * EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log * EDD + Stems","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD * Log","Height + Oak + Log")
 modtabFallSq <- aictab(cand.set = ModListFallSq, modnames = modnamesF)
 modtabFallSq
 
-#Best model is clear as log and EDD
-summary(glm.nb.Flog_Edd)
+#Best model is clear as log * EDD
+summary(glm.nb.FlogXEdd)
 
-#Summed Model Weights Squirrels in Fall from full table. Note interaction not included at the moment
+#Summed Model Weights Squirrels in Fall from full table. Does this still work with interaction in there? I think so, cuz it is still in the model
 FallSW_edd <- sum(modtabFallSq$AICcWt[grep("EDD", modtabFallSq$Modnames)])
 FallSW_OakDBH <- sum(modtabFallSq$AICcWt[grep("Oak", modtabFallSq$Modnames)])
 FallSW_Stems <- sum(modtabFallSq$AICcWt[grep("Stems", modtabFallSq$Modnames)])
 FallSW_Log <- sum(modtabFallSq$AICcWt[grep("Log", modtabFallSq$Modnames)])
 FallSW_Height <- sum(modtabFallSq$AICcWt[grep("Height", modtabFallSq$Modnames)])
 
-#Compare height alone to height quadratic
-glm.nb.FHgt2 <-
-  glm.nb(
-    nSeqs ~ poly(Height_cm, 2, raw = T) +
-      offset(log(Deploy.Duration)),
-    data = sqDataFall
-  )
-AICc(glm.nb.FHgt2)
-AICc(glm.nb.Fhgt) #no support for quadratic effect
-
-#See if log by EDD interaction improves the best model
-glm.nb.FlogXEdd <-
-  glm.nb(nSeqs ~ Log.in.View * Squirrel_EDD_4S + offset(log(Deploy.Duration)), data = sqDataFall)
-AICc(glm.nb.FlogXEdd) #This is now the best model
-summary(glm.nb.FlogXEdd)
 
 #Explained Deviance of best model
 1 - glm.nb.FlogXEdd$deviance / glm.nb.FlogXEdd$null.deviance #0.49976
 #Explained Deviance of best model
-#1 - glm.nb.fullF$deviance / glm.nb.fullF$null.deviance #0.4430968
+1 - glm.nb.fullF$deviance / glm.nb.fullF$null.deviance #0.4430968
 
-#Response Curve for EDD impact, with and without log present
+#Response Curve for EDD impact, with and without log present. This is potentially one of the few response curves worth putting into paper
 seq.FEdd <- seq(min(sqDataFall$Squirrel_EDD_4S), max(sqDataFall$Squirrel_EDD_4S), length.out = 100)
 
 nd.seq.FEdd <- data.frame(Deploy.Duration = 61, Squirrel_EDD_4S = seq.FEdd, Log.in.View = "YES")
@@ -453,10 +478,37 @@ lines(nd.seq.FEdd$Squirrel_EDD_4S, exp(pred.FEddNo$fit - 1.96*pred.FEddNo$se.fit
 
 #Winter Squirrel NB Full Model Selection --------------------------------
 
+#First test to see if interaction between log and EDD improves that two variable model
+
+glm.nb.Wlog_Edd <-
+  glm.nb(nSeqs ~ Log.in.View + Squirrel_EDD_WSp + offset(log(Deploy.Duration)), data = sqDataWin)
+AICc(glm.nb.Wlog_Edd)
+
+glm.nb.WlogXEdd <-
+  glm.nb(nSeqs ~ Log.in.View * Squirrel_EDD_WSp + offset(log(Deploy.Duration)), data = sqDataWin)
+AICc(glm.nb.WlogXEdd) #There is support for interaction, so this has to be added to each model where these two appear together.
+
+
+#Compare height alone to height quadratic
+glm.nb.WHgt2 <-
+  glm.nb(
+    nSeqs ~ poly(Height_cm, 2, raw = T) +
+      offset(log(Deploy.Duration)),
+    data = sqDataWin
+  )
+
+glm.nb.Whgt <-
+  glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = sqDataWin)
+
+AICc(glm.nb.WHgt2)
+AICc(glm.nb.Whgt) #no support for quadratic effect
+
+#Full Model Comparison Run
+
 ModListWinSq <- list(NA)
 ModListWinSq[[1]] <- glm.nb.fullW <-
   glm.nb(
-    nSeqs ~ Log.in.View + Squirrel_EDD_WSp + Height_cm + log10(Num_Stems) + OakDBH +
+    nSeqs ~ Log.in.View * Squirrel_EDD_WSp + Height_cm + log10(Num_Stems) + OakDBH +
       offset(log(Deploy.Duration)),
     data = sqDataWin
   )
@@ -482,7 +534,7 @@ ModListWinSq[[8]] <- glm.nb.Wlog_stems <-
   glm.nb(nSeqs ~ Log.in.View + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataWin)
 
 ModListWinSq[[9]] <-glm.nb.Wlog_Edd <-
-  glm.nb(nSeqs ~ Log.in.View + Squirrel_EDD_WSp + offset(log(Deploy.Duration)), data = sqDataWin)
+  glm.nb(nSeqs ~ Log.in.View * Squirrel_EDD_WSp + offset(log(Deploy.Duration)), data = sqDataWin)
 
 ModListWinSq[[10]] <- glm.nb.Wlog_Oak <-
   glm.nb(nSeqs ~ Log.in.View + OakDBH + offset(log(Deploy.Duration)), data = sqDataWin)
@@ -524,7 +576,7 @@ ModListWinSq[[19]] <- glm.nb.WlogStemsOak <-
 
 ModListWinSq[[20]] <- glm.nb.WlogStemsEdd <-
   glm.nb(
-    nSeqs ~ Log.in.View + Squirrel_EDD_WSp + log10(Num_Stems) +
+    nSeqs ~ Log.in.View * Squirrel_EDD_WSp + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataWin
   )
@@ -551,7 +603,7 @@ ModListWinSq[[23]] <- glm.nb.WHgtEddOak <-
   )
 ModListWinSq[[24]] <- glm.nb.WHgtEddLog <-
   glm.nb(
-    nSeqs ~ Height_cm + Log.in.View + Squirrel_EDD_WSp +
+    nSeqs ~ Height_cm + Log.in.View * Squirrel_EDD_WSp +
       offset(log(Deploy.Duration)),
     data = sqDataWin
   )
@@ -561,7 +613,7 @@ ModListWinSq[[25]] <- glm.nb.WHgtOakLog <-
       offset(log(Deploy.Duration)),
     data = sqDataWin
   )
-modnamesW <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log")
+modnamesW <- c("Full (with Log:Edd Int)","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log * EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log * EDD + Stems","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD * Log","Height + Oak + Log")
 modtabWinSq <- aictab(cand.set = ModListWinSq, modnames = modnamesW)
 modtabWinSq
 
@@ -574,28 +626,46 @@ WinSW_Stems <- sum(modtabWinSq$AICcWt[grep("Stems", modtabWinSq$Modnames)])
 WinSW_Log <- sum(modtabWinSq$AICcWt[grep("Log", modtabWinSq$Modnames)])
 WinSW_Height <- sum(modtabWinSq$AICcWt[grep("Height", modtabWinSq$Modnames)])
 
-#Compare height alone to height quadratic
-glm.nb.WHgt2 <-
-  glm.nb(
-    nSeqs ~ poly(Height_cm, 2, raw = T) +
-      offset(log(Deploy.Duration)),
-    data = sqDataWin
-  )
-AICc(glm.nb.WHgt2)
-AICc(glm.nb.Whgt) #no support for quadratic effect
+
 
 #Explained deviance of best model
 1 - glm.nb.Wlog$deviance / glm.nb.Wlog$null.deviance #0.1418821
 #Explained deviance of full model
-1 - glm.nb.fullW$deviance / glm.nb.fullW$null.deviance #0.1593789
+1 - glm.nb.fullW$deviance / glm.nb.fullW$null.deviance #0.29
 
 
 # Spring Squirrel NB Full Model Selection ---------------------------------
 
+#First test to see if interaction between log and EDD improves that two variable model
+
+glm.nb.SPlog_Edd <-
+  glm.nb(nSeqs ~ Log.in.View + Squirrel_EDD_WSp + offset(log(Deploy.Duration)), data = sqDataSpr)
+AICc(glm.nb.SPlog_Edd)
+
+glm.nb.SPlogXEdd <-
+  glm.nb(nSeqs ~ Log.in.View * Squirrel_EDD_WSp + offset(log(Deploy.Duration)), data = sqDataSpr)
+AICc(glm.nb.SPlogXEdd) #There is support for interaction, so this has to be added to each model where these two appear together.
+
+
+#Compare height alone to height quadratic
+glm.nb.SPHgt2 <-
+  glm.nb(
+    nSeqs ~ poly(Height_cm, 2, raw = T) +
+      offset(log(Deploy.Duration)),
+    data = sqDataSpr
+  )
+
+glm.nb.SPhgt <-
+  glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = sqDataSpr)
+
+AICc(glm.nb.SPHgt2)
+AICc(glm.nb.SPhgt) #no support for quadratic effect
+
+#Full Spring Squirrel Model Selection
 ModListSprSq <- list(NA)
 ModListSprSq[[1]] <- glm.nb.fullSP <-
   glm.nb(
-    nSeqs ~ Log.in.View + Squirrel_EDD_WSp + Height_cm + log10(Num_Stems) + OakDBH +
+    nSeqs ~ Log.in.View * Squirrel_EDD_WSp + Height_cm + log10(Num_Stems) + OakDBH +
       offset(log(Deploy.Duration)),
     data = sqDataSpr
   )
@@ -621,7 +691,7 @@ ModListSprSq[[8]] <- glm.nb.SPlog_stems <-
   glm.nb(nSeqs ~ Log.in.View + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataSpr)
 
 ModListSprSq[[9]] <-glm.nb.SPlog_Edd <-
-  glm.nb(nSeqs ~ Log.in.View + Squirrel_EDD_WSp + offset(log(Deploy.Duration)), data = sqDataSpr)
+  glm.nb(nSeqs ~ Log.in.View * Squirrel_EDD_WSp + offset(log(Deploy.Duration)), data = sqDataSpr)
 
 ModListSprSq[[10]] <- glm.nb.SPlog_Oak <-
   glm.nb(nSeqs ~ Log.in.View + OakDBH + offset(log(Deploy.Duration)), data = sqDataSpr)
@@ -663,7 +733,7 @@ ModListSprSq[[19]] <- glm.nb.SPlogStemsOak <-
 
 ModListSprSq[[20]] <- glm.nb.SPlogStemsEdd <-
   glm.nb(
-    nSeqs ~ Log.in.View + Squirrel_EDD_WSp + log10(Num_Stems) +
+    nSeqs ~ Log.in.View * Squirrel_EDD_WSp + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataSpr
   )
@@ -690,7 +760,7 @@ ModListSprSq[[23]] <- glm.nb.SPHgtEddOak <-
   )
 ModListSprSq[[24]] <- glm.nb.SPHgtEddLog <-
   glm.nb(
-    nSeqs ~ Height_cm + Log.in.View + Squirrel_EDD_WSp +
+    nSeqs ~ Height_cm + Log.in.View * Squirrel_EDD_WSp +
       offset(log(Deploy.Duration)),
     data = sqDataSpr
   )
@@ -700,11 +770,11 @@ ModListSprSq[[25]] <- glm.nb.SPHgtOakLog <-
       offset(log(Deploy.Duration)),
     data = sqDataSpr
   )
-modnamesSP <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log")
+modnamesSP <- c("Full (with Log:Edd Int)","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log * EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log * EDD + Stems","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD * Log","Height + Oak + Log")
 modtabSprSq <- aictab(cand.set = ModListSprSq, modnames = modnamesSP)
 modtabSprSq
 
-summary(glm.nb.SPlog) #best model has only log
+summary(glm.nb.SPlogXEdd) #best model has log * EDD
 
 #Summed Model Weights for Squirrels in Spring from full table. 
 SprSW_edd <- sum(modtabSprSq$AICcWt[grep("EDD", modtabSprSq$Modnames)])
@@ -724,6 +794,6 @@ AICc(glm.nb.SPHgt2)
 AICc(glm.nb.SPhgt) #no support for quadratic effect
 
 #Explained deviance of best model
-1 - glm.nb.SPlog$deviance / glm.nb.SPlog$null.deviance #0.1237157
+1 - glm.nb.SPlogXEdd$deviance / glm.nb.SPlogXEdd$null.deviance #0.3287772
 #Explained deviance of full model
-1 - glm.nb.fullSP$deviance / glm.nb.fullSP$null.deviance #0.1842127
+1 - glm.nb.fullSP$deviance / glm.nb.fullSP$null.deviance #0.3807705
