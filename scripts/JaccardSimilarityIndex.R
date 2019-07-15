@@ -65,3 +65,9 @@ DHWinUA <- temp
 
 load("results/DetHistWinProcyon lotor")
 DHWinPL <- temp
+
+#Testing one way of calculating Jaccard
+#seems this can only be used when the length of the data is the same
+#Most of the results from different seasons have different lengths
+library('clusteval')
+cluster_similarity(DHWinSN[c("0102_W17"),] ,DHWinSN[c("0103_W17"),], similarity="jaccard", method="independence")
