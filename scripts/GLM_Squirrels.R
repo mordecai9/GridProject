@@ -113,116 +113,132 @@ AICc(glm.nb.Shgt) #no support for quadratic effect
 
 #Full Model Selection for Squirrels in Summer
 
-ModListSumSq <- list(NA)
-
-ModListSumSq[[1]] <- glm.nb.fullS <-
+glm.nb.fullS <-
   glm.nb(
     nSeqs ~ Log.in.View + Squirrel_EDD_4S + Height_cm + log10(Num_Stems) + OakDBH +
       offset(log(Deploy.Duration)),
     data = sqDataSum
   )
 
-ModListSumSq[[2]] <- glm.nb.SI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = sqDataSum)
 
-ModListSumSq[[3]] <- glm.nb.Slog <-
+ModListSumSq <- list(NA)
+
+
+ModListSumSq[[1]] <- glm.nb.SI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = sqDataSum)
+
+ModListSumSq[[2]] <- glm.nb.Slog <-
   glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = sqDataSum)
 
-ModListSumSq[[4]] <- glm.nb.Shgt <-
+ModListSumSq[[3]] <- glm.nb.Shgt <-
   glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = sqDataSum)
 
-ModListSumSq[[5]] <- glm.nb.Soak <-
+ModListSumSq[[4]] <- glm.nb.Soak <-
   glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = sqDataSum)
 
-ModListSumSq[[6]] <- glm.nb.Sstems <-
+ModListSumSq[[5]] <- glm.nb.Sstems <-
   glm.nb(nSeqs ~ log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataSum)
 
-ModListSumSq[[7]] <- glm.nb.Sedd <-
+ModListSumSq[[6]] <- glm.nb.Sedd <-
   glm.nb(nSeqs ~ Squirrel_EDD_4S + offset(log(Deploy.Duration)), data = sqDataSum)
 
-ModListSumSq[[8]] <- glm.nb.Slog_stems <-
+ModListSumSq[[7]] <- glm.nb.Slog_stems <-
   glm.nb(nSeqs ~ Log.in.View + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataSum)
 
-ModListSumSq[[9]] <-glm.nb.Slog_Edd <-
+ModListSumSq[[8]] <-glm.nb.Slog_Edd <-
   glm.nb(nSeqs ~ Log.in.View + Squirrel_EDD_4S + offset(log(Deploy.Duration)), data = sqDataSum)
 
-ModListSumSq[[10]] <- glm.nb.Slog_Oak <-
+ModListSumSq[[9]] <- glm.nb.Slog_Oak <-
   glm.nb(nSeqs ~ Log.in.View + OakDBH + offset(log(Deploy.Duration)), data = sqDataSum)
 
-ModListSumSq[[11]] <- glm.nb.Slog_Hgt <-
+ModListSumSq[[10]] <- glm.nb.Slog_Hgt <-
   glm.nb(nSeqs ~ Log.in.View + Height_cm + offset(log(Deploy.Duration)), data = sqDataSum)
 
-ModListSumSq[[12]] <- glm.nb.SEdd_Hgt <-
+ModListSumSq[[11]] <- glm.nb.SEdd_Hgt <-
   glm.nb(nSeqs ~ Squirrel_EDD_4S + Height_cm + offset(log(Deploy.Duration)), data = sqDataSum)
 
-ModListSumSq[[13]] <-  glm.nb.SEdd_stems <-
+ModListSumSq[[12]] <-  glm.nb.SEdd_stems <-
   glm.nb(nSeqs ~ Squirrel_EDD_4S + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataSum)
 
-ModListSumSq[[14]] <- glm.nb.SEdd_oak <-
+ModListSumSq[[13]] <- glm.nb.SEdd_oak <-
   glm.nb(nSeqs ~ Squirrel_EDD_4S + OakDBH + offset(log(Deploy.Duration)), data = sqDataSum)
 
-ModListSumSq[[15]] <- glm.nb.Sstems_hgt <-
+ModListSumSq[[14]] <- glm.nb.Sstems_hgt <-
   glm.nb(nSeqs ~ Height_cm + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataSum)
 
-ModListSumSq[[16]] <- glm.nb.Sstems_oak <-
+ModListSumSq[[15]] <- glm.nb.Sstems_oak <-
   glm.nb(nSeqs ~ OakDBH + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataSum)
 
-ModListSumSq[[17]] <- glm.nb.Shgt_oak <-
+ModListSumSq[[16]] <- glm.nb.Shgt_oak <-
   glm.nb(nSeqs ~ Height_cm + OakDBH + offset(log(Deploy.Duration)), data = sqDataSum)
 
-ModListSumSq[[18]] <- glm.nb.SlogStemsHgt <-
+ModListSumSq[[17]] <- glm.nb.SlogStemsHgt <-
   glm.nb(
     nSeqs ~ Log.in.View + Height_cm + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataSum
   )
 
-ModListSumSq[[19]] <- glm.nb.SlogStemsOak <-
+ModListSumSq[[18]] <- glm.nb.SlogStemsOak <-
   glm.nb(
     nSeqs ~ Log.in.View + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataSum
   )
 
-ModListSumSq[[20]] <- glm.nb.SlogStemsEdd <-
+ModListSumSq[[19]] <- glm.nb.SlogStemsEdd <-
   glm.nb(
     nSeqs ~ Log.in.View + Squirrel_EDD_4S + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataSum
   )
 
-ModListSumSq[[21]] <- glm.nb.SHgtStemsEdd <-
+ModListSumSq[[20]] <- glm.nb.SHgtStemsEdd <-
   glm.nb(
     nSeqs ~ Height_cm + Squirrel_EDD_4S + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataSum
   )
 
-ModListSumSq[[22]] <- glm.nb.SHgtStemsOak <-
+ModListSumSq[[21]] <- glm.nb.SHgtStemsOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataSum
   )
 
-ModListSumSq[[23]] <- glm.nb.SHgtEddOak <-
+ModListSumSq[[22]] <- glm.nb.SHgtEddOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + Squirrel_EDD_4S +
       offset(log(Deploy.Duration)),
     data = sqDataSum
   )
-ModListSumSq[[24]] <- glm.nb.SHgtEddLog <-
+ModListSumSq[[23]] <- glm.nb.SHgtEddLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + Squirrel_EDD_4S +
       offset(log(Deploy.Duration)),
     data = sqDataSum
   )
-ModListSumSq[[25]] <- glm.nb.SHgtOakLog <-
+ModListSumSq[[24]] <- glm.nb.SHgtOakLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + OakDBH +
       offset(log(Deploy.Duration)),
     data = sqDataSum
   )
-modnamesS <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log")
+
+ModListSumSq[[25]] <- glm.nb.SOakStemsEdd <-
+  glm.nb(
+    nSeqs ~ log10(Num_Stems) + Squirrel_EDD_4S + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = sqDataSum
+  )
+
+ModListSumSq[[26]] <- glm.nb.SLogOakEdd <-
+  glm.nb(
+    nSeqs ~ Log.in.View + Squirrel_EDD_4S + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = sqDataSum
+  )
+modnamesS <- c("Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log", "Stems + EDD + Oak", "Log + EDD + Oak")
 modtabSumSq <- aictab(cand.set = ModListSumSq, modnames = modnamesS)
 modtabSumSq
 
@@ -328,7 +344,7 @@ AICc(glm.nb.FHgt2)
 AICc(glm.nb.Fhgt) #no support for quadratic effect
 
 
-ModListFallSq <- list(NA)
+#Full Model for Squirrels in Fall
 
 ModListFallSq[[1]] <- glm.nb.fullF <-
   glm.nb(
@@ -337,107 +353,125 @@ ModListFallSq[[1]] <- glm.nb.fullF <-
     data = sqDataFall
   )
 
-ModListFallSq[[2]] <- glm.nb.FI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = sqDataFall)
+#Full 26 model comparison, here with log/EDD interaction
 
-ModListFallSq[[3]] <- glm.nb.Flog <-
+ModListFallSq <- list(NA)
+
+ModListFallSq[[1]] <- glm.nb.FI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = sqDataFall)
+
+ModListFallSq[[2]] <- glm.nb.Flog <-
   glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[4]] <- glm.nb.Fhgt <-
+ModListFallSq[[3]] <- glm.nb.Fhgt <-
   glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[5]] <- glm.nb.Foak <-
+ModListFallSq[[4]] <- glm.nb.Foak <-
   glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[6]] <- glm.nb.Fstems <-
+ModListFallSq[[5]] <- glm.nb.Fstems <-
   glm.nb(nSeqs ~ log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[7]] <- glm.nb.Fedd <-
+ModListFallSq[[6]] <- glm.nb.Fedd <-
   glm.nb(nSeqs ~ Squirrel_EDD_4S + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[8]] <- glm.nb.Flog_stems <-
+ModListFallSq[[7]] <- glm.nb.Flog_stems <-
   glm.nb(nSeqs ~ Log.in.View + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[9]] <- glm.nb.FlogXEdd <-
+ModListFallSq[[8]] <- glm.nb.FlogXEdd <-
   glm.nb(nSeqs ~ Log.in.View * Squirrel_EDD_4S + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[10]] <- glm.nb.Flog_Oak <-
+ModListFallSq[[9]] <- glm.nb.Flog_Oak <-
   glm.nb(nSeqs ~ Log.in.View + OakDBH + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[11]] <- glm.nb.Flog_Hgt <-
+ModListFallSq[[10]] <- glm.nb.Flog_Hgt <-
   glm.nb(nSeqs ~ Log.in.View + Height_cm + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[12]] <- glm.nb.FEdd_Hgt <-
+ModListFallSq[[11]] <- glm.nb.FEdd_Hgt <-
   glm.nb(nSeqs ~ Squirrel_EDD_4S + Height_cm + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[13]] <-  glm.nb.FEdd_stems <-
+ModListFallSq[[12]] <-  glm.nb.FEdd_stems <-
   glm.nb(nSeqs ~ Squirrel_EDD_4S + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[14]] <- glm.nb.FEdd_oak <-
+ModListFallSq[[13]] <- glm.nb.FEdd_oak <-
   glm.nb(nSeqs ~ Squirrel_EDD_4S + OakDBH + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[15]] <- glm.nb.Fstems_hgt <-
+ModListFallSq[[14]] <- glm.nb.Fstems_hgt <-
   glm.nb(nSeqs ~ Height_cm + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[16]] <- glm.nb.Fstems_oak <-
+ModListFallSq[[15]] <- glm.nb.Fstems_oak <-
   glm.nb(nSeqs ~ OakDBH + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[17]] <- glm.nb.Fhgt_oak <-
+ModListFallSq[[16]] <- glm.nb.Fhgt_oak <-
   glm.nb(nSeqs ~ Height_cm + OakDBH + offset(log(Deploy.Duration)), data = sqDataFall)
 
-ModListFallSq[[18]] <- glm.nb.FlogStemsHgt <-
+ModListFallSq[[17]] <- glm.nb.FlogStemsHgt <-
   glm.nb(
     nSeqs ~ Log.in.View + Height_cm + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataFall
   )
 
-ModListFallSq[[19]] <- glm.nb.FlogStemsOak <-
+ModListFallSq[[18]] <- glm.nb.FlogStemsOak <-
   glm.nb(
     nSeqs ~ Log.in.View + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataFall
   )
 
-ModListFallSq[[20]] <- glm.nb.FlogStemsEdd <-
+ModListFallSq[[19]] <- glm.nb.FlogStemsEdd <-
   glm.nb(
     nSeqs ~ Log.in.View * Squirrel_EDD_4S + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataFall
   )
 
-ModListFallSq[[21]] <- glm.nb.FHgtStemsEdd <-
+ModListFallSq[[20]] <- glm.nb.FHgtStemsEdd <-
   glm.nb(
     nSeqs ~ Height_cm + Squirrel_EDD_4S + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataFall
   )
 
-ModListFallSq[[22]] <- glm.nb.FHgtStemsOak <-
+ModListFallSq[[21]] <- glm.nb.FHgtStemsOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataFall
   )
 
-ModListFallSq[[23]] <- glm.nb.FHgtEddOak <-
+ModListFallSq[[22]] <- glm.nb.FHgtEddOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + Squirrel_EDD_4S +
       offset(log(Deploy.Duration)),
     data = sqDataFall
   )
-ModListFallSq[[24]] <- glm.nb.FHgtEddLog <-
+ModListFallSq[[23]] <- glm.nb.FHgtEddLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View * Squirrel_EDD_4S +
       offset(log(Deploy.Duration)),
     data = sqDataFall
   )
-ModListFallSq[[25]] <- glm.nb.FHgtOakLog <-
+ModListFallSq[[24]] <- glm.nb.FHgtOakLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + OakDBH +
       offset(log(Deploy.Duration)),
     data = sqDataFall
   )
-modnamesF <- c("Full (with Log:EDD Int)","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log * EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log * EDD + Stems","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD * Log","Height + Oak + Log")
+
+ModListFallSq[[25]] <- glm.nb.FOakStemsEdd <-
+  glm.nb(
+    nSeqs ~ log10(Num_Stems) + Squirrel_EDD_4S + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = sqDataFall
+  )
+
+ModListFallSq[[26]] <- glm.nb.FLogOakEdd <-
+  glm.nb(
+    nSeqs ~ Log.in.View * Squirrel_EDD_4S + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = sqDataFall
+  )
+modnamesF <- c("Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log * EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log * EDD + Stems","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD * Log","Height + Oak + Log", "Stems + EDD + Oak", "Log * EDD + Oak")
 modtabFallSq <- aictab(cand.set = ModListFallSq, modnames = modnamesF)
 modtabFallSq
 
@@ -505,115 +539,130 @@ AICc(glm.nb.Whgt) #no support for quadratic effect
 
 #Full Model Comparison Run
 
-ModListWinSq <- list(NA)
-ModListWinSq[[1]] <- glm.nb.fullW <-
-  glm.nb(
+glm.nb.fullW <- glm.nb(
     nSeqs ~ Log.in.View * Squirrel_EDD_WSp + Height_cm + log10(Num_Stems) + OakDBH +
       offset(log(Deploy.Duration)),
     data = sqDataWin
   )
 
-ModListWinSq[[2]] <- glm.nb.WI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = sqDataWin)
 
-ModListWinSq[[3]] <- glm.nb.Wlog <-
+ModListWinSq <- list(NA)
+
+ModListWinSq[[1]] <- glm.nb.WI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = sqDataWin)
+
+ModListWinSq[[2]] <- glm.nb.Wlog <-
   glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = sqDataWin)
 
-ModListWinSq[[4]] <- glm.nb.Whgt <-
+ModListWinSq[[3]] <- glm.nb.Whgt <-
   glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = sqDataWin)
 
-ModListWinSq[[5]] <- glm.nb.Woak <-
+ModListWinSq[[4]] <- glm.nb.Woak <-
   glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = sqDataWin)
 
-ModListWinSq[[6]] <- glm.nb.Wstems <-
+ModListWinSq[[5]] <- glm.nb.Wstems <-
   glm.nb(nSeqs ~ log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataWin)
 
-ModListWinSq[[7]] <- glm.nb.Wedd <-
+ModListWinSq[[6]] <- glm.nb.Wedd <-
   glm.nb(nSeqs ~ Squirrel_EDD_WSp + offset(log(Deploy.Duration)), data = sqDataWin)
 
-ModListWinSq[[8]] <- glm.nb.Wlog_stems <-
+ModListWinSq[[7]] <- glm.nb.Wlog_stems <-
   glm.nb(nSeqs ~ Log.in.View + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataWin)
 
-ModListWinSq[[9]] <-glm.nb.Wlog_Edd <-
+ModListWinSq[[8]] <-glm.nb.Wlog_Edd <-
   glm.nb(nSeqs ~ Log.in.View * Squirrel_EDD_WSp + offset(log(Deploy.Duration)), data = sqDataWin)
 
-ModListWinSq[[10]] <- glm.nb.Wlog_Oak <-
+ModListWinSq[[9]] <- glm.nb.Wlog_Oak <-
   glm.nb(nSeqs ~ Log.in.View + OakDBH + offset(log(Deploy.Duration)), data = sqDataWin)
 
-ModListWinSq[[11]] <- glm.nb.Wlog_Hgt <-
+ModListWinSq[[10]] <- glm.nb.Wlog_Hgt <-
   glm.nb(nSeqs ~ Log.in.View + Height_cm + offset(log(Deploy.Duration)), data = sqDataWin)
 
-ModListWinSq[[12]] <- glm.nb.WEdd_Hgt <-
+ModListWinSq[[11]] <- glm.nb.WEdd_Hgt <-
   glm.nb(nSeqs ~ Squirrel_EDD_WSp + Height_cm + offset(log(Deploy.Duration)), data = sqDataWin)
 
-ModListWinSq[[13]] <-  glm.nb.WEdd_stems <-
+ModListWinSq[[12]] <-  glm.nb.WEdd_stems <-
   glm.nb(nSeqs ~ Squirrel_EDD_WSp + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataWin)
 
-ModListWinSq[[14]] <- glm.nb.WEdd_oak <-
+ModListWinSq[[13]] <- glm.nb.WEdd_oak <-
   glm.nb(nSeqs ~ Squirrel_EDD_WSp + OakDBH + offset(log(Deploy.Duration)), data = sqDataWin)
 
-ModListWinSq[[15]] <- glm.nb.Wstems_hgt <-
+ModListWinSq[[14]] <- glm.nb.Wstems_hgt <-
   glm.nb(nSeqs ~ Height_cm + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataWin)
 
-ModListWinSq[[16]] <- glm.nb.Wstems_oak <-
+ModListWinSq[[15]] <- glm.nb.Wstems_oak <-
   glm.nb(nSeqs ~ OakDBH + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataWin)
 
-ModListWinSq[[17]] <- glm.nb.Whgt_oak <-
+ModListWinSq[[16]] <- glm.nb.Whgt_oak <-
   glm.nb(nSeqs ~ Height_cm + OakDBH + offset(log(Deploy.Duration)), data = sqDataWin)
 
-ModListWinSq[[18]] <- glm.nb.WlogStemsHgt <-
+ModListWinSq[[17]] <- glm.nb.WlogStemsHgt <-
   glm.nb(
     nSeqs ~ Log.in.View + Height_cm + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataWin
   )
 
-ModListWinSq[[19]] <- glm.nb.WlogStemsOak <-
+ModListWinSq[[18]] <- glm.nb.WlogStemsOak <-
   glm.nb(
     nSeqs ~ Log.in.View + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataWin
   )
 
-ModListWinSq[[20]] <- glm.nb.WlogStemsEdd <-
+ModListWinSq[[19]] <- glm.nb.WlogStemsEdd <-
   glm.nb(
     nSeqs ~ Log.in.View * Squirrel_EDD_WSp + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataWin
   )
 
-ModListWinSq[[21]] <- glm.nb.WHgtStemsEdd <-
+ModListWinSq[[20]] <- glm.nb.WHgtStemsEdd <-
   glm.nb(
     nSeqs ~ Height_cm + Squirrel_EDD_WSp + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataWin
   )
 
-ModListWinSq[[22]] <- glm.nb.WHgtStemsOak <-
+ModListWinSq[[21]] <- glm.nb.WHgtStemsOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataWin
   )
 
-ModListWinSq[[23]] <- glm.nb.WHgtEddOak <-
+ModListWinSq[[22]] <- glm.nb.WHgtEddOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + Squirrel_EDD_WSp +
       offset(log(Deploy.Duration)),
     data = sqDataWin
   )
-ModListWinSq[[24]] <- glm.nb.WHgtEddLog <-
+ModListWinSq[[23]] <- glm.nb.WHgtEddLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View * Squirrel_EDD_WSp +
       offset(log(Deploy.Duration)),
     data = sqDataWin
   )
-ModListWinSq[[25]] <- glm.nb.WHgtOakLog <-
+ModListWinSq[[24]] <- glm.nb.WHgtOakLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + OakDBH +
       offset(log(Deploy.Duration)),
     data = sqDataWin
   )
-modnamesW <- c("Full (with Log:Edd Int)","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log * EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log * EDD + Stems","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD * Log","Height + Oak + Log")
+
+ModListWinSq[[25]] <- glm.nb.WOakStemsEdd <-
+  glm.nb(
+    nSeqs ~ log10(Num_Stems) + Squirrel_EDD_WSp + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = sqDataWin
+  )
+
+ModListWinSq[[26]] <- glm.nb.WLogOakEdd <-
+  glm.nb(
+    nSeqs ~ Log.in.View * Squirrel_EDD_WSp + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = sqDataWin
+  )
+modnamesW <- c("Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log * EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log * EDD + Stems","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD * Log","Height + Oak + Log", "Stems + EDD + Oak", "Log * EDD + Oak")
 modtabWinSq <- aictab(cand.set = ModListWinSq, modnames = modnamesW)
 modtabWinSq
 
@@ -662,115 +711,131 @@ AICc(glm.nb.SPHgt2)
 AICc(glm.nb.SPhgt) #no support for quadratic effect
 
 #Full Spring Squirrel Model Selection
-ModListSprSq <- list(NA)
-ModListSprSq[[1]] <- glm.nb.fullSP <-
+
+glm.nb.fullSP <-
   glm.nb(
     nSeqs ~ Log.in.View * Squirrel_EDD_WSp + Height_cm + log10(Num_Stems) + OakDBH +
       offset(log(Deploy.Duration)),
     data = sqDataSpr
   )
 
-ModListSprSq[[2]] <- glm.nb.SPI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = sqDataSpr)
+ModListSprSq <- list(NA)
 
-ModListSprSq[[3]] <- glm.nb.SPlog <-
+
+ModListSprSq[[1]] <- glm.nb.SPI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = sqDataSpr)
+
+ModListSprSq[[2]] <- glm.nb.SPlog <-
   glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = sqDataSpr)
 
-ModListSprSq[[4]] <- glm.nb.SPhgt <-
+ModListSprSq[[3]] <- glm.nb.SPhgt <-
   glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = sqDataSpr)
 
-ModListSprSq[[5]] <- glm.nb.SPoak <-
+ModListSprSq[[4]] <- glm.nb.SPoak <-
   glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = sqDataSpr)
 
-ModListSprSq[[6]] <- glm.nb.SPstems <-
+ModListSprSq[[5]] <- glm.nb.SPstems <-
   glm.nb(nSeqs ~ log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataSpr)
 
-ModListSprSq[[7]] <- glm.nb.SPedd <-
+ModListSprSq[[6]] <- glm.nb.SPedd <-
   glm.nb(nSeqs ~ Squirrel_EDD_WSp + offset(log(Deploy.Duration)), data = sqDataSpr)
 
-ModListSprSq[[8]] <- glm.nb.SPlog_stems <-
+ModListSprSq[[7]] <- glm.nb.SPlog_stems <-
   glm.nb(nSeqs ~ Log.in.View + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataSpr)
 
-ModListSprSq[[9]] <-glm.nb.SPlog_Edd <-
+ModListSprSq[[8]] <-glm.nb.SPlog_Edd <-
   glm.nb(nSeqs ~ Log.in.View * Squirrel_EDD_WSp + offset(log(Deploy.Duration)), data = sqDataSpr)
 
-ModListSprSq[[10]] <- glm.nb.SPlog_Oak <-
+ModListSprSq[[9]] <- glm.nb.SPlog_Oak <-
   glm.nb(nSeqs ~ Log.in.View + OakDBH + offset(log(Deploy.Duration)), data = sqDataSpr)
 
-ModListSprSq[[11]] <- glm.nb.SPlog_Hgt <-
+ModListSprSq[[10]] <- glm.nb.SPlog_Hgt <-
   glm.nb(nSeqs ~ Log.in.View + Height_cm + offset(log(Deploy.Duration)), data = sqDataSpr)
 
-ModListSprSq[[12]] <- glm.nb.SPEdd_Hgt <-
+ModListSprSq[[11]] <- glm.nb.SPEdd_Hgt <-
   glm.nb(nSeqs ~ Squirrel_EDD_WSp + Height_cm + offset(log(Deploy.Duration)), data = sqDataSpr)
 
-ModListSprSq[[13]] <-  glm.nb.SPEdd_stems <-
+ModListSprSq[[12]] <-  glm.nb.SPEdd_stems <-
   glm.nb(nSeqs ~ Squirrel_EDD_WSp + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataSpr)
 
-ModListSprSq[[14]] <- glm.nb.SPEdd_oak <-
+ModListSprSq[[13]] <- glm.nb.SPEdd_oak <-
   glm.nb(nSeqs ~ Squirrel_EDD_WSp + OakDBH + offset(log(Deploy.Duration)), data = sqDataSpr)
 
-ModListSprSq[[15]] <- glm.nb.SPstems_hgt <-
+ModListSprSq[[14]] <- glm.nb.SPstems_hgt <-
   glm.nb(nSeqs ~ Height_cm + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataSpr)
 
-ModListSprSq[[16]] <- glm.nb.SPstems_oak <-
+ModListSprSq[[15]] <- glm.nb.SPstems_oak <-
   glm.nb(nSeqs ~ OakDBH + log10(Num_Stems) + offset(log(Deploy.Duration)), data = sqDataSpr)
 
-ModListSprSq[[17]] <- glm.nb.SPhgt_oak <-
+ModListSprSq[[16]] <- glm.nb.SPhgt_oak <-
   glm.nb(nSeqs ~ Height_cm + OakDBH + offset(log(Deploy.Duration)), data = sqDataSpr)
 
-ModListSprSq[[18]] <- glm.nb.SPlogStemsHgt <-
+ModListSprSq[[17]] <- glm.nb.SPlogStemsHgt <-
   glm.nb(
     nSeqs ~ Log.in.View + Height_cm + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataSpr
   )
 
-ModListSprSq[[19]] <- glm.nb.SPlogStemsOak <-
+ModListSprSq[[18]] <- glm.nb.SPlogStemsOak <-
   glm.nb(
     nSeqs ~ Log.in.View + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataSpr
   )
 
-ModListSprSq[[20]] <- glm.nb.SPlogStemsEdd <-
+ModListSprSq[[19]] <- glm.nb.SPlogStemsEdd <-
   glm.nb(
     nSeqs ~ Log.in.View * Squirrel_EDD_WSp + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataSpr
   )
 
-ModListSprSq[[21]] <- glm.nb.SPHgtStemsEdd <-
+ModListSprSq[[20]] <- glm.nb.SPHgtStemsEdd <-
   glm.nb(
     nSeqs ~ Height_cm + Squirrel_EDD_WSp + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataSpr
   )
 
-ModListSprSq[[22]] <- glm.nb.SPHgtStemsOak <-
+ModListSprSq[[21]] <- glm.nb.SPHgtStemsOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = sqDataSpr
   )
 
-ModListSprSq[[23]] <- glm.nb.SPHgtEddOak <-
+ModListSprSq[[22]] <- glm.nb.SPHgtEddOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + Squirrel_EDD_WSp +
       offset(log(Deploy.Duration)),
     data = sqDataSpr
   )
-ModListSprSq[[24]] <- glm.nb.SPHgtEddLog <-
+ModListSprSq[[23]] <- glm.nb.SPHgtEddLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View * Squirrel_EDD_WSp +
       offset(log(Deploy.Duration)),
     data = sqDataSpr
   )
-ModListSprSq[[25]] <- glm.nb.SPHgtOakLog <-
+ModListSprSq[[24]] <- glm.nb.SPHgtOakLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + OakDBH +
       offset(log(Deploy.Duration)),
     data = sqDataSpr
   )
-modnamesSP <- c("Full (with Log:Edd Int)","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log * EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log * EDD + Stems","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD * Log","Height + Oak + Log")
+ModListSprSq[[25]] <- glm.nb.SPOakStemsEdd <-
+  glm.nb(
+    nSeqs ~ log10(Num_Stems) + Squirrel_EDD_WSp + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = sqDataSpr
+  )
+
+ModListSprSq[[26]] <- glm.nb.SPLogOakEdd <-
+  glm.nb(
+    nSeqs ~ Log.in.View * Squirrel_EDD_WSp + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = sqDataSpr
+  )
+modnamesSP <- c("Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log * EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log * EDD + Stems","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD * Log","Height + Oak + Log", "Stems + EDD + Oak", "Log * EDD + Oak")
 modtabSprSq <- aictab(cand.set = ModListSprSq, modnames = modnamesSP)
 modtabSprSq
 
@@ -783,15 +848,6 @@ SprSW_Stems <- sum(modtabSprSq$AICcWt[grep("Stems", modtabSprSq$Modnames)])
 SprSW_Log <- sum(modtabSprSq$AICcWt[grep("Log", modtabSprSq$Modnames)])
 SprSW_Height <- sum(modtabSprSq$AICcWt[grep("Height", modtabSprSq$Modnames)])
 
-#Compare height alone to height quadratic
-glm.nb.SPHgt2 <-
-  glm.nb(
-    nSeqs ~ poly(Height_cm, 2, raw = T) +
-      offset(log(Deploy.Duration)),
-    data = sqDataSpr
-  )
-AICc(glm.nb.SPHgt2)
-AICc(glm.nb.SPhgt) #no support for quadratic effect
 
 #Explained deviance of best model
 1 - glm.nb.SPlogXEdd$deviance / glm.nb.SPlogXEdd$null.deviance #0.3287772

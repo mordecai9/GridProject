@@ -1,5 +1,5 @@
 ###Regression Analysis of SCBI Camera Grid Data
-
+rm(list = ls())
 require(AICcmodavg)
 require(MASS) #for glm.nb function
 source("scripts/pairsPannelFunctions.r")
@@ -96,17 +96,8 @@ phi.po.fullSp <- sum.po.fullSp$deviance/sum.po.fullSp$df.residual
 # Negative Binomial Regression - WTD --------------------------------------
 # Summer Deer NB Full Model Comparison ----------------------------------------------
 
-#Here I am running 25 models. All the combinations of our 5 parameters, with a maximum of three variables in each model. I have to manually create the AIC table, because the aictab function doesn't do work on glm.nb at this point. Afterward they updated the package so it works with nb! So I don't need all this crap in the end.
+#Here I am running 27 models. All the combinations of our 5 parameters, with a maximum of three variables in each model, plus the full model. But I'm not considering the full model in the AIC table. Here I manually created the AIC table, because the aictab function doesn't do work on glm.nb at this point. Afterward they updated the package so it works with nb! So I don't need all this crap in the end.
 
-modtabSumDeer <- data.frame(matrix(NA, nrow = 25, ncol = 8))
-names(modtabSumDeer) <- c("Model_Name", "K", "AIC", "AICc", "DeltaAICc", "ModelL", "ModelW", "LL")
-
-
-
-ModListSumDeer <- list(NA)
-i = 1
-
-modtabSumDeer$Model_Name[i] <- "Full"
 
 glm.nb.fullS <-
   glm.nb(
@@ -114,10 +105,18 @@ glm.nb.fullS <-
       offset(log(Deploy.Duration)),
     data = deerDataSum
   )
-ModListSumDeer[[i]] <- summary(glm.nb.fullS)
-modtabSumDeer$AICc[i] <- AICc(glm.nb.fullS)
-modtabSumDeer$LL[i] <- logLik(glm.nb.fullS)
-i = i+1
+summary(glm.nb.fullS)
+AICc(glm.nb.fullS)
+logLik(glm.nb.fullS)
+
+#Full 26 model AIC table comparison
+
+modtabSumDeer <- data.frame(matrix(NA, nrow = 26, ncol = 8))
+names(modtabSumDeer) <- c("Model_Name", "K", "AIC", "AICc", "DeltaAICc", "ModelL", "ModelW", "LL")
+
+
+ModListSumDeer <- list(NA)
+i = 1
 
 modtabSumDeer$Model_Name[i] <- "Intercept"
 glm.nb.SI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = deerDataSum)
@@ -345,8 +344,34 @@ glm.nb.SHgtOakLog <-
 ModListSumDeer[[i]] <- summary(glm.nb.SHgtOakLog)
 modtabSumDeer$AICc[i] <- AICc(glm.nb.SHgtOakLog)
 modtabSumDeer$LL[i] <- logLik(glm.nb.SHgtOakLog)
+i = i+1
 
-for (i in 1:25) {
+modtabSumDeer$Model_Name[i] <- "Stems + Oak + EDD"
+glm.nb.SOakStemsEdd <-
+  glm.nb(
+    nSeqs ~ log10(Num_Stems) + Summer.Fall.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = deerDataSum
+  )
+ModListSumDeer[[i]] <- summary(glm.nb.SOakStemsEdd)
+modtabSumDeer$AICc[i] <- AICc(glm.nb.SOakStemsEdd)
+modtabSumDeer$LL[i] <- logLik(glm.nb.SOakStemsEdd)
+i = i+1
+
+modtabSumDeer$Model_Name[i] <- "Log + Oak + EDD"
+glm.nb.SLogOakEdd <-
+  glm.nb(
+    nSeqs ~ Log.in.View + Summer.Fall.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = deerDataSum
+  )
+ModListSumDeer[[i]] <- summary(glm.nb.SLogOakEdd)
+modtabSumDeer$AICc[i] <- AICc(glm.nb.SLogOakEdd)
+modtabSumDeer$LL[i] <- logLik(glm.nb.SLogOakEdd)
+
+
+
+for (i in 1:26) {
   modtabSumDeer$AIC[i] <- ModListSumDeer[[i]]$aic
   modtabSumDeer$K[i] <- length(ModListSumDeer[[i]]$coefficients[,1])
   
@@ -367,7 +392,7 @@ summary(glm.nb.Slog)
 1 - glm.nb.Slog$deviance / glm.nb.Slog$null.deviance #0.3784
 #Explained Deviance of best 3 variable model
 1 - glm.nb.SlogStemsEdd$deviance / glm.nb.SlogStemsEdd$null.deviance #0.430
-#Explained Deviance of best 3 variable model
+#Explained Deviance of full model
 1 - glm.nb.fullS$deviance / glm.nb.fullS$null.deviance #0.454 
 
 
@@ -381,116 +406,131 @@ SumSW_Height <- sum(modtabSumDeer$ModelW[grep("Height", modtabSumDeer$Model_Name
 
 # Fall Deer NB Full Model Comparison --------------------------------------
 
-ModListFallDeer <- list(NA)
-
-ModListFallDeer[[1]] <- glm.nb.fullF <-
+glm.nb.fullF <-
   glm.nb(
     nSeqs ~ Log.in.View + Summer.Fall.EDD + Height_cm + log10(Num_Stems) + OakDBH +
       offset(log(Deploy.Duration)),
     data = deerDataFall
   )
 
-ModListFallDeer[[2]] <- glm.nb.FI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = deerDataFall)
+ModListFallDeer <- list(NA)
 
-ModListFallDeer[[3]] <- glm.nb.Flog <-
+ModListFallDeer[[1]] <- glm.nb.FI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = deerDataFall)
+
+ModListFallDeer[[2]] <- glm.nb.Flog <-
   glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = deerDataFall)
 
-ModListFallDeer[[4]] <- glm.nb.Fhgt <-
+ModListFallDeer[[3]] <- glm.nb.Fhgt <-
   glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = deerDataFall)
 
-ModListFallDeer[[5]] <- glm.nb.Foak <-
+ModListFallDeer[[4]] <- glm.nb.Foak <-
   glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = deerDataFall)
 
-ModListFallDeer[[6]] <- glm.nb.Fstems <-
+ModListFallDeer[[5]] <- glm.nb.Fstems <-
   glm.nb(nSeqs ~ log10(Num_Stems) + offset(log(Deploy.Duration)), data = deerDataFall)
 
-ModListFallDeer[[7]] <- glm.nb.Fedd <-
+ModListFallDeer[[6]] <- glm.nb.Fedd <-
   glm.nb(nSeqs ~ Summer.Fall.EDD + offset(log(Deploy.Duration)), data = deerDataFall)
 
-ModListFallDeer[[8]] <- glm.nb.Flog_stems <-
+ModListFallDeer[[7]] <- glm.nb.Flog_stems <-
   glm.nb(nSeqs ~ Log.in.View + log10(Num_Stems) + offset(log(Deploy.Duration)), data = deerDataFall)
 
-ModListFallDeer[[9]] <-glm.nb.Flog_Edd <-
+ModListFallDeer[[8]] <-glm.nb.Flog_Edd <-
   glm.nb(nSeqs ~ Log.in.View + Summer.Fall.EDD + offset(log(Deploy.Duration)), data = deerDataFall)
 
-ModListFallDeer[[10]] <- glm.nb.Flog_Oak <-
+ModListFallDeer[[9]] <- glm.nb.Flog_Oak <-
   glm.nb(nSeqs ~ Log.in.View + OakDBH + offset(log(Deploy.Duration)), data = deerDataFall)
 
-ModListFallDeer[[11]] <- glm.nb.Flog_Hgt <-
+ModListFallDeer[[10]] <- glm.nb.Flog_Hgt <-
   glm.nb(nSeqs ~ Log.in.View + Height_cm + offset(log(Deploy.Duration)), data = deerDataFall)
 
-ModListFallDeer[[12]] <- glm.nb.FEdd_Hgt <-
+ModListFallDeer[[11]] <- glm.nb.FEdd_Hgt <-
   glm.nb(nSeqs ~ Summer.Fall.EDD + Height_cm + offset(log(Deploy.Duration)), data = deerDataFall)
 
-ModListFallDeer[[13]] <-  glm.nb.FEdd_stems <-
+ModListFallDeer[[12]] <-  glm.nb.FEdd_stems <-
   glm.nb(nSeqs ~ Summer.Fall.EDD + log10(Num_Stems) + offset(log(Deploy.Duration)), data = deerDataFall)
 
-ModListFallDeer[[14]] <- glm.nb.FEdd_oak <-
+ModListFallDeer[[13]] <- glm.nb.FEdd_oak <-
   glm.nb(nSeqs ~ Summer.Fall.EDD + OakDBH + offset(log(Deploy.Duration)), data = deerDataFall)
 
-ModListFallDeer[[15]] <- glm.nb.Fstems_hgt <-
+ModListFallDeer[[14]] <- glm.nb.Fstems_hgt <-
   glm.nb(nSeqs ~ Height_cm + log10(Num_Stems) + offset(log(Deploy.Duration)), data = deerDataFall)
 
-ModListFallDeer[[16]] <- glm.nb.Fstems_oak <-
+ModListFallDeer[[15]] <- glm.nb.Fstems_oak <-
   glm.nb(nSeqs ~ OakDBH + log10(Num_Stems) + offset(log(Deploy.Duration)), data = deerDataFall)
 
-ModListFallDeer[[17]] <- glm.nb.Fhgt_oak <-
+ModListFallDeer[[16]] <- glm.nb.Fhgt_oak <-
   glm.nb(nSeqs ~ Height_cm + OakDBH + offset(log(Deploy.Duration)), data = deerDataFall)
 
-ModListFallDeer[[18]] <- glm.nb.FlogStemsHgt <-
+ModListFallDeer[[17]] <- glm.nb.FlogStemsHgt <-
   glm.nb(
     nSeqs ~ Log.in.View + Height_cm + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = deerDataFall
   )
 
-ModListFallDeer[[19]] <- glm.nb.FlogStemsOak <-
+ModListFallDeer[[18]] <- glm.nb.FlogStemsOak <-
   glm.nb(
     nSeqs ~ Log.in.View + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = deerDataFall
   )
 
-ModListFallDeer[[20]] <- glm.nb.FlogStemsEdd <-
+ModListFallDeer[[19]] <- glm.nb.FlogStemsEdd <-
   glm.nb(
     nSeqs ~ Log.in.View + Summer.Fall.EDD + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = deerDataFall
   )
 
-ModListFallDeer[[21]] <- glm.nb.FHgtStemsEdd <-
+ModListFallDeer[[20]] <- glm.nb.FHgtStemsEdd <-
   glm.nb(
     nSeqs ~ Height_cm + Summer.Fall.EDD + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = deerDataFall
   )
 
-ModListFallDeer[[22]] <- glm.nb.FHgtStemsOak <-
+ModListFallDeer[[21]] <- glm.nb.FHgtStemsOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = deerDataFall
   )
 
-ModListFallDeer[[23]] <- glm.nb.FHgtEddOak <-
+ModListFallDeer[[22]] <- glm.nb.FHgtEddOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + Summer.Fall.EDD +
       offset(log(Deploy.Duration)),
     data = deerDataFall
   )
-ModListFallDeer[[24]] <- glm.nb.FHgtEddLog <-
+ModListFallDeer[[23]] <- glm.nb.FHgtEddLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + Summer.Fall.EDD +
       offset(log(Deploy.Duration)),
     data = deerDataFall
   )
-ModListFallDeer[[25]] <- glm.nb.FHgtOakLog <-
+ModListFallDeer[[24]] <- glm.nb.FHgtOakLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + OakDBH +
       offset(log(Deploy.Duration)),
     data = deerDataFall
   )
-modnamesF <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log")
+
+ModListFallDeer[[25]] <- glm.nb.SOakStemsEdd <-
+  glm.nb(
+    nSeqs ~ log10(Num_Stems) + Summer.Fall.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = deerDataFall
+  )
+
+ModListFallDeer[[26]] <- glm.nb.SLogOakEdd <-
+  glm.nb(
+    nSeqs ~ Log.in.View + Summer.Fall.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = deerDataFall
+  )
+
+modnamesF <- c("Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log", "Stems + EDD + Oak", "Log + EDD + Oak")
 modtabFallDeer <- aictab(cand.set = ModListFallDeer, modnames = modnamesF)
 modtabFallDeer #Intercept is the best model!
 
@@ -509,115 +549,131 @@ FallSW_Height <- sum(modtabFallDeer$AICcWt[grep("Height", modtabFallDeer$Modname
 
 # Winter Deer NB Full Model Selection -------------------------------------
 
-ModListWinDeer <- list(NA)
-ModListWinDeer[[1]] <- glm.nb.fullW <-
+glm.nb.fullW <-
   glm.nb(
     nSeqs ~ Log.in.View + Winter.Spring.EDD + Height_cm + log10(Num_Stems) + OakDBH +
       offset(log(Deploy.Duration)),
     data = deerDataWin
   )
 
-ModListWinDeer[[2]] <- glm.nb.WI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = deerDataWin)
+ModListWinDeer <- list(NA)
 
-ModListWinDeer[[3]] <- glm.nb.Wlog <-
+
+ModListWinDeer[[1]] <- glm.nb.WI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = deerDataWin)
+
+ModListWinDeer[[2]] <- glm.nb.Wlog <-
   glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = deerDataWin)
 
-ModListWinDeer[[4]] <- glm.nb.Whgt <-
+ModListWinDeer[[3]] <- glm.nb.Whgt <-
   glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = deerDataWin)
 
-ModListWinDeer[[5]] <- glm.nb.Woak <-
+ModListWinDeer[[4]] <- glm.nb.Woak <-
   glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = deerDataWin)
 
-ModListWinDeer[[6]] <- glm.nb.Wstems <-
+ModListWinDeer[[5]] <- glm.nb.Wstems <-
   glm.nb(nSeqs ~ log10(Num_Stems) + offset(log(Deploy.Duration)), data = deerDataWin)
 
-ModListWinDeer[[7]] <- glm.nb.Wedd <-
+ModListWinDeer[[6]] <- glm.nb.Wedd <-
   glm.nb(nSeqs ~ Winter.Spring.EDD + offset(log(Deploy.Duration)), data = deerDataWin)
 
-ModListWinDeer[[8]] <- glm.nb.Wlog_stems <-
+ModListWinDeer[[7]] <- glm.nb.Wlog_stems <-
   glm.nb(nSeqs ~ Log.in.View + log10(Num_Stems) + offset(log(Deploy.Duration)), data = deerDataWin)
 
-ModListWinDeer[[9]] <-glm.nb.Wlog_Edd <-
+ModListWinDeer[[8]] <-glm.nb.Wlog_Edd <-
   glm.nb(nSeqs ~ Log.in.View + Winter.Spring.EDD + offset(log(Deploy.Duration)), data = deerDataWin)
 
-ModListWinDeer[[10]] <- glm.nb.Wlog_Oak <-
+ModListWinDeer[[9]] <- glm.nb.Wlog_Oak <-
   glm.nb(nSeqs ~ Log.in.View + OakDBH + offset(log(Deploy.Duration)), data = deerDataWin)
 
-ModListWinDeer[[11]] <- glm.nb.Wlog_Hgt <-
+ModListWinDeer[[10]] <- glm.nb.Wlog_Hgt <-
   glm.nb(nSeqs ~ Log.in.View + Height_cm + offset(log(Deploy.Duration)), data = deerDataWin)
 
-ModListWinDeer[[12]] <- glm.nb.WEdd_Hgt <-
+ModListWinDeer[[11]] <- glm.nb.WEdd_Hgt <-
   glm.nb(nSeqs ~ Winter.Spring.EDD + Height_cm + offset(log(Deploy.Duration)), data = deerDataWin)
 
-ModListWinDeer[[13]] <-  glm.nb.WEdd_stems <-
+ModListWinDeer[[12]] <-  glm.nb.WEdd_stems <-
   glm.nb(nSeqs ~ Winter.Spring.EDD + log10(Num_Stems) + offset(log(Deploy.Duration)), data = deerDataWin)
 
-ModListWinDeer[[14]] <- glm.nb.WEdd_oak <-
+ModListWinDeer[[13]] <- glm.nb.WEdd_oak <-
   glm.nb(nSeqs ~ Winter.Spring.EDD + OakDBH + offset(log(Deploy.Duration)), data = deerDataWin)
 
-ModListWinDeer[[15]] <- glm.nb.Wstems_hgt <-
+ModListWinDeer[[14]] <- glm.nb.Wstems_hgt <-
   glm.nb(nSeqs ~ Height_cm + log10(Num_Stems) + offset(log(Deploy.Duration)), data = deerDataWin)
 
-ModListWinDeer[[16]] <- glm.nb.Wstems_oak <-
+ModListWinDeer[[15]] <- glm.nb.Wstems_oak <-
   glm.nb(nSeqs ~ OakDBH + log10(Num_Stems) + offset(log(Deploy.Duration)), data = deerDataWin)
 
-ModListWinDeer[[17]] <- glm.nb.Whgt_oak <-
+ModListWinDeer[[16]] <- glm.nb.Whgt_oak <-
   glm.nb(nSeqs ~ Height_cm + OakDBH + offset(log(Deploy.Duration)), data = deerDataWin)
 
-ModListWinDeer[[18]] <- glm.nb.WlogStemsHgt <-
+ModListWinDeer[[17]] <- glm.nb.WlogStemsHgt <-
   glm.nb(
     nSeqs ~ Log.in.View + Height_cm + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = deerDataWin
   )
 
-ModListWinDeer[[19]] <- glm.nb.WlogStemsOak <-
+ModListWinDeer[[18]] <- glm.nb.WlogStemsOak <-
   glm.nb(
     nSeqs ~ Log.in.View + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = deerDataWin
   )
 
-ModListWinDeer[[20]] <- glm.nb.WlogStemsEdd <-
+ModListWinDeer[[19]] <- glm.nb.WlogStemsEdd <-
   glm.nb(
     nSeqs ~ Log.in.View + Winter.Spring.EDD + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = deerDataWin
   )
 
-ModListWinDeer[[21]] <- glm.nb.WHgtStemsEdd <-
+ModListWinDeer[[20]] <- glm.nb.WHgtStemsEdd <-
   glm.nb(
     nSeqs ~ Height_cm + Winter.Spring.EDD + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = deerDataWin
   )
 
-ModListWinDeer[[22]] <- glm.nb.WHgtStemsOak <-
+ModListWinDeer[[21]] <- glm.nb.WHgtStemsOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = deerDataWin
   )
 
-ModListWinDeer[[23]] <- glm.nb.WHgtEddOak <-
+ModListWinDeer[[22]] <- glm.nb.WHgtEddOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + Winter.Spring.EDD +
       offset(log(Deploy.Duration)),
     data = deerDataWin
   )
-ModListWinDeer[[24]] <- glm.nb.WHgtEddLog <-
+ModListWinDeer[[23]] <- glm.nb.WHgtEddLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + Winter.Spring.EDD +
       offset(log(Deploy.Duration)),
     data = deerDataWin
   )
-ModListWinDeer[[25]] <- glm.nb.WHgtOakLog <-
+ModListWinDeer[[24]] <- glm.nb.WHgtOakLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + OakDBH +
       offset(log(Deploy.Duration)),
     data = deerDataWin
   )
-modnamesW <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log")
+
+ModListWinDeer[[25]] <- glm.nb.WOakStemsEdd <-
+  glm.nb(
+    nSeqs ~ log10(Num_Stems) + Winter.Spring.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = deerDataWin
+  )
+
+ModListWinDeer[[26]] <- glm.nb.WLogOakEdd <-
+  glm.nb(
+    nSeqs ~ Log.in.View + Winter.Spring.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = deerDataWin
+  )
+modnamesW <- c("Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log", "Stems + EDD + Oak", "Log + EDD + Oak")
 modtabWinDeer <- aictab(cand.set = ModListWinDeer, modnames = modnamesW)
 modtabWinDeer #intercept model is the best
 
@@ -636,116 +692,132 @@ WinSW_Height <- sum(modtabWinDeer$AICcWt[grep("Height", modtabWinDeer$Modnames)]
 
 # Spring Deer NB Full Model Selection -------------------------------------
 
-
-ModListSprDeer <- list(NA)
-ModListSprDeer[[1]] <- glm.nb.fullSP <-
+glm.nb.fullSP <-
   glm.nb(
     nSeqs ~ Log.in.View + Winter.Spring.EDD + Height_cm + log10(Num_Stems) + OakDBH +
       offset(log(Deploy.Duration)),
     data = deerDataSpr
   )
 
-ModListSprDeer[[2]] <- glm.nb.SPI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = deerDataSpr)
 
-ModListSprDeer[[3]] <- glm.nb.SPlog <-
+ModListSprDeer <- list(NA)
+
+
+ModListSprDeer[[1]] <- glm.nb.SPI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = deerDataSpr)
+
+ModListSprDeer[[2]] <- glm.nb.SPlog <-
   glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = deerDataSpr)
 
-ModListSprDeer[[4]] <- glm.nb.SPhgt <-
+ModListSprDeer[[3]] <- glm.nb.SPhgt <-
   glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = deerDataSpr)
 
-ModListSprDeer[[5]] <- glm.nb.SPoak <-
+ModListSprDeer[[4]] <- glm.nb.SPoak <-
   glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = deerDataSpr)
 
-ModListSprDeer[[6]] <- glm.nb.SPstems <-
+ModListSprDeer[[5]] <- glm.nb.SPstems <-
   glm.nb(nSeqs ~ log10(Num_Stems) + offset(log(Deploy.Duration)), data = deerDataSpr)
 
-ModListSprDeer[[7]] <- glm.nb.SPedd <-
+ModListSprDeer[[6]] <- glm.nb.SPedd <-
   glm.nb(nSeqs ~ Winter.Spring.EDD + offset(log(Deploy.Duration)), data = deerDataSpr)
 
-ModListSprDeer[[8]] <- glm.nb.SPlog_stems <-
+ModListSprDeer[[7]] <- glm.nb.SPlog_stems <-
   glm.nb(nSeqs ~ Log.in.View + log10(Num_Stems) + offset(log(Deploy.Duration)), data = deerDataSpr)
 
-ModListSprDeer[[9]] <-glm.nb.SPlog_Edd <-
+ModListSprDeer[[8]] <-glm.nb.SPlog_Edd <-
   glm.nb(nSeqs ~ Log.in.View + Winter.Spring.EDD + offset(log(Deploy.Duration)), data = deerDataSpr)
 
-ModListSprDeer[[10]] <- glm.nb.SPlog_Oak <-
+ModListSprDeer[[9]] <- glm.nb.SPlog_Oak <-
   glm.nb(nSeqs ~ Log.in.View + OakDBH + offset(log(Deploy.Duration)), data = deerDataSpr)
 
-ModListSprDeer[[11]] <- glm.nb.SPlog_Hgt <-
+ModListSprDeer[[10]] <- glm.nb.SPlog_Hgt <-
   glm.nb(nSeqs ~ Log.in.View + Height_cm + offset(log(Deploy.Duration)), data = deerDataSpr)
 
-ModListSprDeer[[12]] <- glm.nb.SPEdd_Hgt <-
+ModListSprDeer[[11]] <- glm.nb.SPEdd_Hgt <-
   glm.nb(nSeqs ~ Winter.Spring.EDD + Height_cm + offset(log(Deploy.Duration)), data = deerDataSpr)
 
-ModListSprDeer[[13]] <-  glm.nb.SPEdd_stems <-
+ModListSprDeer[[12]] <-  glm.nb.SPEdd_stems <-
   glm.nb(nSeqs ~ Winter.Spring.EDD + log10(Num_Stems) + offset(log(Deploy.Duration)), data = deerDataSpr)
 
-ModListSprDeer[[14]] <- glm.nb.SPEdd_oak <-
+ModListSprDeer[[13]] <- glm.nb.SPEdd_oak <-
   glm.nb(nSeqs ~ Winter.Spring.EDD + OakDBH + offset(log(Deploy.Duration)), data = deerDataSpr)
 
-ModListSprDeer[[15]] <- glm.nb.SPstems_hgt <-
+ModListSprDeer[[14]] <- glm.nb.SPstems_hgt <-
   glm.nb(nSeqs ~ Height_cm + log10(Num_Stems) + offset(log(Deploy.Duration)), data = deerDataSpr)
 
-ModListSprDeer[[16]] <- glm.nb.SPstems_oak <-
+ModListSprDeer[[15]] <- glm.nb.SPstems_oak <-
   glm.nb(nSeqs ~ OakDBH + log10(Num_Stems) + offset(log(Deploy.Duration)), data = deerDataSpr)
 
-ModListSprDeer[[17]] <- glm.nb.SPhgt_oak <-
+ModListSprDeer[[16]] <- glm.nb.SPhgt_oak <-
   glm.nb(nSeqs ~ Height_cm + OakDBH + offset(log(Deploy.Duration)), data = deerDataSpr)
 
-ModListSprDeer[[18]] <- glm.nb.SPlogStemsHgt <-
+ModListSprDeer[[17]] <- glm.nb.SPlogStemsHgt <-
   glm.nb(
     nSeqs ~ Log.in.View + Height_cm + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = deerDataSpr
   )
 
-ModListSprDeer[[19]] <- glm.nb.SPlogStemsOak <-
+ModListSprDeer[[18]] <- glm.nb.SPlogStemsOak <-
   glm.nb(
     nSeqs ~ Log.in.View + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = deerDataSpr
   )
 
-ModListSprDeer[[20]] <- glm.nb.SPlogStemsEdd <-
+ModListSprDeer[[19]] <- glm.nb.SPlogStemsEdd <-
   glm.nb(
     nSeqs ~ Log.in.View + Winter.Spring.EDD + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = deerDataSpr
   )
 
-ModListSprDeer[[21]] <- glm.nb.SPHgtStemsEdd <-
+ModListSprDeer[[20]] <- glm.nb.SPHgtStemsEdd <-
   glm.nb(
     nSeqs ~ Height_cm + Winter.Spring.EDD + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = deerDataSpr
   )
 
-ModListSprDeer[[22]] <- glm.nb.SPHgtStemsOak <-
+ModListSprDeer[[21]] <- glm.nb.SPHgtStemsOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = deerDataSpr
   )
 
-ModListSprDeer[[23]] <- glm.nb.SPHgtEddOak <-
+ModListSprDeer[[22]] <- glm.nb.SPHgtEddOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + Winter.Spring.EDD +
       offset(log(Deploy.Duration)),
     data = deerDataSpr
   )
-ModListSprDeer[[24]] <- glm.nb.SPHgtEddLog <-
+ModListSprDeer[[23]] <- glm.nb.SPHgtEddLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + Winter.Spring.EDD +
       offset(log(Deploy.Duration)),
     data = deerDataSpr
   )
-ModListSprDeer[[25]] <- glm.nb.SPHgtOakLog <-
+ModListSprDeer[[24]] <- glm.nb.SPHgtOakLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + OakDBH +
       offset(log(Deploy.Duration)),
     data = deerDataSpr
   )
-modnamesSP <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log")
+
+ModListSprDeer[[25]] <- glm.nb.SPOakStemsEdd <-
+  glm.nb(
+    nSeqs ~ log10(Num_Stems) + Winter.Spring.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = deerDataSpr
+  )
+
+ModListSprDeer[[26]] <- glm.nb.SPLogOakEdd <-
+  glm.nb(
+    nSeqs ~ Log.in.View + Winter.Spring.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = deerDataSpr
+  )
+modnamesSP <- c("Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log", "Stems + EDD + Oak", "Log + EDD + Oak")
 modtabSprDeer <- aictab(cand.set = ModListSprDeer, modnames = modnamesSP)
 modtabSprDeer #Intercept Only model is best 
 

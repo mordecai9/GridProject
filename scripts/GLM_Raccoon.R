@@ -111,7 +111,7 @@ phi.po.fullSp <- sum.po.fullSp$deviance/sum.po.fullSp$df.residual
 
 
 # Negative Binomial Regression - Raccoon Summer--------------------------------------
-#Summer. i will not include summer in the manuscript for the models due to low variation in sequences, most of which were 0 or 1.
+#Summer. i will not include summer in the manuscript for the models due to low variation in sequences, most of which were 0 or 1. Note that if I do want to use this, I need to add two missing models here, Stems+Oak+EDD and Oak+Log+EDD
 
 ModListSumRac <- list(NA)
 
@@ -266,116 +266,129 @@ glm.nb.FlogXEdd <-
 AICc(glm.nb.FlogXEdd) #No support for interaction
 
 
-ModListFallRac <- list(NA)
-
-ModListFallRac[[1]] <- glm.nb.fullF <-
+glm.nb.fullF <-
   glm.nb(
     nSeqs ~ Log.in.View + Raccoon.EDD + Height_cm + log10(Num_Stems) + OakDBH +
       offset(log(Deploy.Duration)),
     data = racDataFall
   )
 
-ModListFallRac[[2]] <- glm.nb.FI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = racDataFall)
+ModListFallRac <- list(NA)
 
-ModListFallRac[[3]] <- glm.nb.Flog <-
+ModListFallRac[[1]] <- glm.nb.FI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = racDataFall)
+
+ModListFallRac[[2]] <- glm.nb.Flog <-
   glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = racDataFall)
 
-ModListFallRac[[4]] <- glm.nb.Fhgt <-
+ModListFallRac[[3]] <- glm.nb.Fhgt <-
   glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = racDataFall)
 
-ModListFallRac[[5]] <- glm.nb.Foak <-
+ModListFallRac[[4]] <- glm.nb.Foak <-
   glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = racDataFall)
 
-ModListFallRac[[6]] <- glm.nb.Fstems <-
+ModListFallRac[[5]] <- glm.nb.Fstems <-
   glm.nb(nSeqs ~ log10(Num_Stems) + offset(log(Deploy.Duration)), data = racDataFall)
 
-ModListFallRac[[7]] <- glm.nb.Fedd <-
+ModListFallRac[[6]] <- glm.nb.Fedd <-
   glm.nb(nSeqs ~ Raccoon.EDD + offset(log(Deploy.Duration)), data = racDataFall)
 
-ModListFallRac[[8]] <- glm.nb.Flog_stems <-
+ModListFallRac[[7]] <- glm.nb.Flog_stems <-
   glm.nb(nSeqs ~ Log.in.View + log10(Num_Stems) + offset(log(Deploy.Duration)), data = racDataFall)
 
-ModListFallRac[[9]] <-glm.nb.Flog_Edd <-
+ModListFallRac[[8]] <-glm.nb.Flog_Edd <-
   glm.nb(nSeqs ~ Log.in.View + Raccoon.EDD + offset(log(Deploy.Duration)), data = racDataFall)
 
-ModListFallRac[[10]] <- glm.nb.Flog_Oak <-
+ModListFallRac[[9]] <- glm.nb.Flog_Oak <-
   glm.nb(nSeqs ~ Log.in.View + OakDBH + offset(log(Deploy.Duration)), data = racDataFall)
 
-ModListFallRac[[11]] <- glm.nb.Flog_Hgt <-
+ModListFallRac[[10]] <- glm.nb.Flog_Hgt <-
   glm.nb(nSeqs ~ Log.in.View + Height_cm + offset(log(Deploy.Duration)), data = racDataFall)
 
-ModListFallRac[[12]] <- glm.nb.FEdd_Hgt <-
+ModListFallRac[[11]] <- glm.nb.FEdd_Hgt <-
   glm.nb(nSeqs ~ Raccoon.EDD + Height_cm + offset(log(Deploy.Duration)), data = racDataFall)
 
-ModListFallRac[[13]] <-  glm.nb.FEdd_stems <-
+ModListFallRac[[12]] <-  glm.nb.FEdd_stems <-
   glm.nb(nSeqs ~ Raccoon.EDD + log10(Num_Stems) + offset(log(Deploy.Duration)), data = racDataFall)
 
-ModListFallRac[[14]] <- glm.nb.FEdd_oak <-
+ModListFallRac[[13]] <- glm.nb.FEdd_oak <-
   glm.nb(nSeqs ~ Raccoon.EDD + OakDBH + offset(log(Deploy.Duration)), data = racDataFall)
 
-ModListFallRac[[15]] <- glm.nb.Fstems_hgt <-
+ModListFallRac[[14]] <- glm.nb.Fstems_hgt <-
   glm.nb(nSeqs ~ Height_cm + log10(Num_Stems) + offset(log(Deploy.Duration)), data = racDataFall)
 
-ModListFallRac[[16]] <- glm.nb.Fstems_oak <-
+ModListFallRac[[15]] <- glm.nb.Fstems_oak <-
   glm.nb(nSeqs ~ OakDBH + log10(Num_Stems) + offset(log(Deploy.Duration)), data = racDataFall)
 
-ModListFallRac[[17]] <- glm.nb.Fhgt_oak <-
+ModListFallRac[[16]] <- glm.nb.Fhgt_oak <-
   glm.nb(nSeqs ~ Height_cm + OakDBH + offset(log(Deploy.Duration)), data = racDataFall)
 
-ModListFallRac[[18]] <- glm.nb.FlogStemsHgt <-
+ModListFallRac[[17]] <- glm.nb.FlogStemsHgt <-
   glm.nb(
     nSeqs ~ Log.in.View + Height_cm + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = racDataFall
   )
 
-ModListFallRac[[19]] <- glm.nb.FlogStemsOak <-
+ModListFallRac[[18]] <- glm.nb.FlogStemsOak <-
   glm.nb(
     nSeqs ~ Log.in.View + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = racDataFall
   )
 
-ModListFallRac[[20]] <- glm.nb.FlogStemsEdd <-
+ModListFallRac[[19]] <- glm.nb.FlogStemsEdd <-
   glm.nb(
     nSeqs ~ Log.in.View + Raccoon.EDD + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = racDataFall
   )
 
-ModListFallRac[[21]] <- glm.nb.FHgtStemsEdd <-
+ModListFallRac[[20]] <- glm.nb.FHgtStemsEdd <-
   glm.nb(
     nSeqs ~ Height_cm + Raccoon.EDD + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = racDataFall
   )
 
-ModListFallRac[[22]] <- glm.nb.FHgtStemsOak <-
+ModListFallRac[[21]] <- glm.nb.FHgtStemsOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = racDataFall
   )
 
-ModListFallRac[[23]] <- glm.nb.FHgtEddOak <-
+ModListFallRac[[22]] <- glm.nb.FHgtEddOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + Raccoon.EDD +
       offset(log(Deploy.Duration)),
     data = racDataFall
   )
-ModListFallRac[[24]] <- glm.nb.FHgtEddLog <-
+ModListFallRac[[23]] <- glm.nb.FHgtEddLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + Raccoon.EDD +
       offset(log(Deploy.Duration)),
     data = racDataFall
   )
-ModListFallRac[[25]] <- glm.nb.FHgtOakLog <-
+ModListFallRac[[24]] <- glm.nb.FHgtOakLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + OakDBH +
       offset(log(Deploy.Duration)),
     data = racDataFall
   )
-modnamesF <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log")
+ModListFallRac[[25]] <- glm.nb.FOakStemsEdd <-
+  glm.nb(
+    nSeqs ~ log10(Num_Stems) + Raccoon.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = racDataFall
+  )
+
+ModListFallRac[[26]] <- glm.nb.FLogOakEdd <-
+  glm.nb(
+    nSeqs ~ Log.in.View + Raccoon.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = racDataFall
+  )
+modnamesF <- c("Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log", "Stems + EDD + Oak", "Log + EDD + Oak")
 modtabFallRac <- aictab(cand.set = ModListFallRac, modnames = modnamesF)
 modtabFallRac #The log model is best, not much support for EDD, but the Stems + Oak model also has reasonable support. Should discuss all three.
 summary(glm.nb.Flog)
@@ -424,115 +437,130 @@ lines(nd.seq.stemsF$Num_Stems, exp(pred.stemsF$fit - 1.96*pred.stemsF$se.fit), l
 
 # Raccoons in Winter NB Full Model Selection ------------------------------
 
-ModListWinRac <- list(NA)
-ModListWinRac[[1]] <- glm.nb.fullW <-
+
+glm.nb.fullW <-
   glm.nb(
     nSeqs ~ Log.in.View + Raccoon.EDD + Height_cm + log10(Num_Stems) + OakDBH +
       offset(log(Deploy.Duration)),
     data = racDataWin
   )
 
-ModListWinRac[[2]] <- glm.nb.WI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = racDataWin)
+ModListWinRac <- list(NA)
 
-ModListWinRac[[3]] <- glm.nb.Wlog <-
+ModListWinRac[[1]] <- glm.nb.WI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = racDataWin)
+
+ModListWinRac[[2]] <- glm.nb.Wlog <-
   glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = racDataWin)
 
-ModListWinRac[[4]] <- glm.nb.Whgt <-
+ModListWinRac[[3]] <- glm.nb.Whgt <-
   glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = racDataWin)
 
-ModListWinRac[[5]] <- glm.nb.Woak <-
+ModListWinRac[[4]] <- glm.nb.Woak <-
   glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = racDataWin)
 
-ModListWinRac[[6]] <- glm.nb.Wstems <-
+ModListWinRac[[5]] <- glm.nb.Wstems <-
   glm.nb(nSeqs ~ log10(Num_Stems) + offset(log(Deploy.Duration)), data = racDataWin)
 
-ModListWinRac[[7]] <- glm.nb.Wedd <-
+ModListWinRac[[6]] <- glm.nb.Wedd <-
   glm.nb(nSeqs ~ Raccoon.EDD + offset(log(Deploy.Duration)), data = racDataWin)
 
-ModListWinRac[[8]] <- glm.nb.Wlog_stems <-
+ModListWinRac[[7]] <- glm.nb.Wlog_stems <-
   glm.nb(nSeqs ~ Log.in.View + log10(Num_Stems) + offset(log(Deploy.Duration)), data = racDataWin)
 
-ModListWinRac[[9]] <-glm.nb.Wlog_Edd <-
+ModListWinRac[[8]] <-glm.nb.Wlog_Edd <-
   glm.nb(nSeqs ~ Log.in.View + Raccoon.EDD + offset(log(Deploy.Duration)), data = racDataWin)
 
-ModListWinRac[[10]] <- glm.nb.Wlog_Oak <-
+ModListWinRac[[9]] <- glm.nb.Wlog_Oak <-
   glm.nb(nSeqs ~ Log.in.View + OakDBH + offset(log(Deploy.Duration)), data = racDataWin)
 
-ModListWinRac[[11]] <- glm.nb.Wlog_Hgt <-
+ModListWinRac[[10]] <- glm.nb.Wlog_Hgt <-
   glm.nb(nSeqs ~ Log.in.View + Height_cm + offset(log(Deploy.Duration)), data = racDataWin)
 
-ModListWinRac[[12]] <- glm.nb.WEdd_Hgt <-
+ModListWinRac[[11]] <- glm.nb.WEdd_Hgt <-
   glm.nb(nSeqs ~ Raccoon.EDD + Height_cm + offset(log(Deploy.Duration)), data = racDataWin)
 
-ModListWinRac[[13]] <-  glm.nb.WEdd_stems <-
+ModListWinRac[[12]] <-  glm.nb.WEdd_stems <-
   glm.nb(nSeqs ~ Raccoon.EDD + log10(Num_Stems) + offset(log(Deploy.Duration)), data = racDataWin)
 
-ModListWinRac[[14]] <- glm.nb.WEdd_oak <-
+ModListWinRac[[13]] <- glm.nb.WEdd_oak <-
   glm.nb(nSeqs ~ Raccoon.EDD + OakDBH + offset(log(Deploy.Duration)), data = racDataWin)
 
-ModListWinRac[[15]] <- glm.nb.Wstems_hgt <-
+ModListWinRac[[14]] <- glm.nb.Wstems_hgt <-
   glm.nb(nSeqs ~ Height_cm + log10(Num_Stems) + offset(log(Deploy.Duration)), data = racDataWin)
 
-ModListWinRac[[16]] <- glm.nb.Wstems_oak <-
+ModListWinRac[[15]] <- glm.nb.Wstems_oak <-
   glm.nb(nSeqs ~ OakDBH + log10(Num_Stems) + offset(log(Deploy.Duration)), data = racDataWin)
 
-ModListWinRac[[17]] <- glm.nb.Whgt_oak <-
+ModListWinRac[[16]] <- glm.nb.Whgt_oak <-
   glm.nb(nSeqs ~ Height_cm + OakDBH + offset(log(Deploy.Duration)), data = racDataWin)
 
-ModListWinRac[[18]] <- glm.nb.WlogStemsHgt <-
+ModListWinRac[[17]] <- glm.nb.WlogStemsHgt <-
   glm.nb(
     nSeqs ~ Log.in.View + Height_cm + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = racDataWin
   )
 
-ModListWinRac[[19]] <- glm.nb.WlogStemsOak <-
+ModListWinRac[[18]] <- glm.nb.WlogStemsOak <-
   glm.nb(
     nSeqs ~ Log.in.View + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = racDataWin
   )
 
-ModListWinRac[[20]] <- glm.nb.WlogStemsEdd <-
+ModListWinRac[[19]] <- glm.nb.WlogStemsEdd <-
   glm.nb(
     nSeqs ~ Log.in.View + Raccoon.EDD + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = racDataWin
   )
 
-ModListWinRac[[21]] <- glm.nb.WHgtStemsEdd <-
+ModListWinRac[[20]] <- glm.nb.WHgtStemsEdd <-
   glm.nb(
     nSeqs ~ Height_cm + Raccoon.EDD + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = racDataWin
   )
 
-ModListWinRac[[22]] <- glm.nb.WHgtStemsOak <-
+ModListWinRac[[21]] <- glm.nb.WHgtStemsOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = racDataWin
   )
 
-ModListWinRac[[23]] <- glm.nb.WHgtEddOak <-
+ModListWinRac[[22]] <- glm.nb.WHgtEddOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + Raccoon.EDD +
       offset(log(Deploy.Duration)),
     data = racDataWin
   )
-ModListWinRac[[24]] <- glm.nb.WHgtEddLog <-
+ModListWinRac[[23]] <- glm.nb.WHgtEddLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + Raccoon.EDD +
       offset(log(Deploy.Duration)),
     data = racDataWin
   )
-ModListWinRac[[25]] <- glm.nb.WHgtOakLog <-
+ModListWinRac[[24]] <- glm.nb.WHgtOakLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + OakDBH +
       offset(log(Deploy.Duration)),
     data = racDataWin
   )
-modnamesW <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log")
+ModListWinRac[[25]] <- glm.nb.WOakStemsEdd <-
+  glm.nb(
+    nSeqs ~ log10(Num_Stems) + Raccoon.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = racDataWin
+  )
+
+ModListWinRac[[26]] <- glm.nb.WLogOakEdd <-
+  glm.nb(
+    nSeqs ~ Log.in.View + Raccoon.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = racDataWin
+  )
+modnamesW <- c("Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log", "Stems + EDD + Oak", "Log + EDD + Oak")
 modtabWinRac <- aictab(cand.set = ModListWinRac, modnames = modnamesW)
 modtabWinRac
 
@@ -576,115 +604,129 @@ lines(nd.seq.hgt$Height_cm, exp(pred.hgt$fit - 1.96*pred.hgt$se.fit), lty=2, col
 
 # Raccoon in Spring NB Full Model Selection -------------------------------
 
-ModListSprRac <- list(NA)
-ModListSprRac[[1]] <- glm.nb.fullSP <-
+glm.nb.fullSP <-
   glm.nb(
     nSeqs ~ Log.in.View + Raccoon.EDD + Height_cm + log10(Num_Stems) + OakDBH +
       offset(log(Deploy.Duration)),
     data = racDataSpr
   )
 
-ModListSprRac[[2]] <- glm.nb.SPI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = racDataSpr)
+ModListSprRac <- list(NA)
 
-ModListSprRac[[3]] <- glm.nb.SPlog <-
+ModListSprRac[[1]] <- glm.nb.SPI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = racDataSpr)
+
+ModListSprRac[[2]] <- glm.nb.SPlog <-
   glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = racDataSpr)
 
-ModListSprRac[[4]] <- glm.nb.SPhgt <-
+ModListSprRac[[3]] <- glm.nb.SPhgt <-
   glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = racDataSpr)
 
-ModListSprRac[[5]] <- glm.nb.SPoak <-
+ModListSprRac[[4]] <- glm.nb.SPoak <-
   glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = racDataSpr)
 
-ModListSprRac[[6]] <- glm.nb.SPstems <-
+ModListSprRac[[5]] <- glm.nb.SPstems <-
   glm.nb(nSeqs ~ log10(Num_Stems) + offset(log(Deploy.Duration)), data = racDataSpr)
 
-ModListSprRac[[7]] <- glm.nb.SPedd <-
+ModListSprRac[[6]] <- glm.nb.SPedd <-
   glm.nb(nSeqs ~ Raccoon.EDD + offset(log(Deploy.Duration)), data = racDataSpr)
 
-ModListSprRac[[8]] <- glm.nb.SPlog_stems <-
+ModListSprRac[[7]] <- glm.nb.SPlog_stems <-
   glm.nb(nSeqs ~ Log.in.View + log10(Num_Stems) + offset(log(Deploy.Duration)), data = racDataSpr)
 
-ModListSprRac[[9]] <-glm.nb.SPlog_Edd <-
+ModListSprRac[[8]] <-glm.nb.SPlog_Edd <-
   glm.nb(nSeqs ~ Log.in.View + Raccoon.EDD + offset(log(Deploy.Duration)), data = racDataSpr)
 
-ModListSprRac[[10]] <- glm.nb.SPlog_Oak <-
+ModListSprRac[[9]] <- glm.nb.SPlog_Oak <-
   glm.nb(nSeqs ~ Log.in.View + OakDBH + offset(log(Deploy.Duration)), data = racDataSpr)
 
-ModListSprRac[[11]] <- glm.nb.SPlog_Hgt <-
+ModListSprRac[[10]] <- glm.nb.SPlog_Hgt <-
   glm.nb(nSeqs ~ Log.in.View + Height_cm + offset(log(Deploy.Duration)), data = racDataSpr)
 
-ModListSprRac[[12]] <- glm.nb.SPEdd_Hgt <-
+ModListSprRac[[11]] <- glm.nb.SPEdd_Hgt <-
   glm.nb(nSeqs ~ Raccoon.EDD + Height_cm + offset(log(Deploy.Duration)), data = racDataSpr)
 
-ModListSprRac[[13]] <-  glm.nb.SPEdd_stems <-
+ModListSprRac[[12]] <-  glm.nb.SPEdd_stems <-
   glm.nb(nSeqs ~ Raccoon.EDD + log10(Num_Stems) + offset(log(Deploy.Duration)), data = racDataSpr)
 
-ModListSprRac[[14]] <- glm.nb.SPEdd_oak <-
+ModListSprRac[[13]] <- glm.nb.SPEdd_oak <-
   glm.nb(nSeqs ~ Raccoon.EDD + OakDBH + offset(log(Deploy.Duration)), data = racDataSpr)
 
-ModListSprRac[[15]] <- glm.nb.SPstems_hgt <-
+ModListSprRac[[14]] <- glm.nb.SPstems_hgt <-
   glm.nb(nSeqs ~ Height_cm + log10(Num_Stems) + offset(log(Deploy.Duration)), data = racDataSpr)
 
-ModListSprRac[[16]] <- glm.nb.SPstems_oak <-
+ModListSprRac[[15]] <- glm.nb.SPstems_oak <-
   glm.nb(nSeqs ~ OakDBH + log10(Num_Stems) + offset(log(Deploy.Duration)), data = racDataSpr)
 
-ModListSprRac[[17]] <- glm.nb.SPhgt_oak <-
+ModListSprRac[[16]] <- glm.nb.SPhgt_oak <-
   glm.nb(nSeqs ~ Height_cm + OakDBH + offset(log(Deploy.Duration)), data = racDataSpr)
 
-ModListSprRac[[18]] <- glm.nb.SPlogStemsHgt <-
+ModListSprRac[[17]] <- glm.nb.SPlogStemsHgt <-
   glm.nb(
     nSeqs ~ Log.in.View + Height_cm + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = racDataSpr
   )
 
-ModListSprRac[[19]] <- glm.nb.SPlogStemsOak <-
+ModListSprRac[[18]] <- glm.nb.SPlogStemsOak <-
   glm.nb(
     nSeqs ~ Log.in.View + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = racDataSpr
   )
 
-ModListSprRac[[20]] <- glm.nb.SPlogStemsEdd <-
+ModListSprRac[[19]] <- glm.nb.SPlogStemsEdd <-
   glm.nb(
     nSeqs ~ Log.in.View + Raccoon.EDD + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = racDataSpr
   )
 
-ModListSprRac[[21]] <- glm.nb.SPHgtStemsEdd <-
+ModListSprRac[[20]] <- glm.nb.SPHgtStemsEdd <-
   glm.nb(
     nSeqs ~ Height_cm + Raccoon.EDD + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = racDataSpr
   )
 
-ModListSprRac[[22]] <- glm.nb.SPHgtStemsOak <-
+ModListSprRac[[21]] <- glm.nb.SPHgtStemsOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = racDataSpr
   )
 
-ModListSprRac[[23]] <- glm.nb.SPHgtEddOak <-
+ModListSprRac[[22]] <- glm.nb.SPHgtEddOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + Raccoon.EDD +
       offset(log(Deploy.Duration)),
     data = racDataSpr
   )
-ModListSprRac[[24]] <- glm.nb.SPHgtEddLog <-
+ModListSprRac[[23]] <- glm.nb.SPHgtEddLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + Raccoon.EDD +
       offset(log(Deploy.Duration)),
     data = racDataSpr
   )
-ModListSprRac[[25]] <- glm.nb.SPHgtOakLog <-
+ModListSprRac[[24]] <- glm.nb.SPHgtOakLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + OakDBH +
       offset(log(Deploy.Duration)),
     data = racDataSpr
   )
-modnamesSP <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log")
+ModListSprRac[[25]] <- glm.nb.SPOakStemsEdd <-
+  glm.nb(
+    nSeqs ~ log10(Num_Stems) + Raccoon.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = racDataSpr
+  )
+
+ModListSprRac[[26]] <- glm.nb.SPLogOakEdd <-
+  glm.nb(
+    nSeqs ~ Log.in.View + Raccoon.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = racDataSpr
+  )
+modnamesSP <- c("Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log", "Stems + EDD + Oak", "Log + EDD + Oak")
 modtabSprRac <- aictab(cand.set = ModListSprRac, modnames = modnamesSP)
 modtabSprRac
 

@@ -90,116 +90,130 @@ phi.po.fullSp <- sum.po.fullSp$deviance/sum.po.fullSp$df.residual
 
 # Negative Binomial Regression - Black Bear in Summer---------------------------------
 
-ModListSumBear <- list(NA)
-
-ModListSumBear[[1]] <- glm.nb.fullS <-
+glm.nb.fullS <-
   glm.nb(
     nSeqs ~ Log.in.View + Summer.Fall.EDD + Height_cm + log10(Num_Stems) + OakDBH +
       offset(log(Deploy.Duration)),
     data = bearDataSum
   )
 
-ModListSumBear[[2]] <- glm.nb.SI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = bearDataSum)
+ModListSumBear <- list(NA)
 
-ModListSumBear[[3]] <- glm.nb.Slog <-
+
+ModListSumBear[[1]] <- glm.nb.SI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = bearDataSum)
+
+ModListSumBear[[2]] <- glm.nb.Slog <-
   glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = bearDataSum)
 
-ModListSumBear[[4]] <- glm.nb.Shgt <-
+ModListSumBear[[3]] <- glm.nb.Shgt <-
   glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = bearDataSum)
 
-ModListSumBear[[5]] <- glm.nb.Soak <-
+ModListSumBear[[4]] <- glm.nb.Soak <-
   glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = bearDataSum)
 
-ModListSumBear[[6]] <- glm.nb.Sstems <-
+ModListSumBear[[5]] <- glm.nb.Sstems <-
   glm.nb(nSeqs ~ log10(Num_Stems) + offset(log(Deploy.Duration)), data = bearDataSum)
 
-ModListSumBear[[7]] <- glm.nb.Sedd <-
+ModListSumBear[[6]] <- glm.nb.Sedd <-
   glm.nb(nSeqs ~ Summer.Fall.EDD + offset(log(Deploy.Duration)), data = bearDataSum)
 
-ModListSumBear[[8]] <- glm.nb.Slog_stems <-
+ModListSumBear[[7]] <- glm.nb.Slog_stems <-
   glm.nb(nSeqs ~ Log.in.View + log10(Num_Stems) + offset(log(Deploy.Duration)), data = bearDataSum)
 
-ModListSumBear[[9]] <-glm.nb.Slog_Edd <-
+ModListSumBear[[8]] <-glm.nb.Slog_Edd <-
   glm.nb(nSeqs ~ Log.in.View + Summer.Fall.EDD + offset(log(Deploy.Duration)), data = bearDataSum)
 
-ModListSumBear[[10]] <- glm.nb.Slog_Oak <-
+ModListSumBear[[9]] <- glm.nb.Slog_Oak <-
   glm.nb(nSeqs ~ Log.in.View + OakDBH + offset(log(Deploy.Duration)), data = bearDataSum)
 
-ModListSumBear[[11]] <- glm.nb.Slog_Hgt <-
+ModListSumBear[[10]] <- glm.nb.Slog_Hgt <-
   glm.nb(nSeqs ~ Log.in.View + Height_cm + offset(log(Deploy.Duration)), data = bearDataSum)
 
-ModListSumBear[[12]] <- glm.nb.SEdd_Hgt <-
+ModListSumBear[[11]] <- glm.nb.SEdd_Hgt <-
   glm.nb(nSeqs ~ Summer.Fall.EDD + Height_cm + offset(log(Deploy.Duration)), data = bearDataSum)
 
-ModListSumBear[[13]] <-  glm.nb.SEdd_stems <-
+ModListSumBear[[12]] <-  glm.nb.SEdd_stems <-
   glm.nb(nSeqs ~ Summer.Fall.EDD + log10(Num_Stems) + offset(log(Deploy.Duration)), data = bearDataSum)
 
-ModListSumBear[[14]] <- glm.nb.SEdd_oak <-
+ModListSumBear[[13]] <- glm.nb.SEdd_oak <-
   glm.nb(nSeqs ~ Summer.Fall.EDD + OakDBH + offset(log(Deploy.Duration)), data = bearDataSum)
 
-ModListSumBear[[15]] <- glm.nb.Sstems_hgt <-
+ModListSumBear[[14]] <- glm.nb.Sstems_hgt <-
   glm.nb(nSeqs ~ Height_cm + log10(Num_Stems) + offset(log(Deploy.Duration)), data = bearDataSum)
 
-ModListSumBear[[16]] <- glm.nb.Sstems_oak <-
+ModListSumBear[[15]] <- glm.nb.Sstems_oak <-
   glm.nb(nSeqs ~ OakDBH + log10(Num_Stems) + offset(log(Deploy.Duration)), data = bearDataSum)
 
-ModListSumBear[[17]] <- glm.nb.Shgt_oak <-
+ModListSumBear[[16]] <- glm.nb.Shgt_oak <-
   glm.nb(nSeqs ~ Height_cm + OakDBH + offset(log(Deploy.Duration)), data = bearDataSum)
 
-ModListSumBear[[18]] <- glm.nb.SlogStemsHgt <-
+ModListSumBear[[17]] <- glm.nb.SlogStemsHgt <-
   glm.nb(
     nSeqs ~ Log.in.View + Height_cm + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = bearDataSum
   )
 
-ModListSumBear[[19]] <- glm.nb.SlogStemsOak <-
+ModListSumBear[[18]] <- glm.nb.SlogStemsOak <-
   glm.nb(
     nSeqs ~ Log.in.View + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = bearDataSum
   )
 
-ModListSumBear[[20]] <- glm.nb.SlogStemsEdd <-
+ModListSumBear[[19]] <- glm.nb.SlogStemsEdd <-
   glm.nb(
     nSeqs ~ Log.in.View + Summer.Fall.EDD + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = bearDataSum
   )
 
-ModListSumBear[[21]] <- glm.nb.SHgtStemsEdd <-
+ModListSumBear[[20]] <- glm.nb.SHgtStemsEdd <-
   glm.nb(
     nSeqs ~ Height_cm + Summer.Fall.EDD + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = bearDataSum
   )
 
-ModListSumBear[[22]] <- glm.nb.SHgtStemsOak <-
+ModListSumBear[[21]] <- glm.nb.SHgtStemsOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = bearDataSum
   )
 
-ModListSumBear[[23]] <- glm.nb.SHgtEddOak <-
+ModListSumBear[[22]] <- glm.nb.SHgtEddOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + Summer.Fall.EDD +
       offset(log(Deploy.Duration)),
     data = bearDataSum
   )
-ModListSumBear[[24]] <- glm.nb.SHgtEddLog <-
+ModListSumBear[[23]] <- glm.nb.SHgtEddLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + Summer.Fall.EDD +
       offset(log(Deploy.Duration)),
     data = bearDataSum
   )
-ModListSumBear[[25]] <- glm.nb.SHgtOakLog <-
+ModListSumBear[[24]] <- glm.nb.SHgtOakLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + OakDBH +
       offset(log(Deploy.Duration)),
     data = bearDataSum
   )
-modnamesS <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log")
+ModListSumBear[[25]] <- glm.nb.SOakStemsEdd <-
+  glm.nb(
+    nSeqs ~ log10(Num_Stems) + Summer.Fall.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = bearDataSum
+  )
+
+ModListSumBear[[26]] <- glm.nb.SLogOakEdd <-
+  glm.nb(
+    nSeqs ~ Log.in.View + Summer.Fall.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = bearDataSum
+  )
+modnamesS <- c("Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log", "Stems + EDD + Oak", "Log + EDD + Oak")
 modtabSumBear <- aictab(cand.set = ModListSumBear, modnames = modnamesS)
 modtabSumBear
 
@@ -221,116 +235,129 @@ SumSW_Height <- sum(modtabSumBear$AICcWt[grep("Height", modtabSumBear$Modnames)]
 
 # Bears in Fall NB Full Model Selection -----------------------------------
 
-ModListFallBear <- list(NA)
-
-ModListFallBear[[1]] <- glm.nb.fullF <-
+glm.nb.fullF <-
   glm.nb(
     nSeqs ~ Log.in.View + Summer.Fall.EDD + Height_cm + log10(Num_Stems) + OakDBH +
       offset(log(Deploy.Duration)),
     data = bearDataFall
   )
 
-ModListFallBear[[2]] <- glm.nb.FI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = bearDataFall)
+ModListFallBear <- list(NA)
 
-ModListFallBear[[3]] <- glm.nb.Flog <-
+ModListFallBear[[1]] <- glm.nb.FI <- glm.nb(nSeqs ~ 1 + offset(log(Deploy.Duration)), data = bearDataFall)
+
+ModListFallBear[[2]] <- glm.nb.Flog <-
   glm.nb(nSeqs ~ Log.in.View + offset(log(Deploy.Duration)), data = bearDataFall)
 
-ModListFallBear[[4]] <- glm.nb.Fhgt <-
+ModListFallBear[[3]] <- glm.nb.Fhgt <-
   glm.nb(nSeqs ~ Height_cm + offset(log(Deploy.Duration)), data = bearDataFall)
 
-ModListFallBear[[5]] <- glm.nb.Foak <-
+ModListFallBear[[4]] <- glm.nb.Foak <-
   glm.nb(nSeqs ~ OakDBH + offset(log(Deploy.Duration)), data = bearDataFall)
 
-ModListFallBear[[6]] <- glm.nb.Fstems <-
+ModListFallBear[[5]] <- glm.nb.Fstems <-
   glm.nb(nSeqs ~ log10(Num_Stems) + offset(log(Deploy.Duration)), data = bearDataFall)
 
-ModListFallBear[[7]] <- glm.nb.Fedd <-
+ModListFallBear[[6]] <- glm.nb.Fedd <-
   glm.nb(nSeqs ~ Summer.Fall.EDD + offset(log(Deploy.Duration)), data = bearDataFall)
 
-ModListFallBear[[8]] <- glm.nb.Flog_stems <-
+ModListFallBear[[7]] <- glm.nb.Flog_stems <-
   glm.nb(nSeqs ~ Log.in.View + log10(Num_Stems) + offset(log(Deploy.Duration)), data = bearDataFall)
 
-ModListFallBear[[9]] <-glm.nb.Flog_Edd <-
+ModListFallBear[[8]] <-glm.nb.Flog_Edd <-
   glm.nb(nSeqs ~ Log.in.View + Summer.Fall.EDD + offset(log(Deploy.Duration)), data = bearDataFall)
 
-ModListFallBear[[10]] <- glm.nb.Flog_Oak <-
+ModListFallBear[[9]] <- glm.nb.Flog_Oak <-
   glm.nb(nSeqs ~ Log.in.View + OakDBH + offset(log(Deploy.Duration)), data = bearDataFall)
 
-ModListFallBear[[11]] <- glm.nb.Flog_Hgt <-
+ModListFallBear[[10]] <- glm.nb.Flog_Hgt <-
   glm.nb(nSeqs ~ Log.in.View + Height_cm + offset(log(Deploy.Duration)), data = bearDataFall)
 
-ModListFallBear[[12]] <- glm.nb.FEdd_Hgt <-
+ModListFallBear[[11]] <- glm.nb.FEdd_Hgt <-
   glm.nb(nSeqs ~ Summer.Fall.EDD + Height_cm + offset(log(Deploy.Duration)), data = bearDataFall)
 
-ModListFallBear[[13]] <-  glm.nb.FEdd_stems <-
+ModListFallBear[[12]] <-  glm.nb.FEdd_stems <-
   glm.nb(nSeqs ~ Summer.Fall.EDD + log10(Num_Stems) + offset(log(Deploy.Duration)), data = bearDataFall)
 
-ModListFallBear[[14]] <- glm.nb.FEdd_oak <-
+ModListFallBear[[13]] <- glm.nb.FEdd_oak <-
   glm.nb(nSeqs ~ Summer.Fall.EDD + OakDBH + offset(log(Deploy.Duration)), data = bearDataFall)
 
-ModListFallBear[[15]] <- glm.nb.Fstems_hgt <-
+ModListFallBear[[14]] <- glm.nb.Fstems_hgt <-
   glm.nb(nSeqs ~ Height_cm + log10(Num_Stems) + offset(log(Deploy.Duration)), data = bearDataFall)
 
-ModListFallBear[[16]] <- glm.nb.Fstems_oak <-
+ModListFallBear[[15]] <- glm.nb.Fstems_oak <-
   glm.nb(nSeqs ~ OakDBH + log10(Num_Stems) + offset(log(Deploy.Duration)), data = bearDataFall)
 
-ModListFallBear[[17]] <- glm.nb.Fhgt_oak <-
+ModListFallBear[[16]] <- glm.nb.Fhgt_oak <-
   glm.nb(nSeqs ~ Height_cm + OakDBH + offset(log(Deploy.Duration)), data = bearDataFall)
 
-ModListFallBear[[18]] <- glm.nb.FlogStemsHgt <-
+ModListFallBear[[17]] <- glm.nb.FlogStemsHgt <-
   glm.nb(
     nSeqs ~ Log.in.View + Height_cm + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = bearDataFall
   )
 
-ModListFallBear[[19]] <- glm.nb.FlogStemsOak <-
+ModListFallBear[[18]] <- glm.nb.FlogStemsOak <-
   glm.nb(
     nSeqs ~ Log.in.View + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = bearDataFall
   )
 
-ModListFallBear[[20]] <- glm.nb.FlogStemsEdd <-
+ModListFallBear[[19]] <- glm.nb.FlogStemsEdd <-
   glm.nb(
     nSeqs ~ Log.in.View + Summer.Fall.EDD + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = bearDataFall
   )
 
-ModListFallBear[[21]] <- glm.nb.FHgtStemsEdd <-
+ModListFallBear[[20]] <- glm.nb.FHgtStemsEdd <-
   glm.nb(
     nSeqs ~ Height_cm + Summer.Fall.EDD + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = bearDataFall
   )
 
-ModListFallBear[[22]] <- glm.nb.FHgtStemsOak <-
+ModListFallBear[[21]] <- glm.nb.FHgtStemsOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + log10(Num_Stems) +
       offset(log(Deploy.Duration)),
     data = bearDataFall
   )
 
-ModListFallBear[[23]] <- glm.nb.FHgtEddOak <-
+ModListFallBear[[22]] <- glm.nb.FHgtEddOak <-
   glm.nb(
     nSeqs ~ Height_cm + OakDBH + Summer.Fall.EDD +
       offset(log(Deploy.Duration)),
     data = bearDataFall
   )
-ModListFallBear[[24]] <- glm.nb.FHgtEddLog <-
+ModListFallBear[[23]] <- glm.nb.FHgtEddLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + Summer.Fall.EDD +
       offset(log(Deploy.Duration)),
     data = bearDataFall
   )
-ModListFallBear[[25]] <- glm.nb.FHgtOakLog <-
+ModListFallBear[[24]] <- glm.nb.FHgtOakLog <-
   glm.nb(
     nSeqs ~ Height_cm + Log.in.View + OakDBH +
       offset(log(Deploy.Duration)),
     data = bearDataFall
   )
-modnamesF <- c("Full","Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log")
+ModListFallBear[[25]] <- glm.nb.FOakStemsEdd <-
+  glm.nb(
+    nSeqs ~ log10(Num_Stems) + Summer.Fall.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = bearDataFall
+  )
+
+ModListFallBear[[26]] <- glm.nb.FLogOakEdd <-
+  glm.nb(
+    nSeqs ~ Log.in.View + Summer.Fall.EDD + OakDBH +
+      offset(log(Deploy.Duration)),
+    data = bearDataFall
+  )
+modnamesF <- c("Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Log + EDD","Log + Oak","Log + Height","EDD + Height","EDD + Stems","EDD + Oak","Stems + Height","Stems + Oak","Height + Oak","Log + Stems + Height","Log + Stems + Oak","Log + Stems + EDD","Height + Stems + EDD","Height + Stems + Oak","Height + EDD + Oak","Height + EDD + Log","Height + Oak + Log", "Stems + EDD + Oak", "Log + EDD + Oak")
 modtabFallBear <- aictab(cand.set = ModListFallBear, modnames = modnamesF)
 modtabFallBear
 
@@ -370,6 +397,7 @@ lines(nd.seq.edd$Summer.Fall.EDD, exp(pred.edd$fit - 1.96*pred.edd$se.fit), lty=
 
 
 # Bear in Spring NB Full Model Selection ----------------------------------
+#This is not a complete model list, I am missing Stems+Oak+EDD and Oak+Log+EDD. Not using this in the paper because there were too few detections in Spring
 
 ModListSprBear <- list(NA)
 ModListSprBear[[1]] <- glm.nb.fullSP <-
