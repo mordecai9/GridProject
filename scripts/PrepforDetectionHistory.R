@@ -385,3 +385,100 @@ rowSums(DHSpUA, na.rm = T) #checks out with other data summaries
 load("results/DetHistSpProcyon lotor")
 DHSpPL <- temp
 rowSums(DHSpPL, na.rm = T) #checks out with other data summaries
+
+
+# Detection Histories for Pooled Squirrel Data Summer ----------------------------
+
+AS_alldata_cutS <- alldata_cutS %>%
+  filter(Species == "Sciurus carolinensis" |
+           Species == "Sciurus niger" |
+           Species == "Unknown squirrel") %>%
+  mutate(Species = "squirrel")
+
+DHSumSQ <- detectionHistory(recordTable = AS_alldata_cutS,
+                                 camOp = camopS,
+                                 stationCol = "Deployment_Name",
+                                 speciesCol = "Species",
+                                 recordDateTimeCol = "Begin.Time",
+                                 species = "squirrel",
+                                 occasionLength = 1,
+                                 day1 = "station",
+                                 datesAsOccasionNames = FALSE,
+                                 includeEffort = FALSE,
+                                 occasionStartTime = 12,
+                                 timeZone = "US/Eastern",
+                                 writecsv = FALSE)
+DHSumSQ <- DHSumSQ$detection_history
+save(DHSumSQ, file = "results/DetHistSum_AllSquirrel") 
+
+# Detection Histories for Pooled Squirrel Data Fall ----------------------------
+
+AS_alldata_cutF <- alldata_cutF %>%
+  filter(Species == "Sciurus carolinensis" |
+           Species == "Sciurus niger" |
+           Species == "Unknown squirrel") %>%
+  mutate(Species = "squirrel")
+
+DHFallSQ <- detectionHistory(recordTable = AS_alldata_cutF,
+                            camOp = camopF,
+                            stationCol = "Deployment_Name",
+                            speciesCol = "Species",
+                            recordDateTimeCol = "Begin.Time",
+                            species = "squirrel",
+                            occasionLength = 1,
+                            day1 = "station",
+                            datesAsOccasionNames = FALSE,
+                            includeEffort = FALSE,
+                            occasionStartTime = 12,
+                            timeZone = "US/Eastern",
+                            writecsv = FALSE)
+DHFallSQ <- DHFallSQ$detection_history
+save(DHFallSQ, file = "results/DetHistFall_AllSquirrel") 
+
+# Detection Histories for Pooled Squirrel Data Winter ----------------------------
+
+AS_alldata_cutW <- alldata_cutW %>%
+  filter(Species == "Sciurus carolinensis" |
+           Species == "Sciurus niger" |
+           Species == "Unknown squirrel") %>%
+  mutate(Species = "squirrel")
+
+DHWinSQ <- detectionHistory(recordTable = AS_alldata_cutW,
+                             camOp = camopW,
+                             stationCol = "Deployment_Name",
+                             speciesCol = "Species",
+                             recordDateTimeCol = "Begin.Time",
+                             species = "squirrel",
+                             occasionLength = 1,
+                             day1 = "station",
+                             datesAsOccasionNames = FALSE,
+                             includeEffort = FALSE,
+                             occasionStartTime = 12,
+                             timeZone = "US/Eastern",
+                             writecsv = FALSE)
+DHWinSQ <- DHWinSQ$detection_history
+save(DHWinSQ, file = "results/DetHistWin_AllSquirrel") 
+
+# Detection Histories for Pooled Squirrel Data Spring ----------------------------
+
+AS_alldata_cutSp <- alldata_cutSp %>%
+  filter(Species == "Sciurus carolinensis" |
+           Species == "Sciurus niger" |
+           Species == "Unknown squirrel") %>%
+  mutate(Species = "squirrel")
+
+DHSpSQ <- detectionHistory(recordTable = AS_alldata_cutSp,
+                            camOp = camopSp,
+                            stationCol = "Deployment_Name",
+                            speciesCol = "Species",
+                            recordDateTimeCol = "Begin.Time",
+                            species = "squirrel",
+                            occasionLength = 1,
+                            day1 = "station",
+                            datesAsOccasionNames = FALSE,
+                            includeEffort = FALSE,
+                            occasionStartTime = 12,
+                            timeZone = "US/Eastern",
+                            writecsv = FALSE)
+DHSpSQ <- DHSpSQ$detection_history
+save(DHSpSQ, file = "results/DetHistSpring_AllSquirrel") 
