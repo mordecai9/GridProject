@@ -139,27 +139,27 @@ resultsEDDtest$table #there is evidence of a interaction effect here, so this ne
 
 mods=list(); i=1
 mods[[i]]=occMod(model=list(psi~1, p~1),    data=pWinSC,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm),data=pWinSC,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~poly(Height_cm, 2, raw = T)),data=pWinSC,type="so");i=i+1
 mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems)),data=pWinSC,type="so");i=i+1
 mods[[i]]=occMod(model=list(psi~1, p~OakDBH),data=pWinSC,type="so");i=i+1
 mods[[i]]=occMod(model=list(psi~1, p~Log.in.View),data=pWinSC,type="so");i=i+1
 mods[[i]]=occMod(model=list(psi~1, p~Squirrel_EDD_WSp),data=pWinSC,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems)),data=pWinSC,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH),data=pWinSC,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View),data=pWinSC,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Squirrel_EDD_WSp),data=pWinSC,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~poly(Height_cm, 2, raw = T) + log10(Num_Stems)),data=pWinSC,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~poly(Height_cm, 2, raw = T) + OakDBH),data=pWinSC,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~poly(Height_cm, 2, raw = T) + Log.in.View),data=pWinSC,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~poly(Height_cm, 2, raw = T) + Squirrel_EDD_WSp),data=pWinSC,type="so");i=i+1
 mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + OakDBH),data=pWinSC,type="so");i=i+1
 mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + Log.in.View),data=pWinSC,type="so");i=i+1
 mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + Squirrel_EDD_WSp),data=pWinSC,type="so");i=i+1
 mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View),data=pWinSC,type="so");i=i+1
 mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Squirrel_EDD_WSp),data=pWinSC,type="so");i=i+1
 mods[[i]]=occMod(model=list(psi~1, p~Log.in.View * Squirrel_EDD_WSp),data=pWinSC,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems) + OakDBH),data=pWinSC,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems) + Log.in.View),data=pWinSC,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems) + Squirrel_EDD_WSp),data=pWinSC,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Log.in.View),data=pWinSC,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Squirrel_EDD_WSp),data=pWinSC,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View * Squirrel_EDD_WSp),data=pWinSC,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~poly(Height_cm, 2, raw = T) + log10(Num_Stems) + OakDBH),data=pWinSC,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~poly(Height_cm, 2, raw = T) + log10(Num_Stems) + Log.in.View),data=pWinSC,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~poly(Height_cm, 2, raw = T) + log10(Num_Stems) + Squirrel_EDD_WSp),data=pWinSC,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~poly(Height_cm, 2, raw = T) + OakDBH + Log.in.View),data=pWinSC,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~poly(Height_cm, 2, raw = T) + OakDBH + Squirrel_EDD_WSp),data=pWinSC,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~poly(Height_cm, 2, raw = T) + Log.in.View * Squirrel_EDD_WSp),data=pWinSC,type="so");i=i+1
 mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + OakDBH + Log.in.View),data=pWinSC,type="so");i=i+1
 mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + OakDBH + Squirrel_EDD_WSp),data=pWinSC,type="so");i=i+1
 mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + Log.in.View * Squirrel_EDD_WSp),data=pWinSC,type="so");i=i+1
@@ -170,7 +170,7 @@ mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View * Squirrel_EDD_WSp),da
 resultsWinSC <- createAicTable(mods)
 resultsWinSC$table
 
-bestWinSC <- occMod(model=list(psi~1, p ~ log10(Num_Stems) + Log.in.View * Squirrel_EDD_WSp),data=pWinSC,type="so")
+bestWinSC <- occMod(model=list(psi~1, p ~ poly(Height_cm, 2, raw = T) + Log.in.View * Squirrel_EDD_WSp),data=pWinSC,type="so")
 bestWinSC$beta$p
 
 #Sum up model weights for each of the 5 covariates
