@@ -332,7 +332,7 @@ a <-
   
 
 a
-#ggsave("results/SeasonCRAll.tiff", width = 6.5, height = 4)
+#ggsave("results/SeasonCRAll.tiff", width = 6.5, height = 4, units = "in")
 
 rare <- c("Mustela frenata", "Glaucomys volans", "Vulpes vulpes", "Lynx rufus", "Mephitis mephitis", "Urocyon cinereoargenteus", "Canis latrans", "Didelphis virginianus")
 b <-
@@ -353,7 +353,7 @@ b <-
         panel.grid.minor.x = element_line(color="gray", size = .5,linetype = "dashed"))
 
 b
-#ggsave("results/SeasonCR_Rare.tiff", width = 6.5, height = 4)
+#ggsave("results/SeasonCR_Rare.tiff", width = 6.5, height = 4, units = "in")
 
 
 
