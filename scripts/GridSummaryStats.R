@@ -389,7 +389,7 @@ idxf <- which(gridXY$Deployment == "505" | gridXY$Deployment == "206")
 idxw <- which(gridXY$Deployment == "101" | gridXY$Deployment == "401")
 
 
-tiff("results/AllSpeciesGridCR.tiff", width = 10, height = 8, units = 'in', res = 300, compression = 'lzw')
+tiff("results/AllSpeciesGridCR.tiff", width = 10, height = 8, units = 'in', res = 800, compression = 'lzw')
 
 #Remember margins are bottom, left, top, right
 
