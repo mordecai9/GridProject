@@ -334,7 +334,7 @@ a <-
 a
 #ggsave("results/SeasonCRAll.tiff", width = 6.5, height = 4, units = "in")
 
-rare <- c("Mustela frenata", "Glaucomys volans", "Vulpes vulpes", "Lynx rufus", "Mephitis mephitis", "Urocyon cinereoargenteus", "Canis latrans", "Didelphis virginianus")
+rare <- c("Mustela frenata", "Glaucomys volans", "Vulpes vulpes", "Lynx rufus", "Mephitis mephitis", "Urocyon cinereoargenteus", "Canis latrans", "Didelphis virginiana")
 b <-
   ggplot(data = filter(SeasonsCR, Species %in% rare), aes(y = meanCR, x = Species, color = Season)) +
   geom_point(shape = 1.4,
@@ -360,6 +360,102 @@ b
 
 #multiplot(a,b, cols = 2) #http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
 
+
+# Seasonal Comparisons of Capture Rates -----------------------------------
+#I should probably move this to a separate script
+
+library(MASS)
+library(AICcmodavg)
+
+#Deer Season Test
+deer_season_test <- camdata_summary %>%
+  filter(Species == "Odocoileus virginianus") %>%
+   glm.nb(data = ., Number_of_Sequences ~ Season + offset(log(Deploy.Duration)) )
+
+deer_null <- camdata_summary %>%
+  filter(Species == "Odocoileus virginianus") %>%
+  glm.nb(data = ., Number_of_Sequences ~ 1 + offset(log(Deploy.Duration)) )
+
+aictab(cand.set = list(deer_season_test, deer_null), modnames = c("Deer Season", "Deer Intercept"))
+
+#Raccoon Season Test
+raccoon_season_test <- camdata_summary %>%
+  filter(Species == "Procyon lotor") %>%
+  glm.nb(data = ., Number_of_Sequences ~ Season + offset(log(Deploy.Duration)) )
+
+raccoon_null <- camdata_summary %>%
+  filter(Species == "Procyon lotor") %>%
+  glm.nb(data = ., Number_of_Sequences ~ 1 + offset(log(Deploy.Duration)) )
+
+aictab(cand.set = list(raccoon_season_test, raccoon_null), modnames = c("Raccoon Season", "Raccoon Intercept"))
+
+#Fox Squirrel Season Test
+foxSq_season_test <- camdata_summary %>%
+  filter(Species == "Sciurus niger") %>%
+  glm.nb(data = ., Number_of_Sequences ~ Season + offset(log(Deploy.Duration)) )
+
+foxSq_null <- camdata_summary %>%
+  filter(Species == "Sciurus niger") %>%
+  glm.nb(data = ., Number_of_Sequences ~ 1 + offset(log(Deploy.Duration)) )
+
+aictab(cand.set = list(foxSq_season_test, foxSq_null), modnames = c("foxSq Season", "foxSq Intercept"))
+
+#Gray Squirrel Season Test
+graySq_season_test <- camdata_summary %>%
+  filter(Species == "Sciurus carolinensis") %>%
+  glm.nb(data = ., Number_of_Sequences ~ Season + offset(log(Deploy.Duration)) )
+
+graySq_null <- camdata_summary %>%
+  filter(Species == "Sciurus carolinensis") %>%
+  glm.nb(data = ., Number_of_Sequences ~ 1 + offset(log(Deploy.Duration)) )
+
+aictab(cand.set = list(graySq_season_test, graySq_null), modnames = c("graySq Season", "graySq Intercept"))
+
+#Black Bear Season Test
+bear_season_test <- camdata_summary %>%
+  filter(Species == "Ursus americanus") %>%
+  glm.nb(data = ., Number_of_Sequences ~ Season + offset(log(Deploy.Duration)) )
+
+bear_null <- camdata_summary %>%
+  filter(Species == "Ursus americanus") %>%
+  glm.nb(data = ., Number_of_Sequences ~ 1 + offset(log(Deploy.Duration)) )
+
+aictab(cand.set = list(bear_season_test, bear_null), modnames = c("bear Season", "bear Intercept"))
+
+#Small Rodent Season Test
+rodent_season_test <- camdata_summary %>%
+  filter(Species == "Unknown small rodent") %>%
+  glm.nb(data = ., Number_of_Sequences ~ Season + offset(log(Deploy.Duration)) )
+
+rodent_null <- camdata_summary %>%
+  filter(Species == "Unknown small rodent") %>%
+  glm.nb(data = ., Number_of_Sequences ~ 1 + offset(log(Deploy.Duration)) )
+
+aictab(cand.set = list(rodent_season_test, rodent_null), modnames = c("rodent Season", "rodent Intercept"))
+summary(rodent_season_test)
+
+#Unknown Squirrel Season Test
+unknownSq_season_test <- camdata_summary %>%
+  filter(Species == "Unknown squirrel") %>%
+  glm.nb(data = ., Number_of_Sequences ~ Season + offset(log(Deploy.Duration)) )
+
+unknownSq_null <- camdata_summary %>%
+  filter(Species == "Unknown squirrel") %>%
+  glm.nb(data = ., Number_of_Sequences ~ 1 + offset(log(Deploy.Duration)) )
+
+aictab(cand.set = list(unknownSq_season_test, unknownSq_null), modnames = c("Unknown squirrel Season", "Unknown squirrel Intercept"))
+summary(unknownSq_season_test)
+
+#Chipmunk Season Test
+chip_season_test <- camdata_summary %>%
+  filter(Species == "Tamias striatus") %>%
+  glm.nb(data = ., Number_of_Sequences ~ Season + offset(log(Deploy.Duration)) )
+
+chip_null <- camdata_summary %>%
+  filter(Species == "Tamias striatus") %>%
+  glm.nb(data = ., Number_of_Sequences ~ 1 + offset(log(Deploy.Duration)) )
+
+aictab(cand.set = list(chip_season_test, chip_null), modnames = c("Chipmunk Season", "Chipmunk Intercept"))
 
 #______________________________________________
 #Plot CapRates by Point Size on Grid####
