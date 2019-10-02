@@ -81,7 +81,43 @@ squirrelSprCR <- sqDataSpr %>%
 squirrelFallCR <- sqDataFall %>%
   dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
 
+# Data Import and Exploration - Fox Squirrels ---------------------------------------
 
+load("data/foxsqDataSum.RData")
+load("data/foxsqDataFall.RData")
+load("data/foxsqDataWin.RData")
+load("data/foxsqDataSpr.RData")
+
+foxSqSumCR <- foxsqDataSum %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+foxSqWinCR <- foxsqDataWin %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+foxSqSprCR <- foxsqDataSpr %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+foxSqFallCR <- foxsqDataFall %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+# Data Import and Exploration - Gray Squirrels ---------------------------------------
+
+load("data/grsqDataSum.RData")
+load("data/grsqDataFall.RData")
+load("data/grsqDataWin.RData")
+load("data/grsqDataSpr.RData")
+
+grSqSumCR <- grsqDataSum %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+grSqWinCR <- grsqDataWin %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+grSqSprCR <- grsqDataSpr %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
+
+grSqFallCR <- grsqDataFall %>%
+  dplyr::select(c("Deployment", "CR","NAD83_X", "NAD83_Y"))
 
 # Correlograms ------------------------------------------------------------
 
@@ -310,7 +346,7 @@ plot(DvarioF, xlim = c(0,120), ylim = c(0,20000), main = "Fall", var.lines = T)
 
 #################################
 #Raccoon Analysis####
-#Calculate Moran's I for bear for all Seasons. None are even close to significant
+#Calculate Moran's I for raccoon for all Seasons. None are even close to significant
 raccoonSumMoran<-Moran.I(raccoonSumCR$CR, invDistMatS)
 raccoonFallMoran<-Moran.I(raccoonFallCR$CR, invDistMatF)
 raccoonWinMoran<-Moran.I(raccoonWinCR$CR, invDistMatW)
@@ -337,7 +373,7 @@ plot(RvarioF, xlim = c(0,120), ylim = c(0,400), main = "Fall", var.lines = T)
 
 #################################
 #Bear Analysis####
-#Calculate Moran's I for Raccoon for all Seasons. There may not be enough captures in winter or spring to warrant running those tests.
+#Calculate Moran's I for bear for all Seasons. There may not be enough captures in winter or spring to warrant running those tests.
 bearSumMoran<-Moran.I(bearSumCR$CR, invDistMatS)
 bearFallMoran<-Moran.I(bearFallCR$CR, invDistMatF)
 bearSprMoran<-Moran.I(bearSprCR$CR, invDistMatSp) #nearly sig 0.094 
@@ -369,6 +405,22 @@ sqSumMoran<-Moran.I(squirrelSumCR$CR, invDistMatS)
 sqFallMoran<-Moran.I(squirrelFallCR$CR, invDistMatF)
 sqWinMoran<-Moran.I(squirrelWinCR$CR, invDistMatW)
 sqSprMoran<-Moran.I(squirrelSprCR$CR, invDistMatSp)
+
+#################################
+#Fox Squirrel Analysis####
+#Calculate Moran's I for fox squirrel for all Seasons. None are even close to significant
+foxSqSumMoran<-Moran.I(foxSqSumCR$CR, invDistMatS)
+foxSqFallMoran<-Moran.I(foxSqFallCR$CR, invDistMatF)
+foxSqWinMoran<-Moran.I(foxSqWinCR$CR, invDistMatW)
+foxSqSprMoran<-Moran.I(foxSqSprCR$CR, invDistMatSp)
+
+#################################
+#Gray Squirrel Analysis####
+#Calculate Moran's I for fox squirrel for all Seasons. None are even close to significant
+grSqSumMoran<-Moran.I(grSqSumCR$CR, invDistMatS)
+grSqFallMoran<-Moran.I(grSqFallCR$CR, invDistMatF)
+grSqWinMoran<-Moran.I(grSqWinCR$CR, invDistMatW)
+grSqSprMoran<-Moran.I(grSqSprCR$CR, invDistMatSp)
 
 #########################################
 #Plotting Covariance
