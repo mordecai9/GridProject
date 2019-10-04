@@ -4,6 +4,7 @@ rm(list = ls())
 
 require(AICcmodavg)
 require(MASS) #for glm.nb function
+require(tidyverse)
 source("scripts/pairsPannelFunctions.r")
 
 # Data Import and Exploration - All Squirrels ---------------------------------------
@@ -509,6 +510,53 @@ lines(nd.seq.FEdd$Squirrel_EDD_4S, exp(pred.FEddNo$fit), col="black")
 lines(nd.seq.FEdd$Squirrel_EDD_4S, exp(pred.FEddNo$fit + 1.96*pred.FEddNo$se.fit), lty=2, col="black")
 lines(nd.seq.FEdd$Squirrel_EDD_4S, exp(pred.FEddNo$fit - 1.96*pred.FEddNo$se.fit), lty=2, col="black")
 
+#Trying plot with ggplot instead
+
+predVals <- rbind(as.data.frame(pred.FEdd), as.data.frame(pred.FEddNo))
+allNewVals <- rbind(nd.seq.FEdd, nd.seq.FEddNo)
+
+#I here make a dataframe combining the predictor values, with the estimated response values, then estimate lower and upper confidence limits, then convert the data back onto the real scale, from the logit scale
+predPlot <- data.frame(allNewVals, predVals) %>%
+  mutate(
+    lcl = fit - 2*se.fit,
+    ucl = fit + 2*se.fit
+  ) %>%
+  mutate(
+    response = exp(fit),
+    lcl.response = exp(lcl),
+    ucl.response = exp(ucl))
+
+#Plotting commands in ggplot. We can mess around with this further for the paper as needed. The dots represent actual data points.
+SqFallEDDPlot <- ggplot(predPlot, aes(x=Squirrel_EDD_4S, y=response)) +
+  # Confidence region
+  geom_ribbon(aes(ymin=lcl.response, ymax=ucl.response, fill = Log.in.View), alpha=0.25, show.legend = F) +
+  # Prediction Lines
+  geom_line(aes(color = Log.in.View), show.legend = F) +
+  scale_colour_manual("",values=c("darkolivegreen", "tomato"))+
+  scale_fill_manual("",values=c("darkolivegreen", "tomato"))+
+  geom_point(data = sqDataFall, aes(x=Squirrel_EDD_4S, y=nSeqs, shape=Log.in.View, color=Log.in.View), show.legend = F, size = 2.5) +
+  xlab("Effective Detection Distance (m)") +   
+  ylab("Count of Sequences") +
+  geom_text(aes(x = 2.2, y = 220, label = "A"), size = 8)+
+  theme(
+    axis.line.x =  element_line(),
+    axis.line.y =  element_line(),
+    panel.background = element_rect(fill = "white"),
+    axis.text = element_text(color = "black", size = 14),
+    axis.title = element_text(size = rel(1.5))
+  )
+
+#saving this so I can use it later
+myTheme <- theme(
+  axis.line.x =  element_line(),
+  axis.line.y =  element_line(),
+  panel.background = element_rect(fill = "white"),
+  axis.text = element_text(color = "black", size = 14),
+  axis.title = element_text(size = rel(1.5)))
+save(myTheme, file = "data/responseTheme.Rdata")
+
+SqFallEDDPlot
+#ggsave("results/SqFallEDDLog.tiff", width = 6.5, height = 4.0, units = "in" ) #saves whatever last ggplot was made
 
 #Winter Squirrel NB Full Model Selection --------------------------------
 
@@ -839,7 +887,7 @@ modnamesSP <- c("Intercept","Log","Height","Oak","Stems","EDD","Log + Stems","Lo
 modtabSprSq <- aictab(cand.set = ModListSprSq, modnames = modnamesSP)
 modtabSprSq
 
-summary(glm.nb.SPlogXEdd) #best model has log * EDD
+summary(glm.nb.SPlog_Edd) #best model has log * EDD
 
 #Summed Model Weights for Squirrels in Spring from full table. 
 SprSW_edd <- sum(modtabSprSq$AICcWt[grep("EDD", modtabSprSq$Modnames)])
@@ -850,6 +898,48 @@ SprSW_Height <- sum(modtabSprSq$AICcWt[grep("Height", modtabSprSq$Modnames)])
 
 
 #Explained deviance of best model
-1 - glm.nb.SPlogXEdd$deviance / glm.nb.SPlogXEdd$null.deviance #0.3287772
+1 - glm.nb.SPlog_Edd$deviance / glm.nb.SPlog_Edd$null.deviance #0.3287772
 #Explained deviance of full model
 1 - glm.nb.fullSP$deviance / glm.nb.fullSP$null.deviance #0.3807705
+
+#Repsonse Curve of EDD with and without logs
+
+seq.SpEdd <- seq(min(sqDataSpr$Squirrel_EDD_WSp), max(sqDataSpr$Squirrel_EDD_WSp), length.out = 100)
+
+nd.seq.SpEdd <- data.frame(Deploy.Duration = 61, Squirrel_EDD_WSp = seq.SpEdd, Log.in.View = "YES")
+nd.seq.SpEddNo <- data.frame(Deploy.Duration = 61, Squirrel_EDD_WSp = seq.SpEdd, Log.in.View = "NO")
+
+pred.SpEdd <- predict(glm.nb.SPlog_Edd, newdata = nd.seq.SpEdd, se=TRUE, type = "link")
+pred.SpEddNo <- predict(glm.nb.SPlog_Edd, newdata = nd.seq.SpEddNo, se=TRUE, type = "link")
+
+predValsSp <- rbind(as.data.frame(pred.SpEdd), as.data.frame(pred.SpEddNo))
+allNewValsSp <- rbind(nd.seq.SpEdd, nd.seq.SpEddNo)
+
+#I here make a dataframe combining the predictor values, with the estimated response values, then estimate lower and upper confidence limits, then convert the data back onto the real scale, from the log scale
+predPlotSp <- data.frame(allNewValsSp, predValsSp) %>%
+  mutate(
+    lcl = fit - 2*se.fit,
+    ucl = fit + 2*se.fit
+  ) %>%
+  mutate(
+    response = exp(fit),
+    lcl.response = exp(lcl),
+    ucl.response = exp(ucl))
+
+#Plotting commands in ggplot. We can mess around with this further for the paper as needed. The dots represent actual data points.
+
+SqSpEDDPlot <- ggplot(predPlotSp, aes(x=Squirrel_EDD_WSp, y=response)) +
+  # Confidence region
+  geom_ribbon(aes(ymin=lcl.response, ymax=ucl.response, fill = Log.in.View), alpha=0.25, show.legend = F) +
+  # Prediction Lines
+  geom_line(aes(color = Log.in.View), show.legend = F) +
+  scale_colour_manual("",values=c("darkolivegreen", "tomato"))+
+  scale_fill_manual("",values=c("darkolivegreen", "tomato"))+
+  geom_point(data = sqDataSpr, aes(x=Squirrel_EDD_WSp, y=nSeqs, shape=Log.in.View, color=Log.in.View), show.legend = F, size = 2.5) +
+  xlab("Effective Detection Distance (m)") +   
+  ylab("Count of Sequences") +
+  geom_text(aes(x = 2.3, y = 220, label = "B"), size = 8) +
+  myTheme
+
+SqSpEDDPlot
+ggsave("results/SqSpringEDDLog.tiff", width = 6.5, height = 4.0, units = "in" ) #saves whatever last ggplot was made

@@ -91,6 +91,9 @@ resultsSpSN <- createAicTable(mods)
 resultsSpSN$table
 
 bestSpSN <- occMod(model=list(psi~1, p~poly(Height_cm, 2, raw = T) + Squirrel_EDD_WSp),data=pSpSN,type="so") 
+unique(bestSpSN$real$p) 
+unique(bestSpSN$real$psi)
+bestSpSN$beta$p
 
 #Sum up model weights for each of the 5 covariates
 mnames=resultsSpSN$table$Model;
@@ -100,6 +103,28 @@ for (s in c("Height","Oak", "Stems", "Log", "EDD")) {
   cat('CumWgt(',s,')=',wgt,'\n')     #  print sum of weights
 }
 
+# Response Curve - Height Fox Sq Spring -----------------------------------
+
+seq.SpHgt <- seq(min(sqDataSpr$Height_cm), max(sqDataSpr$Height_cm), length.out = 100)
+
+nd.seq.SpHgt <- data.frame(Height_cm = seq.SpHgt, Squirrel_EDD_WSp = median(sqDataSpr$Squirrel_EDD_WSp) )
+
+pred.SpHgt <- predict(bestSpSN, newdata = nd.seq.SpHgtL, param = "p", conf= 0.95)
+
+predPlotFSpHgt <- data.frame(nd.seq.SpHgt, pred.SpHgt) 
+
+#Not sure why we get some NAs for standard errors...should double check summaries of all models to make sure they ran normally.
+load(file = "data/responseTheme.Rdata")
+
+FSqSprHgtPlot <- ggplot(predPlotFSpHgt, aes(x=Height_cm, y=est)) +
+  # Confidence region
+  geom_ribbon(aes(ymin=lower_0.95, ymax=upper_0.95), alpha=0.25, show.legend = F) +
+  # Prediction Lines
+  geom_line() +
+  xlab("Camera height (cm)") +   
+  ylab("Estimated detection probability") +
+  geom_text(aes(x = 34, y = .40, label = "A"), size = 8)+
+  myTheme
 
 # Fox Squirrel Occupancy Models in Winter ---------------------------------
 
@@ -198,6 +223,8 @@ pSumSN <- createPao(DHSumSN,unitcov = covSumSN,title="Fox Squirrel Summer",unitn
 modsHtest <- list(); 
 modsHtest[[1]] <- occMod(model=list(psi ~ 1, p ~ Height_cm),data = pSumSN,type = "so")
 modsHtest[[2]] <- occMod(model=list(psi ~ 1, p ~ poly(Height_cm, 2, raw = T)),data = pSumSN,type = "so")
+modsHtest[[2]]$beta$p
+
 
 resultsHtest <- createAicTable(modsHtest)
 resultsHtest$table #there is evidence of a quadratic effect on camera height here so need quadratic in all models for height
@@ -245,6 +272,26 @@ resultsSumSN <- createAicTable(mods)
 resultsSumSN$table
 
 bestSumSN <- occMod(model=list(psi~1, p~poly(Height_cm, 2, raw = T) + Log.in.View + Squirrel_EDD_4S),data=pSumSN,type="so")
+summary(bestSumSN)
+unique(bestSumSN$real$p) #the NAs indicate maybe this model didn't work...
+unique(bestSumSN$real$psi)
+bestSumSN$beta$p
+
+#Testing model with only camera height quadratic term, since it looks like all height models had trouble
+FsSumHgt <- occMod(model=list(psi~1, p~poly(Height_cm, 2, raw = T)),data=pSumSN,type="so")
+FsSumHgt$beta$p
+FsSumHgt$aic
+
+#Trying without raw
+FsSumHgt2 <- occMod(model=list(psi~1, p~poly(Height_cm, 2)),data=pSumSN,type="so")
+FsSumHgt2$beta$psi
+FsSumHgt2$aic
+
+#Trying manually. Same results as raw with poly.
+FsSumHgt3 <- occMod(model=list(psi~1, p~Height_cm + I(Height_cm^2)),data=pSumSN,type="so")
+FsSumHgt3$beta$psi
+FsSumHgt3$beta$p
+FsSumHgt3$aic
 
 #Sum up model weights for each of the 5 covariates
 mnames=resultsSumSN$table$Model;
@@ -253,6 +300,30 @@ for (s in c("Height","Oak", "Stems", "Log", "EDD")) {
   wgt=sum(resultsSumSN$table$wgt[i]); #  add up wgts of those models
   cat('CumWgt(',s,')=',wgt,'\n')     #  print sum of weights
 }
+
+
+# Response Curve - Height Fox Sq Summer -----------------------------------
+
+seq.SHgt <- seq(min(sqDataSum$Height_cm), max(sqDataSum$Height_cm), length.out = 100)
+
+nd.seq.SHgtL <- data.frame(Height_cm = seq.SHgt, Log.in.View = factor("YES", levels=c("NO", "YES")), Squirrel_EDD_4S = median(sqDataSum$Squirrel_EDD_4S) )
+
+pred.SHgtL <- predict(bestSumSN, newdata = nd.seq.SHgtL, param = "p", conf= 0.95)
+
+predPlotFSumHgt <- data.frame(nd.seq.SHgtL, pred.SHgtL) 
+
+#Not sure why we get some NAs for standard errors...should double check summaries of all models to make sure they ran normally. Looks like nearly all models with height quadratic term had convergence problems.
+load(file = "data/responseTheme.Rdata")
+
+FSqSumHgtPlot <- ggplot(predPlotFSumHgt, aes(x=Height_cm, y=est)) +
+  # Confidence region
+  geom_ribbon(aes(ymin=lower_0.95, ymax=upper_0.95), alpha=0.25, show.legend = F) +
+  # Prediction Lines
+  geom_line() +
+  xlab("Camera Height (cm)") +   
+  ylab("Estimated detection probability") +
+  geom_text(aes(x = 34, y = .22, label = "B"), size = 8)+
+  myTheme
 
 # Fox Squirrel Occupancy Models in Fall ---------------------------------
 

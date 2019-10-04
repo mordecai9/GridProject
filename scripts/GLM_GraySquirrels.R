@@ -496,7 +496,6 @@ lines(nd.seq.FEdd$Squirrel_EDD_4S, exp(pred.FEddNo$fit), col="black")
 lines(nd.seq.FEdd$Squirrel_EDD_4S, exp(pred.FEddNo$fit + 1.96*pred.FEddNo$se.fit), lty=2, col="black")
 lines(nd.seq.FEdd$Squirrel_EDD_4S, exp(pred.FEddNo$fit - 1.96*pred.FEddNo$se.fit), lty=2, col="black")
 
-
 #Winter Gray Squirrel NB Full Model Selection --------------------------------
 
 #First test to see if interaction between log and EDD improves that two variable model
@@ -683,6 +682,34 @@ lines(nd.seq.WHgt$Height_cm, exp(pred.WHgt$fit), col="red")
 lines(nd.seq.WHgt$Height_cm, exp(pred.WHgt$fit + 1.96*pred.WHgt$se.fit), lty=2, col="red")
 lines(nd.seq.WHgt$Height_cm, exp(pred.WHgt$fit - 1.96*pred.WHgt$se.fit), lty=2, col="red")
 
+#Making plot in ggplot instead
+
+predPlotGrayWinHgt <- data.frame(nd.seq.WHgt, pred.WHgt) %>%
+  mutate(
+    lcl = fit - 2*se.fit,
+    ucl = fit + 2*se.fit
+  ) %>%
+  mutate(
+    response = exp(fit),
+    lcl.response = exp(lcl),
+    ucl.response = exp(ucl))
+
+#Plotting commands in ggplot. We can mess around with this further for the paper as needed. The dots represent actual data points.
+load(file = "data/responseTheme.Rdata")
+
+GrSqWinHgtPlot <- ggplot(predPlotGrayWinHgt, aes(x=Height_cm, y=response)) +
+  # Confidence region
+  geom_ribbon(aes(ymin=lcl.response, ymax=ucl.response), alpha=0.25, show.legend = F) +
+  # Prediction Lines
+  geom_line() +
+  geom_point(data = grsqDataWin, aes(x=Height_cm, y=nSeqs), show.legend = F, size = 2.5) +
+  xlab("Camera Height (cm)") +   
+  ylab("Count of Sequences") +
+  geom_text(aes(x = 34, y = 50, label = "A"), size = 8)+
+  myTheme
+
+#ggsave("results/GrSqWinHgt.tiff", width = 6.5, height = 4.0, units = "in" )
+
 
 
 # Spring Squirrel NB Full Model Selection ---------------------------------
@@ -852,7 +879,7 @@ SprSW_Height <- sum(modtabSprGSq$AICcWt[grep("Height", modtabSprGSq$Modnames)])
 
 
 #Explained deviance of best model
-1 - glm.nb.SPlogXEdd$deviance / glm.nb.SPlogXEdd$null.deviance #0.3786397
+1 - glm.nb.SPlog_Edd$deviance / glm.nb.SPlog_Edd$null.deviance #0.3786397
 #Explained deviance of full model
 1 - glm.nb.fullSP$deviance / glm.nb.fullSP$null.deviance #0.4173307
 
@@ -863,8 +890,8 @@ seq.SPEdd <- seq(min(grsqDataSpr$Squirrel_EDD_WSp), max(grsqDataSpr$Squirrel_EDD
 nd.seq.SPEdd <- data.frame(Deploy.Duration = 61, Squirrel_EDD_WSp = seq.SPEdd, Log.in.View = "YES")
 nd.seq.SPEddNo <- data.frame(Deploy.Duration = 61, Squirrel_EDD_WSp = seq.SPEdd, Log.in.View = "NO")
 
-pred.SPEdd <- predict(glm.nb.SPlogXEdd, newdata = nd.seq.SPEdd, se=TRUE, type = "link")
-pred.SPEddNo <- predict(glm.nb.SPlogXEdd, newdata = nd.seq.SPEddNo, se=TRUE, type = "link")
+pred.SPEdd <- predict(glm.nb.SPlog_Edd, newdata = nd.seq.SPEdd, se=TRUE, type = "link")
+pred.SPEddNo <- predict(glm.nb.SPlog_Edd, newdata = nd.seq.SPEddNo, se=TRUE, type = "link")
 
 plot(nSeqs ~ Squirrel_EDD_WSp, data=grsqDataSpr, pch=16, col=grsqDataSpr$Log.in.View, las=1, xlab = "Effective Detection Distance (m)", ylab = "# Gray Squirrel Sequences in Spring")
 
