@@ -1,4 +1,4 @@
-#Assessement of optimal detection probalitity models for each of Fox Squirrel using occupancy models in Rpresence. Data comes from high resolution 27 camera grid is Posey Hollow. Detection histories were prepared using the script "PrepforDetectionHistory", where R objects of detection hustories were created for each species and each season. These are loaded in here. The script also requires data files prepared for a separate GLM analysis, since these include the site covariates. 
+#Assesement of optimal detection probability models for Fox Squirrel using occupancy models in Rpresence. Data comes from high resolution 27 camera grid is Posey Hollow. Detection histories were prepared using the script "PrepforDetectionHistory", where R objects of detection histories were created for each species and each season. These are loaded in here. The script also requires data files prepared for a separate GLM analysis, since these include the site covariates. 
 
 
 # Clear Environment and Load Packages -------------------------------------
@@ -33,7 +33,7 @@ nSURVEYsSpSN=ncol(DHSpSN)  #  set number of sites,surveys from det. history data
 
 load("data/sqDataSpr.RData")
 covSpSN <- sqDataSpr %>%
-  select(Deployment_Name, Height_cm, Num_Stems, OakDBH, Log.in.View, Squirrel_EDD_WSp)
+  dplyr::select(Deployment_Name, Height_cm, Num_Stems, OakDBH, Log.in.View, Squirrel_EDD_WSp)
 
 #Create input file for RPresence
 pSpSN <- createPao(DHSpSN,unitcov = covSpSN,title="Fox Squirrel Spring",unitnames=sitenamesFull)
@@ -45,7 +45,7 @@ modsHtest <- list();
   modsHtest[[2]] <- occMod(model=list(psi ~ 1, p ~ poly(Height_cm, 2, raw = T)),data = pSpSN,type = "so")
 
 resultsHtest <- createAicTable(modsHtest)
-resultsHtest$table #there is evidence of a quadratic effect on camera height, so it should be in all models with camera height
+resultsHtest$table #there is evidence of a quadratic effect on camera height, so it should be in all models with camera height. 
 
 #Test to see if there is an interaction between EDD and whether there is a log in view
 
@@ -55,7 +55,8 @@ modsEDDtest[[2]] <- occMod(model=list(psi ~ 1, p ~ Log.in.View * Squirrel_EDD_WS
 
 resultsEDDtest <- createAicTable(modsEDDtest)
 resultsEDDtest$table #there is evidence of a interaction effect here, so this needs to be in all models below with both of these parameters
-  
+
+#Full Model Comparison using only a max of 3 predictor variables at a time (though some have more parameters) 
   
 mods=list(); i=1
   mods[[i]]=occMod(model=list(psi~1, p~1),    data=pSpSN,type="so");i=i+1
@@ -109,11 +110,10 @@ seq.SpHgt <- seq(min(sqDataSpr$Height_cm), max(sqDataSpr$Height_cm), length.out 
 
 nd.seq.SpHgt <- data.frame(Height_cm = seq.SpHgt, Squirrel_EDD_WSp = median(sqDataSpr$Squirrel_EDD_WSp) )
 
-pred.SpHgt <- predict(bestSpSN, newdata = nd.seq.SpHgtL, param = "p", conf= 0.95)
+pred.SpHgt <- predict(bestSpSN, newdata = nd.seq.SpHgt, param = "p", conf= 0.95)
 
 predPlotFSpHgt <- data.frame(nd.seq.SpHgt, pred.SpHgt) 
 
-#Not sure why we get some NAs for standard errors...should double check summaries of all models to make sure they ran normally.
 load(file = "data/responseTheme.Rdata")
 
 FSqSprHgtPlot <- ggplot(predPlotFSpHgt, aes(x=Height_cm, y=est)) +
@@ -213,7 +213,7 @@ nSURVEYsSumSN=ncol(DHSumSN)  #  set number of sites,surveys from det. history da
 
 load("data/sqDataSum.RData") #I'm using general squirrel data here because the site covariates are the same for both species
 covSumSN <- sqDataSum %>%
-  select(Deployment_Name, Height_cm, Num_Stems, OakDBH, Log.in.View, Squirrel_EDD_4S)
+  dplyr::select(Deployment_Name, Height_cm, Num_Stems, OakDBH, Log.in.View, Squirrel_EDD_4S)
 
 #Create input file for RPresence
 pSumSN <- createPao(DHSumSN,unitcov = covSumSN,title="Fox Squirrel Summer",unitnames=sitenamesFull)
@@ -223,7 +223,7 @@ pSumSN <- createPao(DHSumSN,unitcov = covSumSN,title="Fox Squirrel Summer",unitn
 modsHtest <- list(); 
 modsHtest[[1]] <- occMod(model=list(psi ~ 1, p ~ Height_cm),data = pSumSN,type = "so")
 modsHtest[[2]] <- occMod(model=list(psi ~ 1, p ~ poly(Height_cm, 2, raw = T)),data = pSumSN,type = "so")
-modsHtest[[2]]$beta$p
+modsHtest[[2]]$beta$p #Here the SEs are not esitmated correctly, despite this working above for Spring. Can't figure out why.
 
 
 resultsHtest <- createAicTable(modsHtest)
