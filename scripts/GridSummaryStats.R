@@ -239,6 +239,9 @@ camdata_summaryL <- camdata_summary %>%
   
   
 
+# Boxplot Format - All Species capture rate overall -----------------------
+
+
 
 #Boxplot showing median capture rate per species, all seasons. Remember I can use "subset" here to just do a boxplot for summer, but it much more complicated to get the proportion of stations with presence in this way. Might need to redo all code above by season?? SHould consider doing this with mean in a bar lot with whiskers, instead of median.
 par(mar=c(9,17,4,2))
@@ -376,18 +379,7 @@ deer_null <- camdata_summary %>%
   filter(Species == "Odocoileus virginianus") %>%
   glm.nb(data = ., Number_of_Sequences ~ 1 + offset(log(Deploy.Duration)) )
 
-aictab(cand.set = list(deer_season_test, deer_null), modnames = c("Deer Season", "Deer Intercept"))
-
-#Raccoon Season Test
-raccoon_season_test <- camdata_summary %>%
-  filter(Species == "Procyon lotor") %>%
-  glm.nb(data = ., Number_of_Sequences ~ Season + offset(log(Deploy.Duration)) )
-
-raccoon_null <- camdata_summary %>%
-  filter(Species == "Procyon lotor") %>%
-  glm.nb(data = ., Number_of_Sequences ~ 1 + offset(log(Deploy.Duration)) )
-
-aictab(cand.set = list(raccoon_season_test, raccoon_null), modnames = c("Raccoon Season", "Raccoon Intercept"))
+SeasonResults <- aictab(cand.set = list(deer_season_test, deer_null), modnames = c("White-tailed deer - Season", "White-tailed deer - Intercept"))
 
 #Fox Squirrel Season Test
 foxSq_season_test <- camdata_summary %>%
@@ -398,7 +390,7 @@ foxSq_null <- camdata_summary %>%
   filter(Species == "Sciurus niger") %>%
   glm.nb(data = ., Number_of_Sequences ~ 1 + offset(log(Deploy.Duration)) )
 
-aictab(cand.set = list(foxSq_season_test, foxSq_null), modnames = c("foxSq Season", "foxSq Intercept"))
+SeasonResults <- rbind(SeasonResults, aictab(cand.set = list(foxSq_season_test, foxSq_null), modnames = c("Fox squirrel - Season", "Fox squirrel - Intercept")))
 
 #Gray Squirrel Season Test
 graySq_season_test <- camdata_summary %>%
@@ -409,7 +401,42 @@ graySq_null <- camdata_summary %>%
   filter(Species == "Sciurus carolinensis") %>%
   glm.nb(data = ., Number_of_Sequences ~ 1 + offset(log(Deploy.Duration)) )
 
-aictab(cand.set = list(graySq_season_test, graySq_null), modnames = c("graySq Season", "graySq Intercept"))
+SeasonResults <- rbind(SeasonResults, aictab(cand.set = list(graySq_season_test, graySq_null), modnames = c("Gray squirrel - Season", "Gray squirrel - Intercept")))
+
+#Combined Squirrels. I also create this combined squirrel category in the RegFile Creation Script, so this is redundant, but I didn't feel like cleaning it all up.
+
+foxsqrlData<-subset(camdata_summary, Species == "Sciurus niger")
+grsqrlData<-subset(camdata_summary, Species == "Sciurus carolinensis")
+unknownsqrlData<-subset(camdata_summary, Species == "Unknown squirrel")
+
+sqrlData<- foxsqrlData %>%
+  left_join(grsqrlData, by = "Deployment_Name") %>%
+  left_join(unknownsqrlData, by = "Deployment_Name" )
+
+sqrlData <- sqrlData %>%
+  mutate(allSqSeqs = Number_of_Sequences.x + Number_of_Sequences.y + Number_of_Sequences) %>%
+  dplyr::select(c(allSqSeqs, Season, Deploy.Duration, Species)) %>%
+  mutate(Species = "AllSquirrels")
+
+AllSq_season_test <- sqrlData %>%
+  glm.nb(data = ., allSqSeqs ~ Season + offset(log(Deploy.Duration)) )
+
+AllSq_null <- sqrlData %>%
+  glm.nb(data = ., allSqSeqs ~ 1 + offset(log(Deploy.Duration)) )
+
+SeasonResults <- rbind(SeasonResults, aictab(cand.set = list(AllSq_season_test, AllSq_null), modnames = c("All squirrels - Season", "All squirrels - Intercept")))
+
+#Raccoon Season Test
+raccoon_season_test <- camdata_summary %>%
+  filter(Species == "Procyon lotor") %>%
+  glm.nb(data = ., Number_of_Sequences ~ Season + offset(log(Deploy.Duration)) )
+
+raccoon_null <- camdata_summary %>%
+  filter(Species == "Procyon lotor") %>%
+  glm.nb(data = ., Number_of_Sequences ~ 1 + offset(log(Deploy.Duration)) )
+
+SeasonResults <- rbind(SeasonResults, aictab(cand.set = list(raccoon_season_test, raccoon_null), modnames = c("Northern raccoon - Season", "Northern raccoon - Intercept")))
+
 
 #Black Bear Season Test
 bear_season_test <- camdata_summary %>%
@@ -420,7 +447,26 @@ bear_null <- camdata_summary %>%
   filter(Species == "Ursus americanus") %>%
   glm.nb(data = ., Number_of_Sequences ~ 1 + offset(log(Deploy.Duration)) )
 
-aictab(cand.set = list(bear_season_test, bear_null), modnames = c("bear Season", "bear Intercept"))
+SeasonResults <- rbind(SeasonResults, aictab(cand.set = list(bear_season_test, bear_null), modnames = c("Black bear - Season", "Black bear - Intercept")))
+
+SeasonResultsF <- SeasonResults %>%
+  mutate(AICc = round(AICc, 2),
+         Delta_AICc = round(Delta_AICc, 2),
+         AICcWt = round(AICcWt, 2),
+         LL = round(LL, 2)) %>%
+  rename(Model = Modnames) %>%
+  dplyr::select(-c(Cum.Wt,ModelLik))
+
+#write.csv(SeasonResultsF, file = "results/SeasonResultsTable.csv")
+
+#Unknown Squirrel Season Test
+unknownSq_season_test <- camdata_summary %>%
+  filter(Species == "Unknown squirrel") %>%
+  glm.nb(data = ., Number_of_Sequences ~ Season + offset(log(Deploy.Duration)) )
+
+unknownSq_null <- camdata_summary %>%
+  filter(Species == "Unknown squirrel") %>%
+  glm.nb(data = ., Number_of_Sequences ~ 1 + offset(log(Deploy.Duration)) )
 
 #Small Rodent Season Test
 rodent_season_test <- camdata_summary %>%
@@ -434,17 +480,7 @@ rodent_null <- camdata_summary %>%
 aictab(cand.set = list(rodent_season_test, rodent_null), modnames = c("rodent Season", "rodent Intercept"))
 summary(rodent_season_test)
 
-#Unknown Squirrel Season Test
-unknownSq_season_test <- camdata_summary %>%
-  filter(Species == "Unknown squirrel") %>%
-  glm.nb(data = ., Number_of_Sequences ~ Season + offset(log(Deploy.Duration)) )
 
-unknownSq_null <- camdata_summary %>%
-  filter(Species == "Unknown squirrel") %>%
-  glm.nb(data = ., Number_of_Sequences ~ 1 + offset(log(Deploy.Duration)) )
-
-aictab(cand.set = list(unknownSq_season_test, unknownSq_null), modnames = c("Unknown squirrel Season", "Unknown squirrel Intercept"))
-summary(unknownSq_season_test)
 
 #Chipmunk Season Test
 chip_season_test <- camdata_summary %>%
