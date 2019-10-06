@@ -1,0 +1,13 @@
+"","Model","K","AICc","Delta_AICc","AICcWt","LL"
+"1","White-tailed deer - Season",5,903.62,0,1,-446.5
+"2","White-tailed deer - Intercept",2,1000.38,96.76,0,-498.13
+"3","Fox squirrel - Season",5,751.84,0,1,-370.61
+"4","Fox squirrel - Intercept",2,799.17,47.33,0,-397.53
+"5","Gray squirrel - Season",5,667.78,0,1,-328.58
+"6","Gray squirrel - Intercept",2,711.74,43.97,0,-353.81
+"7","All squirrels - Season",5,906.46,0,1,-447.93
+"8","All squirrels - Intercept",2,963.15,56.68,0,-479.52
+"9","Northern raccoon - Season",5,605.47,0,1,-297.43
+"10","Northern raccoon - Intercept",2,668.09,62.62,0,-331.99
+"11","Black bear - Season",5,315.55,0,1,-152.47
+"12","Black Bear - Intercept",2,374.37,58.82,0,-185.12
