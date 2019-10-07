@@ -71,10 +71,11 @@ DFDHFALLOV<-as.data.frame(t(DHFallOV))
 
 ##Jaccard Index between Cameras (same season and species)
 
+#One code attempt
 library('clusteval')
 cluster_similarity(DFDHFALLOV$`0101_F17` , DFDHFALLOV$`0102_F17`, similarity="jaccard", method="independence")
 
-
+#Second code attempt
 library(dplyr)
 library(magrittr)
 jaccard <- function(DFDHFALLOV, margin=2) {
