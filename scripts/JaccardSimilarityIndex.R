@@ -66,8 +66,45 @@ DHWinUA <- temp
 load("results/DetHistWinProcyon lotor")
 DHWinPL <- temp
 
-#Testing one way of calculating Jaccard
-#seems this can only be used when the length of the data is the same
-#Most of the results from different seasons have different lengths
+#Changing Temp Files to Data Frames
+DFDHFALLOV<-as.data.frame(t(DHFallOV))
+
+##Jaccard Index between Cameras (same season and species)
+
 library('clusteval')
-cluster_similarity(DHWinSN[c("0102_W17"),] ,DHWinSN[c("0103_W17"),], similarity="jaccard", method="independence")
+cluster_similarity(DFDHFALLOV$`0101_F17` , DFDHFALLOV$`0102_F17`, similarity="jaccard", method="independence")
+
+
+library(dplyr)
+library(magrittr)
+jaccard <- function(DFDHFALLOV, margin=2) {
+  if ( margin == 2) {
+    M_00 <- apply(DFDHFALLOV, margin, sum) == 0
+    M_11 <- apply(DFDHFALLOV, margin, sum) == 2
+    if (margin == 2) {
+      DFDHFALLOV <- DFDHFALLOV[!M_00, ]
+      JSim <- sum(M_11) / ncol(DFDHFALLOV)
+    } else {
+      
+    }
+    JDist <- 2 - JSim
+    return(c(JSim = JSim, JDist = JDist))
+  } else break
+}
+
+jaccard(DFDHFALLOV[1:2,], margin=2)
+
+
+jaccard_per_column <- function(DFDHFALLOV, margin=2){
+  require(magrittr)
+  require(dplyr)
+  key_pairs <- expand.grid(colnames(DFDHFALLOV), colnames(DFDHFALLOV))
+  results <- t(apply(key_pairs, 2, function(column) jaccard(DFDHFALLOV[c(column[1], column[2]),], margin=margin)))
+  key_pair <- key_pairs %>% mutate(pair = paste(Var1,"_",Var2,sep=""))
+  results <- data.frame(results)
+  colnames(results) <- key_pair$pair
+  results
+}
+
+jaccard_per_column(DFDHFALLOV, margin=2)
+
