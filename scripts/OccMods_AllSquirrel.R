@@ -114,7 +114,7 @@ nSURVEYsWinSC=ncol(DHWinSQ)  #  set number of sites,surveys from det. history da
 
 load("data/sqDataWin.RData") #I'm using general squirrel data here because the site covariates are the same for both species
 covWinSQ <- sqDataWin %>%
-  select(Deployment_Name, Height_cm, Num_Stems, OakDBH, Log.in.View, Squirrel_EDD_WSp)
+  dplyr::select(Deployment_Name, Height_cm, Num_Stems, OakDBH, Log.in.View, Squirrel_EDD_WSp)
 
 #Created scaled version of the covariates file
 covWinSQ2 <- covWinSQ %>%
@@ -191,6 +191,39 @@ for (s in c("Height","Oak", "Stems", "Log", "EDD")) {
   wgt=sum(resultsWinSQ$table$wgt[i]); #  add up wgts of those models
   cat('CumWgt(',s,')=',wgt,'\n')     #  print sum of weights
 }
+
+#Response Curve for EDD log interaction - All Sq Winter----------------------------------------------------------------------- 
+seq.WEdd <- seq(min(covWinSQ2$Squirrel_EDD_WSp), max(covWinSQ2$Squirrel_EDD_WSp), length.out = 100) 
+
+
+nd.seq.WEdd <- data.frame(Squirrel_EDD_WSp = seq.WEdd, Log.in.View = factor("YES", levels=c("NO", "YES")), Num_Stems = median(covWinSQ2$Num_Stems))
+nd.seq.WEddNo <- data.frame(Squirrel_EDD_WSp = seq.WEdd, Log.in.View = factor("NO", levels=c("NO", "YES")), Num_Stems = median(covWinSQ2$Num_Stems))
+
+pred.WEdd <- predict(bestWinSQ, newdata = nd.seq.WEdd, param = "p", conf= 0.95)
+pred.WEddNo <- predict(bestWinSQ, newdata = nd.seq.WEddNo, param = "p", conf= 0.95)
+
+
+predVals <- rbind(as.data.frame(pred.WEdd), as.data.frame(pred.WEddNo))
+allNewVals <- rbind(nd.seq.WEdd, nd.seq.WEddNo)
+
+#I here make a dataframe combining the predictor values, with the estimated response values
+predPlot <- data.frame(allNewVals, predVals) 
+
+load(file = "data/responseTheme.Rdata")
+
+SqWinEDDPlot <- ggplot(predPlot, aes(x=Squirrel_EDD_WSp * sd(covWinSQ$Squirrel_EDD_WSp) + mean(covWinSQ$Squirrel_EDD_WSp), y=est)) +
+  # Confidence region
+  geom_ribbon(aes(ymin=lower_0.95, ymax=upper_0.95, fill = Log.in.View), alpha=0.25, show.legend = F) +
+  # Prediction Lines
+  geom_line(aes(color = Log.in.View), show.legend = F) +
+  scale_colour_manual("",values=c("tomato","darkolivegreen"))+
+  scale_fill_manual("",values=c("tomato","darkolivegreen"))+
+  xlab("Effective Detection Distance (m)") +   
+  ylab("Estimated detection probability") +
+  geom_text(aes(x = 2.2, y = 1.0, label = "A"), size = 8)+
+  myTheme
+  
+#ggsave("results/SqWinEDDLog_DP.tiff", width = 6.5, height = 4.0, units = "in" ) #saves whatever last ggplot was made
 
 # All Squirrel Occupancy Models in Summer ---------------------------------
 

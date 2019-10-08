@@ -121,7 +121,7 @@ nSURVEYsWinSC=ncol(DHWinSC)  #  set number of sites,surveys from det. history da
 
 load("data/sqDataWin.RData") #I'm using general squirrel data here because the site covariates are the same for both species
 covWinSC <- sqDataWin %>%
-  select(Deployment_Name, Height_cm, Num_Stems, OakDBH, Log.in.View, Squirrel_EDD_WSp)
+  dplyr::select(Deployment_Name, Height_cm, Num_Stems, OakDBH, Log.in.View, Squirrel_EDD_WSp)
 #scaled covariate set
 covWinSC2 <- covWinSC %>%
   mutate(Height_cm = scale(Height_cm),
@@ -214,8 +214,41 @@ GSqWinHgtPlot <- ggplot(predPlotWHgt, aes(x=(Height_cm*sd(covWinSC$Height_cm))+m
   geom_line() +
   xlab("Camera height (cm)") +   
   ylab("Estimated detection probability") +
-  geom_text(aes(x = 34, y = .40, label = "A"), size = 8)+
+  geom_text(aes(x = 34, y = .40, label = "B"), size = 8)+
   myTheme
+#ggsave("results/GrSqWinHgt_DP.tiff", width = 6.5, height = 4.0, units = "in" )
+
+#Response Curve for EDD log interaction - Gray Sq Winter----------------------------------------------------------------------- 
+seq.WEdd <- seq(min(covWinSC2$Squirrel_EDD_WSp), max(covWinSC2$Squirrel_EDD_WSp), length.out = 100) 
+
+nd.seq.WEdd <- data.frame(Squirrel_EDD_WSp = seq.WEdd, Log.in.View = factor("YES", levels=c("NO", "YES")), Height_cm = median(covWinSC2$Height_cm))
+
+nd.seq.WEddNo <- data.frame(Squirrel_EDD_WSp = seq.WEdd, Log.in.View = factor("NO", levels=c("NO", "YES")), Height_cm = median(covWinSC2$Height_cm))
+
+pred.WEdd <- predict(bestWinSC, newdata = nd.seq.WEdd, param = "p", conf= 0.95)
+pred.WEddNo <- predict(bestWinSC, newdata = nd.seq.WEddNo, param = "p", conf= 0.95)
+
+
+predVals <- rbind(as.data.frame(pred.WEdd), as.data.frame(pred.WEddNo))
+allNewVals <- rbind(nd.seq.WEdd, nd.seq.WEddNo)
+
+#I here make a dataframe combining the predictor values, with the estimated response values
+predPlot <- data.frame(allNewVals, predVals) 
+
+
+GSqWinEDDPlot <- ggplot(predPlot, aes(x=Squirrel_EDD_WSp * sd(covWinSC$Squirrel_EDD_WSp) + mean(covWinSC$Squirrel_EDD_WSp), y=est)) +
+  # Confidence region
+  geom_ribbon(aes(ymin=lower_0.95, ymax=upper_0.95, fill = Log.in.View), alpha=0.25, show.legend = F) +
+  # Prediction Lines
+  geom_line(aes(color = Log.in.View), show.legend = F) +
+  scale_colour_manual("",values=c("tomato","darkolivegreen"))+
+  scale_fill_manual("",values=c("tomato","darkolivegreen"))+
+  xlab("Effective Detection Distance (m)") +   
+  ylab("Estimated detection probability") +
+  geom_text(aes(x = 2.2, y = 1.0, label = "C"), size = 8)+
+  myTheme
+
+#ggsave("results/GSqWinEDDLog_DP.tiff", width = 6.5, height = 4.0, units = "in" ) #saves whatever last ggplot was made
 
 # Gray Squirrel Occupancy Models in Summer ---------------------------------
 

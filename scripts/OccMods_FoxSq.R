@@ -133,8 +133,10 @@ FSqSprHgtPlot <- ggplot(predPlotFSpHgt, aes(x=(Height_cm*sd(covSpSN$Height_cm))+
   geom_line() +
   xlab("Camera height (cm)") +   
   ylab("Estimated detection probability") +
-  geom_text(aes(x = 34, y = .40, label = "A"), size = 8)+
+  geom_text(aes(x = 34, y = .63, label = "C"), size = 8)+
   myTheme
+
+#ggsave("results/FoxSqSprHgt_DP.tiff", width = 6.5, height = 4.0, units = "in" )
 
 # Fox Squirrel Occupancy Models in Winter ---------------------------------
 
@@ -147,7 +149,7 @@ nSURVEYsWinSN=ncol(DHWinSN)  #  set number of sites,surveys from det. history da
 
 load("data/sqDataWin.RData") #I'm using general squirrel data here because the site covariates are the same for both species
 covWinSN <- sqDataWin %>%
-  select(Deployment_Name, Height_cm, Num_Stems, OakDBH, Log.in.View, Squirrel_EDD_WSp)
+  dplyr::select(Deployment_Name, Height_cm, Num_Stems, OakDBH, Log.in.View, Squirrel_EDD_WSp)
 
 #Created scaled version of the covariates file
 covWinSN2 <- covWinSN %>%
@@ -226,6 +228,39 @@ for (s in c("Height","Oak", "Stems", "Log", "EDD")) {
   wgt=sum(resultsWinSN$table$wgt[i]); #  add up wgts of those models
   cat('CumWgt(',s,')=',wgt,'\n')     #  print sum of weights
 }
+
+#Response Curve for EDD log interaction - Fox Sq Winter----------------------------------------------------------------------- 
+seq.WEdd <- seq(min(covWinSN2$Squirrel_EDD_WSp), max(covWinSN2$Squirrel_EDD_WSp), length.out = 100) 
+
+
+nd.seq.WEdd <- data.frame(Squirrel_EDD_WSp = seq.WEdd, Log.in.View = factor("YES", levels=c("NO", "YES")), Num_Stems = median(covWinSN2$Num_Stems))
+nd.seq.WEddNo <- data.frame(Squirrel_EDD_WSp = seq.WEdd, Log.in.View = factor("NO", levels=c("NO", "YES")), Num_Stems = median(covWinSN2$Num_Stems))
+
+pred.WEdd <- predict(bestWinSN, newdata = nd.seq.WEdd, param = "p", conf= 0.95)
+pred.WEddNo <- predict(bestWinSN, newdata = nd.seq.WEddNo, param = "p", conf= 0.95)
+
+
+predVals <- rbind(as.data.frame(pred.WEdd), as.data.frame(pred.WEddNo))
+allNewVals <- rbind(nd.seq.WEdd, nd.seq.WEddNo)
+
+#I here make a dataframe combining the predictor values, with the estimated response values
+predPlot <- data.frame(allNewVals, predVals) 
+
+load(file = "data/responseTheme.Rdata")
+
+FSqWinEDDPlot <- ggplot(predPlot, aes(x=Squirrel_EDD_WSp * sd(covWinSN$Squirrel_EDD_WSp) + mean(covWinSN$Squirrel_EDD_WSp), y=est)) +
+  # Confidence region
+  geom_ribbon(aes(ymin=lower_0.95, ymax=upper_0.95, fill = Log.in.View), alpha=0.25, show.legend = F) +
+  # Prediction Lines
+  geom_line(aes(color = Log.in.View), show.legend = F) +
+  scale_colour_manual("",values=c("tomato","darkolivegreen"))+
+  scale_fill_manual("",values=c("tomato","darkolivegreen"))+
+  xlab("Effective Detection Distance (m)") +   
+  ylab("Estimated detection probability") +
+  geom_text(aes(x = 2.2, y = 1.0, label = "B"), size = 8)+
+  myTheme
+
+#ggsave("results/FSqWinEDDLog_DP.tiff", width = 6.5, height = 4.0, units = "in" ) #saves whatever last ggplot was made
 
 # Fox Squirrel Occupancy Models in Summer ---------------------------------
 
