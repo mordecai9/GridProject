@@ -69,13 +69,17 @@ DHWinPL <- temp
 #Changing Temp Files to Data Frames
 DFDHFALLOV<-as.data.frame(t(DHFallOV))
 
-##Jaccard Index between Cameras (same season and species)
+##Jaccard Index between Cameras (same season and species)##
 
 #One code attempt
+#If my math is correct, this produces a wrong answer though
 library('clusteval')
 cluster_similarity(DFDHFALLOV$`0101_F17` , DFDHFALLOV$`0102_F17`, similarity="jaccard", method="independence")
 
 #Second code attempt
+#When i was looking at this code online, I believe the author posted one version with two options
+##of looking at either columns or rows. I've tried to narrow it down to one, but I'm not sure if I've done it right.
+##I believe "margin ==2" means columns and "margin ==1" is rows.
 library(dplyr)
 library(magrittr)
 jaccard <- function(DFDHFALLOV, margin=2) {
