@@ -703,8 +703,8 @@ GrSqWinHgtPlot <- ggplot(predPlotGrayWinHgt, aes(x=Height_cm, y=response)) +
   # Prediction Lines
   geom_line() +
   geom_point(data = grsqDataWin, aes(x=Height_cm, y=nSeqs), show.legend = F, size = 2.5) +
-  xlab("Camera Height (cm)") +   
-  ylab("Count of Sequences") +
+  xlab("Camera height (cm)") +   
+  ylab("Count of sequences") +
   geom_text(aes(x = 34, y = 50, label = "A"), size = 8)+
   myTheme
 

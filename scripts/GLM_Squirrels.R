@@ -492,8 +492,10 @@ FallSW_Height <- sum(modtabFallSq$AICcWt[grep("Height", modtabFallSq$Modnames)])
 #Explained Deviance of best model
 1 - glm.nb.fullF$deviance / glm.nb.fullF$null.deviance #0.4430968
 
-#Response Curve for EDD impact, with and without log present. This is potentially one of the few response curves worth putting into paper
-seq.FEdd <- seq(min(sqDataFall$Squirrel_EDD_4S), max(sqDataFall$Squirrel_EDD_4S), length.out = 100)
+
+#Response Curve for EDD log interaction----------------------------------------------------------------------- 
+seq.FEdd <- seq(min(sqDataFall$Squirrel_EDD_4S), max(sqDataFall$Squirrel_EDD_4S), length.out = 100) 
+
 
 nd.seq.FEdd <- data.frame(Deploy.Duration = 61, Squirrel_EDD_4S = seq.FEdd, Log.in.View = "YES")
 nd.seq.FEddNo <- data.frame(Deploy.Duration = 61, Squirrel_EDD_4S = seq.FEdd, Log.in.View = "NO")
