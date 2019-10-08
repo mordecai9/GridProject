@@ -1,4 +1,4 @@
-#Assessement of optimal detection probalitity models for Raccoons using occupancy models in Rpresence. Data comes from high resolution 27 camera grid is Posey Hollow. Detection histories were prepared using the script "PrepforDetectionHistory", where R objects of detection histories were created for each species and each season. These are loaded in here. The script also requires data files prepared for a separate GLM analysis, since these include the site covariates. 
+#Assessment of optimal detection probalitity models for Raccoons using occupancy models in Rpresence. Data comes from high resolution 27 camera grid is Posey Hollow. Detection histories were prepared using the script "PrepforDetectionHistory", where R objects of detection histories were created for each species and each season. These are loaded in here. The script also requires data files prepared for a separate GLM analysis, since these include the site covariates. 
 
 
 # Clear Environment and Load Packages -------------------------------------
@@ -35,44 +35,52 @@ load("data/racDataSpr.RData")
 covSpPL <- racDataSpr %>%
   select(Deployment_Name, Height_cm, Num_Stems, OakDBH, Log.in.View, Raccoon.EDD)
 
+#Created scaled version of the covariates file. 
+covSpPL2 <- covSpPL %>%
+  mutate(Height_cm = scale(Height_cm),
+         Num_Stems = scale(Num_Stems),
+         OakDBH = scale(OakDBH),
+         Raccoon.EDD = scale(Raccoon.EDD))
+
 #Create input file for RPresence
 pSpPL <- createPao(DHSpPL,unitcov = covSpPL,title="RaccoonSpring",unitnames=sitenamesFull)
+pSpPL2 <- createPao(DHSpPL,unitcov = covSpPL2,title="RaccoonSpring - scaled",unitnames=sitenamesFull)
 
 
 mods=list(); i=1
-mods[[i]]=occMod(model=list(psi~1, p~1),    data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems)),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~OakDBH),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Log.in.View),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Raccoon.EDD),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems)),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Raccoon.EDD),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + OakDBH),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + Log.in.View),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + Raccoon.EDD),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Raccoon.EDD),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Log.in.View + Raccoon.EDD),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems) + OakDBH),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems) + Log.in.View),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems) + Raccoon.EDD),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Log.in.View),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Raccoon.EDD),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View + Raccoon.EDD),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + OakDBH + Log.in.View),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + OakDBH + Raccoon.EDD),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + Log.in.View + Raccoon.EDD),data=pSpPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View + Raccoon.EDD),data=pSpPL,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~1),    data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~OakDBH),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Log.in.View),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Raccoon.EDD),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Num_Stems),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Raccoon.EDD),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + OakDBH),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + Log.in.View),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + Raccoon.EDD),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Raccoon.EDD),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Log.in.View + Raccoon.EDD),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Num_Stems + OakDBH),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Num_Stems + Log.in.View),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Num_Stems + Raccoon.EDD),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Log.in.View),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Raccoon.EDD),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View + Raccoon.EDD),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + OakDBH + Log.in.View),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + OakDBH + Raccoon.EDD),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + Log.in.View + Raccoon.EDD),data=pSpPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View + Raccoon.EDD),data=pSpPL2,type="so");i=i+1
 
 
 #     create AIC table of model results and print
 resultsSpPL <- createAicTable(mods)
 resultsSpPL$table
 
-bestSpPL <- occMod(model=list(psi~1, p~OakDBH),data=pSpPL,type="so") 
+bestSpPL <- occMod(model=list(psi~1, p~OakDBH),data=pSpPL2,type="so") 
 bestSpPL$beta$p
 
 #Sum up model weights for each of the 5 covariates
@@ -96,45 +104,51 @@ nSURVEYsWinPL=ncol(DHWinPL)  #  set number of sites,surveys from det. history da
 load("data/racDataWin.RData") #I'm using general squirrel data here because the site covariates are the same for both species
 covWinPL <- racDataWin %>%
   select(Deployment_Name, Height_cm, Num_Stems, OakDBH, Log.in.View, Raccoon.EDD)
+covWinPL2 <- covWinPL %>%
+  mutate(Height_cm = scale(Height_cm),
+         Num_Stems = scale(Num_Stems),
+         OakDBH = scale(OakDBH),
+         Raccoon.EDD = scale(Raccoon.EDD))
 
 #Create input file for RPresence
 pWinPL <- createPao(DHWinPL,unitcov = covWinPL,title="RaccoonWinter",unitnames=sitenamesShort)
+pWinPL2 <- createPao(DHWinPL,unitcov = covWinPL2,title="RaccoonWinter - Scaled",unitnames=sitenamesShort)
 
 
 mods=list(); i=1
-mods[[i]]=occMod(model=list(psi~1, p~1),    data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems)),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~OakDBH),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Log.in.View),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Raccoon.EDD),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems)),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Raccoon.EDD),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + OakDBH),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + Log.in.View),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + Raccoon.EDD),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Raccoon.EDD),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Log.in.View + Raccoon.EDD),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems) + OakDBH),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems) + Log.in.View),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems) + Raccoon.EDD),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Log.in.View),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Raccoon.EDD),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View + Raccoon.EDD),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + OakDBH + Log.in.View),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + OakDBH + Raccoon.EDD),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + Log.in.View + Raccoon.EDD),data=pWinPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View + Raccoon.EDD),data=pWinPL,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~1),    data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~OakDBH),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Log.in.View),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Raccoon.EDD),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Num_Stems),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Raccoon.EDD),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + OakDBH),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + Log.in.View),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + Raccoon.EDD),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Raccoon.EDD),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Log.in.View + Raccoon.EDD),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Num_Stems + OakDBH),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Num_Stems + Log.in.View),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Num_Stems + Raccoon.EDD),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Log.in.View),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Raccoon.EDD),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View + Raccoon.EDD),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + OakDBH + Log.in.View),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + OakDBH + Raccoon.EDD),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + Log.in.View + Raccoon.EDD),data=pWinPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View + Raccoon.EDD),data=pWinPL2,type="so");i=i+1
 
 
 #     create AIC table of model results and print
 resultsWinPL <- createAicTable(mods)
 resultsWinPL$table
 
-bestWinPL <- occMod(model=list(psi~1, p ~ Height_cm + log10(Num_Stems) + Log.in.View),data=pWinPL,type="so")
+bestWinPL <- occMod(model=list(psi~1, p ~ Height_cm + Num_Stems + Log.in.View),data=pWinPL2,type="so")
 bestWinPL$beta$p
 
 #Sum up model weights for each of the 5 covariates
@@ -156,45 +170,52 @@ load("data/racDataSum.RData") #I'm using general squirrel data here because the 
 covSumPL <- racDataSum %>%
   select(Deployment_Name, Height_cm, Num_Stems, OakDBH, Log.in.View, Raccoon.EDD)
 
+#Created scaled version of the covariates file. 
+covSumPL2 <- covSumPL %>%
+  mutate(Height_cm = scale(Height_cm),
+         Num_Stems = scale(Num_Stems),
+         OakDBH = scale(OakDBH),
+         Raccoon.EDD = scale(Raccoon.EDD))
+
 #Create input file for RPresence
 pSumPL <- createPao(DHSumPL,unitcov = covSumPL,title="RaccoonSummer",unitnames=sitenamesFull)
-
+pSumPL2 <- createPao(DHSumPL,unitcov = covSumPL2,title="RaccoonSummer-scaled",unitnames=sitenamesFull)
 
 
 mods=list(); i=1
-mods[[i]]=occMod(model=list(psi~1, p~1),    data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems)),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~OakDBH),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Log.in.View),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Raccoon.EDD),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems)),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Raccoon.EDD),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + OakDBH),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + Log.in.View),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + Raccoon.EDD),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Raccoon.EDD),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Log.in.View + Raccoon.EDD),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems) + OakDBH),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems) + Log.in.View),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems) + Raccoon.EDD),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Log.in.View),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Raccoon.EDD),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View + Raccoon.EDD),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + OakDBH + Log.in.View),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + OakDBH + Raccoon.EDD),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + Log.in.View + Raccoon.EDD),data=pSumPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View + Raccoon.EDD),data=pSumPL,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~1),    data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~OakDBH),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Log.in.View),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Raccoon.EDD),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Num_Stems),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Raccoon.EDD),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + OakDBH),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + Log.in.View),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + Raccoon.EDD),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Raccoon.EDD),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Log.in.View + Raccoon.EDD),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Num_Stems + OakDBH),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Num_Stems + Log.in.View),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Num_Stems + Raccoon.EDD),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Log.in.View),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Raccoon.EDD),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View + Raccoon.EDD),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + OakDBH + Log.in.View),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + OakDBH + Raccoon.EDD),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + Log.in.View + Raccoon.EDD),data=pSumPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View + Raccoon.EDD),data=pSumPL2,type="so");i=i+1
 
 
 #     create AIC table of model results and print
 resultsSumPL <- createAicTable(mods)
 resultsSumPL$table
 
-bestSumPL <- occMod(model = list(psi~1, p ~ log10(Num_Stems) + Raccoon.EDD),data = pSumPL,type = "so")
+bestSumPL <- occMod(model = list(psi~1, p ~ Num_Stems),data = pSumPL2,type = "so")
 bestSumPL$beta$p
 
 #Sum up model weights for each of the 5 covariates
@@ -216,45 +237,54 @@ load("data/racDataFall.RData") #I'm using general squirrel data here because the
 covFallPL <- racDataFall %>%
   select(Deployment_Name, Height_cm, Num_Stems, OakDBH, Log.in.View, Raccoon.EDD)
 
+#Created scaled version of the covariates file. 
+covFallPL2 <- covFallPL %>%
+  mutate(Height_cm = scale(Height_cm),
+         Num_Stems = scale(Num_Stems),
+         OakDBH = scale(OakDBH),
+         Raccoon.EDD = scale(Raccoon.EDD))
+
+
 #Create input file for RPresence
 pFallPL <- createPao(DHFallPL,unitcov = covFallPL,title="RaccoonFall",unitnames=sitenamesShort)
+pFallPL2 <- createPao(DHFallPL,unitcov = covFallPL2,title="RaccoonFall-scaled",unitnames=sitenamesShort)
 
 
 
 mods=list(); i=1
-mods[[i]]=occMod(model=list(psi~1, p~1),    data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems)),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~OakDBH),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Log.in.View),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Raccoon.EDD),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems)),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Raccoon.EDD),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + OakDBH),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + Log.in.View),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + Raccoon.EDD),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Raccoon.EDD),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Log.in.View + Raccoon.EDD),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems) + OakDBH),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems) + Log.in.View),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + log10(Num_Stems) + Raccoon.EDD),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Log.in.View),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Raccoon.EDD),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View + Raccoon.EDD),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + OakDBH + Log.in.View),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + OakDBH + Raccoon.EDD),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~log10(Num_Stems) + Log.in.View + Raccoon.EDD),data=pFallPL,type="so");i=i+1
-mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View + Raccoon.EDD),data=pFallPL,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~1),    data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~OakDBH),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Log.in.View),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Raccoon.EDD),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Num_Stems),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Raccoon.EDD),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + OakDBH),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + Log.in.View),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + Raccoon.EDD),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Raccoon.EDD),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Log.in.View + Raccoon.EDD),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Num_Stems + OakDBH),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Num_Stems + Log.in.View),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Num_Stems + Raccoon.EDD),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Log.in.View),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + OakDBH + Raccoon.EDD),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Height_cm + Log.in.View + Raccoon.EDD),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + OakDBH + Log.in.View),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + OakDBH + Raccoon.EDD),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~Num_Stems + Log.in.View + Raccoon.EDD),data=pFallPL2,type="so");i=i+1
+mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View + Raccoon.EDD),data=pFallPL2,type="so");i=i+1
 
 
 #     create AIC table of model results and print
 resultsFallPL <- createAicTable(mods)
 resultsFallPL$table
 
-bestFallPL <- occMod(model = list(psi ~ 1, p ~ log10(Num_Stems) + OakDBH + Log.in.View),data = pFallPL,type = "so") 
+bestFallPL <- occMod(model = list(psi ~ 1, p ~ Num_Stems + OakDBH + Log.in.View),data = pFallPL2,type = "so") 
 bestFallPL$beta$p
 
 #Sum up model weights for each of the 5 covariates
