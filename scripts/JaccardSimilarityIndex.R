@@ -80,6 +80,7 @@ cluster_similarity(DFDHFALLOV$`0101_F17` , DFDHFALLOV$`0102_F17`, similarity="ja
 #When i was looking at this code online, I believe the author posted one version with two options
 ##of looking at either columns or rows. I've tried to narrow it down to one, but I'm not sure if I've done it right.
 ##I believe "margin ==2" means columns and "margin ==1" is rows.
+##The original code is from https://stats.stackexchange.com/questions/176613/jaccard-similarity-in-r
 library(dplyr)
 library(magrittr)
 jaccard <- function(DFDHFALLOV, margin=2) {
