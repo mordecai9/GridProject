@@ -66,16 +66,21 @@ DHWinUA <- temp
 load("results/DetHistWinProcyon lotor")
 DHWinPL <- temp
 
-#Changing Temp Files to Data Frames
+#Changing Temp Files to Data Frames With the Camera names as column names
 DFDHFALLOV<-as.data.frame(t(DHFallOV))
 
-##Jaccard Index between Cameras (same season and species)
+##Jaccard Index between Cameras (same season and species)##
 
-#One code attempt
+#First code attempt
+#If my math is correct, this produces a wrong answer
 library('clusteval')
 cluster_similarity(DFDHFALLOV$`0101_F17` , DFDHFALLOV$`0102_F17`, similarity="jaccard", method="independence")
 
 #Second code attempt
+#When i was looking at this code online, I believe the author posted one version with two options
+##of either looking at  columns or rows. I've tried to narrow it down to one, but I'm not sure if I've done it right.
+##I believe "margin ==2" means columns and "margin ==1" is rows.
+##The original code is from https://stats.stackexchange.com/questions/176613/jaccard-similarity-in-r
 library(dplyr)
 library(magrittr)
 jaccard <- function(DFDHFALLOV, margin=2) {
@@ -109,3 +114,4 @@ jaccard_per_column <- function(DFDHFALLOV, margin=2){
 
 jaccard_per_column(DFDHFALLOV, margin=2)
 
+##Next would be to compare two data frames of different seasons (same species)##
