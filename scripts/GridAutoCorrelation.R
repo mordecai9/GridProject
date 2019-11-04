@@ -278,6 +278,13 @@ library(geoR) #for variograms
 #Then take inverse of distance matrix and fill diagonals with 0
 distMatS<-as.matrix(dist(cbind(deerSumCR$NAD83_X, deerSumCR$NAD83_Y)))
 
+#This code prepares a file used for Jaccard similarity calcs
+distMatS_named <- as.data.frame(distMatS)
+row.names(distMatS_named) <- deerSumCR$Deployment
+names(distMatS_named) <- deerSumCR$Deployment
+save(distMatS_named, file = "data/distMatrix")
+
+
 #Checking min and max intercamera distance, which is 15.82 and 114.7292
 diag(distMatS) <- NA
 min(distMatS[!is.na(distMatS)])
