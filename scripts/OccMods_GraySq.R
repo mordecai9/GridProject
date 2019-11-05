@@ -101,6 +101,10 @@ resultsSpSC$table
 bestSpSC <- occMod(model=list(psi~1, p~OakDBH + Log.in.View * Squirrel_EDD_WSp),data=pSpSC2,type="so") 
 bestSpSC$beta$p
 
+#Average detection probability (Oak, Log, Squirrel EDD Wsp)
+MeanpGrSq <- predict(bestSpSC, newdata = data.frame(Log.in.View = factor("NO", levels=c("NO", "YES")), OakDBH = mean(covSpSC2$OakDBH), Squirrel_EDD_WSp = mean(covSpSC2$Squirrel_EDD_WSp)), param = "p", conf= 0.95)
+row.names(MeanpGrSq) <- "Gray Sq Spring"
+
 #Sum up model weights for each of the 5 covariates
 mnames=resultsSpSC$table$Model;
 for (s in c("Height","Oak", "Stems", "Log", "EDD")) {
@@ -186,6 +190,9 @@ resultsWinSC$table
 
 bestWinSC <- occMod(model=list(psi~1, p ~ poly(Height_cm, 2, raw = T) + Log.in.View * Squirrel_EDD_WSp),data=pWinSC2,type="so")
 bestWinSC$beta$p
+
+MeanpGrSq[2,] <- predict(bestWinSC, newdata = data.frame(Height_cm = mean(covWinSC2$Height_cm), Log.in.View = factor("NO", levels=c("NO", "YES")), Squirrel_EDD_WSp = mean(covWinSC2$Squirrel_EDD_WSp)), param = "p", conf= 0.95)
+row.names(MeanpGrSq)[2] <- "Gray Sq Winter"
 
 #Sum up model weights for each of the 5 covariates
 mnames=resultsWinSC$table$Model;
@@ -326,6 +333,10 @@ resultsSumSC$table
 bestSumSC <- occMod(model = list(psi~1, p ~ OakDBH + Log.in.View + Squirrel_EDD_4S),data = pSumSC2,type = "so")
 bestSumSC$beta$p
 
+#Average detection probability (Oak, Log, Squirrel EDD 4S)
+MeanpGrSq[3,] <- predict(bestSumSC, newdata = data.frame(OakDBH = mean(covSumSC2$OakDBH), Log.in.View = factor("NO", levels=c("NO", "YES")), Squirrel_EDD_4S = mean(covSumSC2$Squirrel_EDD_4S)), param = "p", conf= 0.95)
+row.names(MeanpGrSq)[3] <- "Gray Sq Summer"
+
 #Sum up model weights for each of the 5 covariates
 mnames=resultsSumSC$table$Model;
 for (s in c("Height","Oak", "Stems", "Log", "EDD")) {
@@ -410,6 +421,11 @@ resultsFallSC$table
 
 bestFallSC <- occMod(model=list(psi~1, p~OakDBH + Log.in.View * Squirrel_EDD_4S),data=pFallSC2,type="so") 
 bestFallSC$beta$p
+
+#Average detection probability (Oak, Log, Squirrel EDD 4S)
+MeanpGrSq[4,] <- predict(bestFallSC, newdata = data.frame(OakDBH = mean(covFallSC2$OakDBH), Log.in.View = factor("NO", levels=c("NO", "YES")), Squirrel_EDD_4S = mean(covFallSC2$Squirrel_EDD_4S)), param = "p", conf= 0.95)
+row.names(MeanpGrSq)[4] <- "Gray Sq Fall"
+save(MeanpGrSq, file = "results/MeanPSeasons_GrSq")
 
 #Sum up model weights for each of the 5 covariates
 mnames=resultsFallSC$table$Model;

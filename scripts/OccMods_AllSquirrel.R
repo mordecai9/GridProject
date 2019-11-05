@@ -95,6 +95,10 @@ resultsSpSQ$table
 bestSpSQ <- occMod(model=list(psi~1, p~Log.in.View * Squirrel_EDD_WSp),data=pSpSQ2,type="so") 
 bestSpSQ$beta$p
 
+#Average detection probability (Log, Squirrel EDD Wsp)
+MeanpSq <- predict(bestSpSQ, newdata = data.frame(Log.in.View = factor("NO", levels=c("NO", "YES")), Squirrel_EDD_WSp = mean(covSpSQ2$Squirrel_EDD_WSp)), param = "p", conf= 0.95)
+row.names(MeanpSq) <- "All Sq Spring"
+
 #Sum up model weights for each of the 5 covariates
 mnames=resultsSpSQ$table$Model;
 for (s in c("Height","Oak", "Stems", "Log", "EDD")) {
@@ -183,6 +187,10 @@ resultsWinSQ$table
 
 bestWinSQ <- occMod(model=list(psi~1, p ~ Num_Stems + Log.in.View * Squirrel_EDD_WSp),data=pWinSQ2,type="so")
 bestWinSQ$beta$p
+
+#Average detection probability (Stems, Log, Squirrel EDD Wsp)
+MeanpSq[2,] <- predict(bestWinSQ, newdata = data.frame(Num_Stems = mean(covWinSQ2$Num_Stems), Log.in.View = factor("NO", levels=c("NO", "YES")), Squirrel_EDD_WSp = mean(covWinSQ2$Squirrel_EDD_WSp)), param = "p", conf= 0.95)
+row.names(MeanpSq)[2] <- "All Sq Winter"
 
 #Sum up model weights for each of the 5 covariates
 mnames=resultsWinSQ$table$Model;
@@ -300,6 +308,10 @@ resultsSumSQ$table
 bestSumSQ <- occMod(model = list(psi~1, p ~ Height_cm + Log.in.View + Squirrel_EDD_4S),data = pSumSQ2,type = "so")
 bestSumSQ$beta$p
 
+#Average detection probability (Height, Log, Squirrel EDD 4S)
+MeanpSq[3,] <- predict(bestSumSQ, newdata = data.frame(Height_cm = mean(covSumSQ2$Height_cm), Log.in.View = factor("NO", levels=c("NO", "YES")), Squirrel_EDD_4S = mean(covSumSQ2$Squirrel_EDD_4S)), param = "p", conf= 0.95)
+row.names(MeanpSq)[3] <- "All Sq Summer"
+
 #Sum up model weights for each of the 5 covariates
 mnames=resultsSumSQ$table$Model;
 for (s in c("Height","Oak", "Stems", "Log", "EDD")) {
@@ -383,6 +395,11 @@ resultsFallSQ$table
 
 bestFallSQ <- occMod(model=list(psi~1, p ~ Log.in.View * Squirrel_EDD_4S),data=pFallSQ2,type="so") 
 bestFallSQ$beta$p
+
+#Average detection probability (Log, Squirrel EDD 4S)
+MeanpSq[4,] <- predict(bestFallSQ, newdata = data.frame(Log.in.View = factor("NO", levels=c("NO", "YES")), Squirrel_EDD_4S = mean(covFallSQ2$Squirrel_EDD_4S)), param = "p", conf= 0.95)
+row.names(MeanpSq)[4] <- "All Sq Fall"
+save(MeanpSq, file = "results/MeanPSeasons_AllSq")
 
 #Sum up model weights for each of the 5 covariates
 mnames=resultsFallSQ$table$Model;

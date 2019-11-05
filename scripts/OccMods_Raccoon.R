@@ -83,6 +83,10 @@ resultsSpPL$table
 bestSpPL <- occMod(model=list(psi~1, p~OakDBH),data=pSpPL2,type="so") 
 bestSpPL$beta$p
 
+#Average detection probability (Oak)
+MeanpRac <- predict(bestSpPL, newdata = data.frame(OakDBH = mean(covSpPL2$OakDBH)), param = "p", conf= 0.95)
+row.names(MeanpRac) <- "Raccoon Spring"
+
 #Sum up model weights for each of the 5 covariates
 mnames=resultsSpPL$table$Model;
 for (s in c("Height","Oak", "Stems", "Log", "EDD")) {
@@ -151,6 +155,11 @@ resultsWinPL$table
 bestWinPL <- occMod(model=list(psi~1, p ~ Height_cm + Num_Stems + Log.in.View),data=pWinPL2,type="so")
 bestWinPL$beta$p
 
+#Average detection probability (Stems, Log, Height_cm)
+MeanpRac[2,] <- predict(bestWinPL, newdata = data.frame(Num_Stems = mean(covWinPL2$Num_Stems), Log.in.View = factor("NO", levels=c("NO", "YES")), Height_cm = mean(covWinPL2$Height_cm)), param = "p", conf= 0.95)
+row.names(MeanpRac)[2] <- "Raccoon Winter"
+
+
 #Sum up model weights for each of the 5 covariates
 mnames=resultsWinPL$table$Model;
 for (s in c("Height","Oak", "Stems", "Log", "EDD")) {
@@ -217,6 +226,10 @@ resultsSumPL$table
 
 bestSumPL <- occMod(model = list(psi~1, p ~ Num_Stems),data = pSumPL2,type = "so")
 bestSumPL$beta$p
+
+#Average detection probability (Height, Log, Squirrel EDD 4S)
+MeanpRac[3,] <- predict(bestSumPL, newdata = data.frame(Num_Stems = mean(covSumPL2$Num_Stems)), param = "p", conf= 0.95)
+row.names(MeanpRac)[3] <- "Raccoon Summer"
 
 #Sum up model weights for each of the 5 covariates
 mnames=resultsSumPL$table$Model;
@@ -286,6 +299,11 @@ resultsFallPL$table
 
 bestFallPL <- occMod(model = list(psi ~ 1, p ~ Num_Stems + OakDBH + Log.in.View),data = pFallPL2,type = "so") 
 bestFallPL$beta$p
+
+#Average detection probability (Stems, Log, Oak)
+MeanpRac[4,] <- predict(bestFallPL, newdata = data.frame(Log.in.View = factor("NO", levels=c("NO", "YES")), Num_Stems = mean(covFallPL2$Num_Stems), OakDBH = mean(covFallPL2$OakDBH)), param = "p", conf= 0.95)
+row.names(MeanpRac)[4] <- "Raccoon Fall"
+save(MeanpRac, file = "results/MeanPSeasons_Rac")
 
 #Sum up model weights for each of the 5 covariates
 mnames=resultsFallPL$table$Model;

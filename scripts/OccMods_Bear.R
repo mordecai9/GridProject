@@ -77,6 +77,11 @@ resultsSumUA$table
 bestSumUA <- occMod(model = list(psi~1, p ~ Log.in.View + Summer.Fall.EDD),data = pSumUA2,type = "so")
 bestSumUA$beta$p
 
+#Average detection probability (Log in View, Summer.Fall EDD)
+
+MeanpBear <- predict(bestSumUA, newdata = data.frame(Log.in.View = factor("NO", levels=c("NO", "YES")), Summer.Fall.EDD = mean(covSumUA2$Summer.Fall.EDD)), param = "p", conf= 0.95)
+row.names(MeanpBear)[1] <- "Bear Summer"
+
 #Sum up model weights for each of the 5 covariates
 mnames=resultsSumUA$table$Model;
 for (s in c("Height","Oak", "Stems", "Log", "EDD")) {
@@ -143,6 +148,12 @@ resultsFallUA$table
 
 bestFallUA <- occMod(model = list(psi ~ 1, p ~ OakDBH + Summer.Fall.EDD),data = pFallUA2,type = "so") 
 bestFallUA$beta$p
+
+#Average detection probability (OakDBH, Summer.Fall EDD)
+
+MeanpBear[2,] <- predict(bestFallUA, newdata = data.frame(OakDBH = mean(covFallUA2$OakDBH), Summer.Fall.EDD = mean(covFallUA2$Summer.Fall.EDD)), param = "p", conf= 0.95)
+row.names(MeanpBear)[2] <- "Bear Fall"
+save(MeanpBear, file = "results/MeanPSeasonsBear")
 
 #Sum up model weights for each of the 5 covariates
 mnames=resultsFallUA$table$Model;

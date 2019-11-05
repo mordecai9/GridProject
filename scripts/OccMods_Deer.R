@@ -92,6 +92,12 @@ resultsSpOV$table
 
 bestSpOV <- occMod(model=list(psi~1, p~Num_Stems + Log.in.View),data=pSpOV2,type="so") 
 bestSpOV$beta$p
+bestSpOV$real$p[1:27,]
+
+#Average detection probability (mean # of stems, log absent)
+MeanpDeer <- predict(bestSpOV, newdata = data.frame(Num_Stems = mean(covSpOV2$Num_Stems), Log.in.View = factor("NO", levels=c("NO", "YES"))), param = "p", conf= 0.95)
+row.names(MeanpDeer) <- "Deer Spring"
+
 
 #Sum up model weights for each of the 5 covariates
 mnames=resultsSpOV$table$Model;
@@ -172,6 +178,10 @@ resultsWinOV$table
 bestWinOV <- occMod(model=list(psi~1, p ~ Num_Stems + Winter.Spring.EDD),data=pWinOV2,type="so")
 bestWinOV$beta$p
 
+#Average detection probability (mean # of stems, Winter.Spring EDD)
+MeanpDeer[2,] <- predict(bestWinOV, newdata = data.frame(Num_Stems = mean(covWinOV2$Num_Stems), Winter.Spring.EDD = mean(covWinOV2$Winter.Spring.EDD)), param = "p", conf= 0.95)
+row.names(MeanpDeer)[2] <- "Deer Winter"
+
 #Sum up model weights for each of the 5 covariates
 mnames=resultsWinOV$table$Model;
 for (s in c("Height","Oak", "Stems", "Log", "EDD")) {
@@ -240,6 +250,10 @@ resultsSumOV$table
 bestSumOV <- occMod(model = list(psi~1, p ~ Log.in.View + Summer.Fall.EDD),data = pSumOV2,type = "so")
 bestSumOV$beta$p
 
+#Average detection probability (Log in View, Summer.Fall EDD)
+MeanpDeer[3,] <- predict(bestSumOV, newdata = data.frame(Log.in.View = factor("NO", levels=c("NO", "YES")), Summer.Fall.EDD = mean(covSumOV2$Summer.Fall.EDD)), param = "p", conf= 0.95)
+row.names(MeanpDeer)[3] <- "Deer Summer"
+
 #Sum up model weights for each of the 5 covariates
 mnames=resultsSumOV$table$Model;
 for (s in c("Height","Oak", "Stems", "Log", "EDD")) {
@@ -307,6 +321,11 @@ resultsFallOV$table
 
 bestFallOV <- occMod(model = list(psi ~ 1, p ~ 1),data = pFallOV2,type = "so") 
 bestFallOV$beta$p
+unique(bestFallOV$real$p)
+
+MeanpDeer[4,] <- unique(bestFallOV$real$p)
+row.names(MeanpDeer)[4] <- "Deer Fall"
+save(MeanpDeer, file = "results/MeanPSeasons")
 
 #Sum up model weights for each of the 5 covariates
 mnames=resultsFallOV$table$Model;

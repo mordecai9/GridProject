@@ -43,7 +43,7 @@ covSpSN2 <- covSpSN %>%
          Squirrel_EDD_WSp = scale(Squirrel_EDD_WSp))
 
 #Create input file for RPresence and scaled version
-pSpSN <- createPao(DHSpSN,unitcov = covSpSN,title="Fox Squirrel Spring",unitnames=sitenamesFull)
+#pSpSN <- createPao(DHSpSN,unitcov = covSpSN,title="Fox Squirrel Spring",unitnames=sitenamesFull)
 pSpSN2 <- createPao(DHSpSN,unitcov = covSpSN2,title="Fox Squirrel Spring",unitnames=sitenamesFull)
 
 #Test to see if quadratic effect on height improves the height only model
@@ -105,6 +105,10 @@ bestSpSN <- occMod(model=list(psi~1, p~poly(Height_cm, 2, raw = T)+ Squirrel_EDD
 unique(bestSpSN$real$p) 
 unique(bestSpSN$real$psi)
 bestSpSN$beta$p
+
+#Average detection probability (Height, Squirrel EDD Wsp)
+MeanpFoxSq <- predict(bestSpSN, newdata = data.frame(Height_cm = mean(covSpSN2$Height_cm), Squirrel_EDD_WSp = mean(covSpSN2$Squirrel_EDD_WSp)), param = "p", conf= 0.95)
+row.names(MeanpFoxSq) <- "Fox Sq Spring"
 
 #Sum up model weights for each of the 5 covariates
 mnames=resultsSpSN$table$Model;
@@ -220,6 +224,9 @@ mods[[9]]$beta$p
 
 bestWinSN <- occMod(model=list(psi~1, p ~ Num_Stems + Log.in.View * Squirrel_EDD_WSp),data=pWinSN2,type="so")
 bestWinSN$beta$p
+
+MeanpFoxSq[2,] <- predict(bestWinSN, newdata = data.frame(Num_Stems = mean(covWinSN2$Num_Stems), Log.in.View = factor("NO", levels=c("NO", "YES")), Squirrel_EDD_WSp = mean(covWinSN2$Squirrel_EDD_WSp)), param = "p", conf= 0.95)
+row.names(MeanpFoxSq)[2] <- "Fox Sq Winter"
 
 #Sum up model weights for each of the 5 covariates
 mnames=resultsWinSN$table$Model;
@@ -337,9 +344,12 @@ resultsSumSN$table
 
 bestSumSN <- occMod(model=list(psi~1, p~Height_cm + Log.in.View + Squirrel_EDD_4S),data=pSumSN2,type="so")
 summary(bestSumSN)
-unique(bestSumSN$real$p) #the NAs indicate maybe this model didn't work...
+unique(bestSumSN$real$p) 
 unique(bestSumSN$real$psi)
 bestSumSN$beta$p
+
+MeanpFoxSq[3,] <- predict(bestSumSN, newdata = data.frame(Height_cm = mean(covSumSN2$Height_cm), Log.in.View = factor("NO", levels=c("NO", "YES")), Squirrel_EDD_4S = mean(covSumSN2$Squirrel_EDD_4S)), param = "p", conf= 0.95)
+row.names(MeanpFoxSq)[3] <- "Fox Sq Summer"
 
 #Sum up model weights for each of the 5 covariates
 mnames=resultsSumSN$table$Model;
@@ -374,7 +384,8 @@ FSqSumHgtPlot <- ggplot(predPlotFSumHgt, aes(x=(Height_cm*sd(covSumSN$Height_cm)
 
 # Fox Squirrel Occupancy Models in Fall ---------------------------------
 
-
+sitenamesFall <- row.names(as.data.frame(DHFallSN)) 
+nsitesFall=nrow(DHFallSN) 
 nSURVEYsFallSN=ncol(DHFallSN)  #  set number of sites,surveys from det. history data
 
 #create covariates file
@@ -391,8 +402,8 @@ covFallSN2 <- covFallSN %>%
          Squirrel_EDD_4S = scale(Squirrel_EDD_4S))
 
 #Create input file for RPresence
-pFallSN <- createPao(DHFallSN,unitcov = covFallSN,title="Fox Squirrel Fall",unitnames=sitenamesShort)
-pFallSN2 <- createPao(DHFallSN,unitcov = covFallSN2,title="Fox Squirrel Fall - scaled",unitnames=sitenamesShort)
+pFallSN <- createPao(DHFallSN,unitcov = covFallSN,title="Fox Squirrel Fall",unitnames=sitenamesFall)
+pFallSN2 <- createPao(DHFallSN,unitcov = covFallSN2,title="Fox Squirrel Fall - scaled",unitnames=sitenamesFall)
 
 #Test to see if quadratic effect on height improves the height only model
 
@@ -446,8 +457,12 @@ mods[[i]]=occMod(model=list(psi~1, p~OakDBH + Log.in.View + Squirrel_EDD_4S),dat
 resultsFallSN <- createAicTable(mods)
 resultsFallSN$table
 
-bestFallSN <- occMod(model=list(psi~1, p~Num_Stems + Log.in.View + Squirrel_EDD_4S),data=pFallSN,type="so") 
+bestFallSN <- occMod(model=list(psi~1, p~Num_Stems + Log.in.View + Squirrel_EDD_4S),data=pFallSN2,type="so") 
 bestFallSN$beta$p
+
+MeanpFoxSq[4,] <- predict(bestFallSN, newdata = data.frame(Num_Stems = mean(covFallSN2$Num_Stems), Log.in.View = factor("NO", levels=c("NO", "YES")), Squirrel_EDD_4S = mean(covFallSN2$Squirrel_EDD_4S)), param = "p", conf= 0.95)
+row.names(MeanpFoxSq)[4] <- "Fox Sq Fall"
+save(MeanpFoxSq, file = "results/MeanPSeasons_FoxSq")
 
 #Sum up model weights for each of the 5 covariates
 mnames=resultsFallSN$table$Model;
