@@ -50,6 +50,27 @@ CRAll$TotCR <- (CRAll$TotalSeqs/totEffort)*100
 #Overall CapRates by Season (not MEANS)
 camdata_summary <- merge(camdata_summary, seasonID, by = "Deployment_Name" )
 
+#Summary of # of species in each season
+camdata_summary %>% 
+  filter(Season == "Summer 2017" & Number_of_Sequences > 0) %>% 
+  select(Species) %>% 
+  distinct() #11 species in Summer
+
+camdata_summary %>% 
+  filter(Season == "Fall 2017" & Number_of_Sequences > 0) %>% 
+  select(Species) %>% 
+  distinct() #12 species in fall
+
+camdata_summary %>% 
+  filter(Season == "Winter 2017" & Number_of_Sequences > 0) %>% 
+  select(Species) %>% 
+  distinct() #13 species in Winter
+
+camdata_summary %>% 
+  filter(Season == "Spring 2018" & Number_of_Sequences > 0) %>% 
+  select(Species) %>% 
+  distinct() #12 species in Spring
+
 CRSeasonTots <- as.data.frame(tapply(camdata_summary$Number_of_Sequences, list(camdata_summary$Species, camdata_summary$Season), sum))
 names(CRSeasonTots) <- c("FallSeqs", "SpringSeqs", "SummerSeqs", "WinterSeqs")
 CRSeasonTots$FallCR <- CRSeasonTots$FallSeqs/seasonEffort$camNights[1]*100
