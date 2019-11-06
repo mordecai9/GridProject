@@ -3,7 +3,9 @@
 
 #Galvez et al 2016 did this, but we do not have access to his script.
 
-library(jaccard) #this doesn't seem to work because it has "qvalue" as a dependency and this is no longer available it seems
+#library(jaccard) #this doesn't seem to work because it has "qvalue" as a dependency and this is no longer available it seems
+rm(list = ls())
+# Load Species Detection Histories ----------------------------------------
 
 ##Load species files for Spring
 load("results/DetHistSpSciurus niger")
@@ -11,6 +13,8 @@ DHSpSN <- temp
 
 load("results/DetHistSpSciurus carolinensis")
 DHSpSC <- temp
+
+load("results/DetHistSpring_AllSquirrel")
 
 load("results/DetHistSpOdocoileus virginianus")
 DHSpOV <- temp
@@ -28,6 +32,8 @@ DHSumSN <- temp
 load("results/DetHistSumSciurus carolinensis")
 DHSumSC <- temp
 
+load("results/DetHistSum_AllSquirrel")
+
 load("results/DetHistSumOdocoileus virginianus")
 DHSumOV <- temp
 
@@ -43,6 +49,8 @@ DHFallSN <- temp
 
 load("results/DetHistFallSciurus carolinensis")
 DHFallSC <- temp
+
+load("results/DetHistFall_AllSquirrel")
 
 load("results/DetHistFallOdocoileus virginianus")
 DHFallOV <- temp
@@ -60,6 +68,8 @@ DHWinSN <- temp
 load("results/DetHistWinSciurus carolinensis")
 DHWinSC <- temp
 
+load("results/DetHistWin_AllSquirrel")
+
 load("results/DetHistWinOdocoileus virginianus")
 DHWinOV <- temp
 
@@ -70,14 +80,14 @@ load("results/DetHistWinProcyon lotor")
 DHWinPL <- temp
 
 #Changing Temp Files to Data Frames With the Camera names as column names
-DFDHFALLOV<-as.data.frame(t(DHFallOV))
+#DFDHFALLOV<-as.data.frame(t(DHFallOV))
 
 ##Jaccard Index between Cameras (same season and species)##
 
 #First code attempt
 #If my math is correct, this produces a wrong answer
-library('clusteval')
-cluster_similarity(DFDHFALLOV$`0101_F17` , DFDHFALLOV$`0102_F17`, similarity="jaccard", method="independence")
+#library('clusteval')
+#cluster_similarity(DFDHFALLOV$`0101_F17` , DFDHFALLOV$`0102_F17`, similarity="jaccard", method="independence")
 #Looks like this cluster similarity ignores position, so it doesn't matter when the 1s and 0s happen, I think. So we shouldn't use this.
 
 
@@ -173,6 +183,9 @@ for (i in 1:nrow(jacSpSN)) {
 
 }
 
+jacSpSN$Season <- "Spring"
+jacSpSN$Species <- "Fox Squirrel"
+
 #Graph the similarity index by distance
 
 foxSqJacPlot_SP <- ggplot(data = jacSpSN, mapping = aes(x = dist, y = JSim)) +
@@ -204,6 +217,9 @@ for (i in 1:nrow(jacSumSN)) {
   jacSumSN$dist[i] <- distMatS_named[as.character(as.numeric(jacSumSN$cam1[i])),as.character(as.numeric(jacSumSN$cam2[i]))]
   
 }
+
+jacSumSN$Season <- "Summer"
+jacSumSN$Species <- "Fox Squirrel"
 
 #Graph the similarity index by distance
 
@@ -237,6 +253,9 @@ for (i in 1:nrow(jacWinSN)) {
   
 }
 
+jacWinSN$Season <- "Winter"
+jacWinSN$Species <- "Fox Squirrel"
+
 #Graph the similarity index by distance
 
 foxSqJacPlot_Win <- ggplot(data = jacWinSN, mapping = aes(x = dist, y = JSim)) +
@@ -245,7 +264,7 @@ foxSqJacPlot_Win <- ggplot(data = jacWinSN, mapping = aes(x = dist, y = JSim)) +
   xlim(10,120)
 foxSqJacPlot_Win
 
-#Winter Fox Squirrel
+#Fall Fox Squirrel
 DHFallSN_b <- as.data.frame(DHFallSN) %>%
   dplyr::select(-1) 
 
@@ -269,6 +288,9 @@ for (i in 1:nrow(jacFallSN)) {
   
 }
 
+jacFallSN$Season <- "Fall"
+jacFallSN$Species <- "Fox Squirrel"
+
 #Graph the similarity index by distance
 
 foxSqJacPlot_Fall <- ggplot(data = jacFallSN, mapping = aes(x = dist, y = JSim)) +
@@ -277,6 +299,291 @@ foxSqJacPlot_Fall <- ggplot(data = jacFallSN, mapping = aes(x = dist, y = JSim))
   xlim(10,120)
 foxSqJacPlot_Fall
 
+# Gray Squirrel Jaccard Calculations and Graph -----------------------------
+#Need to remove cameras and ocassions that had NAs to make it work. First I pull out the first ocassion, because cameras were set on different days. Then I remove rows that have NAs.
+
+#Spring Gray Squirrel
+DHSpSC_b <- as.data.frame(DHSpSC) %>%
+  dplyr::select(-1) 
+
+DHSpSC_b <- DHSpSC_b[which(complete.cases(DHSpSC_b)),]
+
+#Calculates jaccard similarity, and the inverse   
+jacSpSC <- jaccard_per_row(DHSpSC_b, margin=2)
+
+#Creating columns representing each of the two cameras
+jacSpSC$cam1 <- gsub("_.*", "", row.names(jacSpSC))
+jacSpSC$cam2 <- substr(row.names(jacSpSC), 11, 14)
+
+#removes comparisons of same camera to same camera
+jacSpSC <-jacSpSC[which(jacSpSC$cam1 != jacSpSC$cam2), ]
+
+#Pull intercamera distances from distance matrix based on value of the two cameras
+jacSpSC$dist <- NA
+
+for (i in 1:nrow(jacSpSC)) {
+  jacSpSC$dist[i] <- distMatS_named[as.character(as.numeric(jacSpSC$cam1[i])),as.character(as.numeric(jacSpSC$cam2[i]))]
+  
+}
+
+jacSpSC$Season <- "Spring"
+jacSpSC$Species <- "Gray Squirrel"
+
+#Graph the similarity index by distance
+
+GraySqJacPlot_SP <- ggplot(data = jacSpSC, mapping = aes(x = dist, y = JSim)) +
+  geom_point() +
+  ylim(0, 1) +
+  xlim(10,120)
+GraySqJacPlot_SP
+
+#Summer Gray Squirrel
+DHSumSC_b <- as.data.frame(DHSumSC) %>%
+  dplyr::select(-1) 
+
+DHSumSC_b <- DHSumSC_b[which(complete.cases(DHSumSC_b)),]
+
+#Calculates jaccard similarity, and the inverse   
+jacSumSC <- jaccard_per_row(DHSumSC_b, margin=2)
+
+#Creating columns representing each of the two cameras
+jacSumSC$cam1 <- gsub("-.*", "", row.names(jacSumSC))
+jacSumSC$cam2 <- substr(row.names(jacSumSC), 10, 13)
+
+#removes comparisons of same camera to same camera
+jacSumSC <-jacSumSC[which(jacSumSC$cam1 != jacSumSC$cam2), ]
+
+#Pull intercamera distances from distance matrix based on value of the two cameras
+jacSumSC$dist <- NA
+
+for (i in 1:nrow(jacSumSC)) {
+  jacSumSC$dist[i] <- distMatS_named[as.character(as.numeric(jacSumSC$cam1[i])),as.character(as.numeric(jacSumSC$cam2[i]))]
+  
+}
+
+jacSumSC$Season <- "Summer"
+jacSumSC$Species <- "Gray Squirrel"
+
+#Graph the similarity index by distance
+
+GraySqJacPlot_SUM <- ggplot(data = jacSumSC, mapping = aes(x = dist, y = JSim)) +
+  geom_point() +
+  ylim(0, 1) +
+  xlim(10,120)
+GraySqJacPlot_SUM
+
+#Winter Gray Squirrel
+DHWinSC_b <- as.data.frame(DHWinSC) %>%
+  dplyr::select(-1) 
+
+DHWinSC_b <- DHWinSC_b[which(complete.cases(DHWinSC_b)),]
+
+#Calculates jaccard similarity, and the inverse   
+jacWinSC <- jaccard_per_row(DHWinSC_b, margin=2)
+
+#Creating columns representing each of the two cameras
+jacWinSC$cam1 <- gsub("_.*", "", row.names(jacWinSC))
+jacWinSC$cam2 <- substr(row.names(jacWinSC), 10, 13)
+
+#removes comparisons of same camera to same camera
+jacWinSC <-jacWinSC[which(jacWinSC$cam1 != jacWinSC$cam2), ]
+
+#Pull intercamera distances from distance matrix based on value of the two cameras
+jacWinSC$dist <- NA
+
+for (i in 1:nrow(jacWinSC)) {
+  jacWinSC$dist[i] <- distMatS_named[as.character(as.numeric(jacWinSC$cam1[i])),as.character(as.numeric(jacWinSC$cam2[i]))]
+  
+}
+
+jacWinSC$Season <- "Winter"
+jacWinSC$Species <- "Gray Squirrel"
+
+#Graph the similarity index by distance
+
+GraySqJacPlot_Win <- ggplot(data = jacWinSC, mapping = aes(x = dist, y = JSim)) +
+  geom_point() +
+  ylim(0, 1) +
+  xlim(10,120)
+GraySqJacPlot_Win
+
+#Fall Gray Squirrel
+DHFallSC_b <- as.data.frame(DHFallSC) %>%
+  dplyr::select(-1) 
+
+DHFallSC_b <- DHFallSC_b[which(complete.cases(DHFallSC_b)),]
+
+#Calculates jaccard similarity, and the inverse   
+jacFallSC <- jaccard_per_row(DHFallSC_b, margin=2)
+
+#Creating columns representing each of the two cameras
+jacFallSC$cam1 <- gsub("_.*", "", row.names(jacFallSC))
+jacFallSC$cam2 <- substr(row.names(jacFallSC), 10, 13)
+
+#removes comparisons of same camera to same camera
+jacFallSC <-jacFallSC[which(jacFallSC$cam1 != jacFallSC$cam2), ]
+
+#Pull intercamera distances from distance matrix based on value of the two cameras
+jacFallSC$dist <- NA
+
+for (i in 1:nrow(jacFallSC)) {
+  jacFallSC$dist[i] <- distMatS_named[as.character(as.numeric(jacFallSC$cam1[i])),as.character(as.numeric(jacFallSC$cam2[i]))]
+  
+}
+
+jacFallSC$Season <- "Fall"
+jacFallSC$Species <- "Gray Squirrel"
+
+#Graph the similarity index by distance
+
+GraySqJacPlot_Fall <- ggplot(data = jacFallSC, mapping = aes(x = dist, y = JSim)) +
+  geom_point() +
+  ylim(0, 1) +
+  xlim(10,120)
+GraySqJacPlot_Fall
+
+# All Squirrel Jaccard Calculations and Graph -----------------------------
+#Need to remove cameras and ocassions that had NAs to make it work. First I pull out the first ocassion, because cameras were set on different days. Then I remove rows that have NAs.
+
+#Spring All Squirrel
+DHSpSQ_b <- as.data.frame(DHSpSQ) %>%
+  dplyr::select(-1) 
+
+DHSpSQ_b <- DHSpSQ_b[which(complete.cases(DHSpSQ_b)),]
+
+#Calculates jaccard similarity, and the inverse   
+jacSpSQ <- jaccard_per_row(DHSpSQ_b, margin=2)
+
+#Creating columns representing each of the two cameras
+jacSpSQ$cam1 <- gsub("_.*", "", row.names(jacSpSQ))
+jacSpSQ$cam2 <- substr(row.names(jacSpSQ), 11, 14)
+
+#removes comparisons of same camera to same camera
+jacSpSQ <-jacSpSQ[which(jacSpSQ$cam1 != jacSpSQ$cam2), ]
+
+#Pull intercamera distances from distance matrix based on value of the two cameras
+jacSpSQ$dist <- NA
+
+for (i in 1:nrow(jacSpSQ)) {
+  jacSpSQ$dist[i] <- distMatS_named[as.character(as.numeric(jacSpSQ$cam1[i])),as.character(as.numeric(jacSpSQ$cam2[i]))]
+  
+}
+
+jacSpSQ$Season <- "Spring"
+jacSpSQ$Species <- "All Squirrel"
+
+#Graph the similarity index by distance
+
+AllSqJacPlot_SP <- ggplot(data = jacSpSQ, mapping = aes(x = dist, y = JSim)) +
+  geom_point() +
+  ylim(0, 1) +
+  xlim(10,120)
+AllSqJacPlot_SP
+
+#Summer All Squirrel
+DHSumSQ_b <- as.data.frame(DHSumSQ) %>%
+  dplyr::select(-1) 
+
+DHSumSQ_b <- DHSumSQ_b[which(complete.cases(DHSumSQ_b)),]
+
+#Calculates jaccard similarity, and the inverse   
+jacSumSQ <- jaccard_per_row(DHSumSQ_b, margin=2)
+
+#Creating columns representing each of the two cameras
+jacSumSQ$cam1 <- gsub("-.*", "", row.names(jacSumSQ))
+jacSumSQ$cam2 <- substr(row.names(jacSumSQ), 10, 13)
+
+#removes comparisons of same camera to same camera
+jacSumSQ <-jacSumSQ[which(jacSumSQ$cam1 != jacSumSQ$cam2), ]
+
+#Pull intercamera distances from distance matrix based on value of the two cameras
+jacSumSQ$dist <- NA
+
+for (i in 1:nrow(jacSumSQ)) {
+  jacSumSQ$dist[i] <- distMatS_named[as.character(as.numeric(jacSumSQ$cam1[i])),as.character(as.numeric(jacSumSQ$cam2[i]))]
+  
+}
+
+jacSumSQ$Season <- "Summer"
+jacSumSQ$Species <- "All Squirrel"
+
+#Graph the similarity index by distance
+
+AllSqJacPlot_SUM <- ggplot(data = jacSumSQ, mapping = aes(x = dist, y = JSim)) +
+  geom_point() +
+  ylim(0, 1) +
+  xlim(10,120)
+AllSqJacPlot_SUM
+
+#Winter All Squirrel
+DHWinSQ_b <- as.data.frame(DHWinSQ) %>%
+  dplyr::select(-1) 
+
+DHWinSQ_b <- DHWinSQ_b[which(complete.cases(DHWinSQ_b)),]
+
+#Calculates jaccard similarity, and the inverse   
+jacWinSQ <- jaccard_per_row(DHWinSQ_b, margin=2)
+
+#Creating columns representing each of the two cameras
+jacWinSQ$cam1 <- gsub("_.*", "", row.names(jacWinSQ))
+jacWinSQ$cam2 <- substr(row.names(jacWinSQ), 10, 13)
+
+#removes comparisons of same camera to same camera
+jacWinSQ <-jacWinSQ[which(jacWinSQ$cam1 != jacWinSQ$cam2), ]
+
+#Pull intercamera distances from distance matrix based on value of the two cameras
+jacWinSQ$dist <- NA
+
+for (i in 1:nrow(jacWinSQ)) {
+  jacWinSQ$dist[i] <- distMatS_named[as.character(as.numeric(jacWinSQ$cam1[i])),as.character(as.numeric(jacWinSQ$cam2[i]))]
+  
+}
+
+jacWinSQ$Season <- "Winter"
+jacWinSQ$Species <- "All Squirrel"
+
+#Graph the similarity index by distance
+
+AllSqJacPlot_Win <- ggplot(data = jacWinSQ, mapping = aes(x = dist, y = JSim)) +
+  geom_point() +
+  ylim(0, 1) +
+  xlim(10,120)
+AllSqJacPlot_Win
+
+#Fall All Squirrel
+DHFallSQ_b <- as.data.frame(DHFallSQ) %>%
+  dplyr::select(-1) 
+
+DHFallSQ_b <- DHFallSQ_b[which(complete.cases(DHFallSQ_b)),]
+
+#Calculates jaccard similarity, and the inverse   
+jacFallSQ <- jaccard_per_row(DHFallSQ_b, margin=2)
+
+#Creating columns representing each of the two cameras
+jacFallSQ$cam1 <- gsub("_.*", "", row.names(jacFallSQ))
+jacFallSQ$cam2 <- substr(row.names(jacFallSQ), 10, 13)
+
+#removes comparisons of same camera to same camera
+jacFallSQ <-jacFallSQ[which(jacFallSQ$cam1 != jacFallSQ$cam2), ]
+
+#Pull intercamera distances from distance matrix based on value of the two cameras
+jacFallSQ$dist <- NA
+
+for (i in 1:nrow(jacFallSQ)) {
+  jacFallSQ$dist[i] <- distMatS_named[as.character(as.numeric(jacFallSQ$cam1[i])),as.character(as.numeric(jacFallSQ$cam2[i]))]
+  
+}
+
+jacFallSQ$Season <- "Fall"
+jacFallSQ$Species <- "All Squirrel"
+
+#Graph the similarity index by distance
+
+AllSqJacPlot_Fall <- ggplot(data = jacFallSQ, mapping = aes(x = dist, y = JSim)) +
+  geom_point() +
+  ylim(0, 1) +
+  xlim(10,120)
+AllSqJacPlot_Fall
 # Deer Jaccard Calculations and Graph -----------------------------
 #Need to remove cameras and ocassions that had NAs to make it work. First I pull out the first ocassion, because cameras were set on different days. Then I remove rows that have NAs.
 
@@ -303,6 +610,9 @@ for (i in 1:nrow(jacSpOV)) {
   jacSpOV$dist[i] <- distMatS_named[as.character(as.numeric(jacSpOV$cam1[i])),as.character(as.numeric(jacSpOV$cam2[i]))]
   
 }
+
+jacSpOV$Season <- "Spring"
+jacSpOV$Species <- "Deer"
 
 #Graph the similarity index by distance
 
@@ -336,6 +646,9 @@ for (i in 1:nrow(jacSumOV)) {
   
 }
 
+jacSumOV$Season <- "Summer"
+jacSumOV$Species <- "Deer"
+
 #Graph the similarity index by distance
 
 DeerJacPlot_SUM <- ggplot(data = jacSumOV, mapping = aes(x = dist, y = JSim)) +
@@ -368,6 +681,9 @@ for (i in 1:nrow(jacWinOV)) {
   
 }
 
+jacWinOV$Season <- "Winter"
+jacWinOV$Species <- "Deer"
+
 #Graph the similarity index by distance
 
 DeerJacPlot_Win <- ggplot(data = jacWinOV, mapping = aes(x = dist, y = JSim)) +
@@ -399,6 +715,9 @@ for (i in 1:nrow(jacFallOV)) {
   jacFallOV$dist[i] <- distMatS_named[as.character(as.numeric(jacFallOV$cam1[i])),as.character(as.numeric(jacFallOV$cam2[i]))]
   
 }
+
+jacFallOV$Season <- "Fall"
+jacFallOV$Species <- "Deer"
 
 #Graph the similarity index by distance
 
@@ -437,6 +756,9 @@ for (i in 1:nrow(jacSpPL)) {
   
 }
 
+jacSpPL$Season <- "Spring"
+jacSpPL$Species <- "Raccoon"
+
 #Graph the similarity index by distance
 
 RacJacPlot_SP <- ggplot(data = jacSpPL, mapping = aes(x = dist, y = JSim)) +
@@ -468,6 +790,9 @@ for (i in 1:nrow(jacSumPL)) {
   jacSumPL$dist[i] <- distMatS_named[as.character(as.numeric(jacSumPL$cam1[i])),as.character(as.numeric(jacSumPL$cam2[i]))]
   
 }
+
+jacSumPL$Season <- "Summer"
+jacSumPL$Species <- "Raccoon"
 
 #Graph the similarity index by distance
 
@@ -501,6 +826,9 @@ for (i in 1:nrow(jacWinPL)) {
   
 }
 
+jacWinPL$Season <- "Winter"
+jacWinPL$Species <- "Raccoon"
+
 #Graph the similarity index by distance
 
 RacJacPlot_Win <- ggplot(data = jacWinPL, mapping = aes(x = dist, y = JSim)) +
@@ -532,6 +860,9 @@ for (i in 1:nrow(jacFallPL)) {
   jacFallPL$dist[i] <- distMatS_named[as.character(as.numeric(jacFallPL$cam1[i])),as.character(as.numeric(jacFallPL$cam2[i]))]
   
 }
+
+jacFallPL$Season <- "Fall"
+jacFallPL$Species <- "Raccoon"
 
 #Graph the similarity index by distance
 
@@ -567,6 +898,10 @@ for (i in 1:nrow(jacSumUA)) {
   
 }
 
+jacSumUA$Season <- "Summer"
+jacSumUA$Species <- "Bear"
+
+
 #Graph the similarity index by distance
 
 BearJacPlot_SUM <- ggplot(data = jacSumUA, mapping = aes(x = dist, y = JSim)) +
@@ -576,7 +911,7 @@ BearJacPlot_SUM <- ggplot(data = jacSumUA, mapping = aes(x = dist, y = JSim)) +
 BearJacPlot_SUM
 
 
-#Bear Raccoon
+#Bear Fall
 DHFallUA_b <- as.data.frame(DHFallUA) %>%
   dplyr::select(-1) 
 
@@ -600,6 +935,9 @@ for (i in 1:nrow(jacFallUA)) {
   
 }
 
+jacFallUA$Season <- "Fall"
+jacFallUA$Species <- "Bear"
+
 #Graph the similarity index by distance
 
 BearJacPlot_Fall <- ggplot(data = jacFallUA, mapping = aes(x = dist, y = JSim)) +
@@ -607,3 +945,26 @@ BearJacPlot_Fall <- ggplot(data = jacFallUA, mapping = aes(x = dist, y = JSim)) 
   ylim(0, 1) +
   xlim(10,120)
 BearJacPlot_Fall
+
+
+# Combined Figure All Species and Seasons ---------------------------------
+
+#First combine all data
+jacDataComb <- rbind(jacSumOV,jacFallOV, jacWinOV, jacSpOV,  jacSumSN, jacFallSN, jacWinSN,jacSpSN,jacSumSC, jacFallSC, jacWinSC,jacSpSC,jacSumSQ, jacFallSQ, jacWinSQ,jacSpSQ,jacSumPL, jacFallPL, jacWinPL,jacSpPL,jacSumUA, jacFallUA )
+
+jacDataComb$Species <- factor(jacDataComb$Species, 
+                           levels = c("Deer","All Squirrel","Fox Squirrel","Gray Squirrel","Raccoon","Bear"))
+jacDataComb$Season <- factor(jacDataComb$Season, 
+                              levels = c("Summer", "Fall", "Winter", "Spring"))
+
+CombJacPlot <- ggplot(data = jacDataComb, mapping = aes(x = dist, y = JSim)) +
+  geom_point(size = .8) +
+  ylim(0, 1) +
+  xlim(10,120) +
+  facet_grid(vars(Species), vars(Season)) +
+  ylab("Jaccard similarity index") +
+  xlab("Distance between camera traps (m)")+
+  theme(strip.background = element_rect(fill="white"),
+        strip.text.y = element_text(size = 7, angle = 0))
+CombJacPlot
+#ggsave("results/CombJacPlot.tiff", width = 6.5, height = 5.0, units = "in" )
