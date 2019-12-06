@@ -1,11 +1,11 @@
 # Seasonal Comparisons of Capture Rates -----------------------------------
 
 load("data/camdata_summary")
+#remove year in Season for labelling purposes
+camdata_summary$Season <- str_sub(camdata_summary$Season, end = -5)
 
 library(MASS)
-library(AICcmodavg)
-
-
+library(corrplot)
 
 # Correlations of CR at cameras, across seasons ---------------------------
 #Here I'm highlighting pairs with correlation values above 0.50
@@ -74,7 +74,55 @@ camdata_summary %>%
   dplyr::select(4,6) %>%
   plot()
 
-  
+
+# Corrplot of all focal species and seasons --------------------------------
+bear <- camdata_summary %>%
+  dplyr::select(Deployment_Name2, CR, Season, Species) %>%
+  filter(Species == "Ursus americanus") %>%
+  spread(key = Season, value = CR) %>%
+  dplyr::select(3:6) 
+
+#Deer
+deer <- camdata_summary %>%
+  dplyr::select(Deployment_Name2, CR, Season, Species) %>%
+  filter(Species == "Odocoileus virginianus") %>%
+  spread(key = Season, value = CR) %>%
+  dplyr::select(3:6)
+
+#Raccoon
+raccoon <- camdata_summary %>%
+  dplyr::select(Deployment_Name2, CR, Season, Species) %>%
+  filter(Species == "Procyon lotor") %>%
+  spread(key = Season, value = CR) %>%
+  dplyr::select(3:6) 
+
+#Fox squirrel
+foxSq <- camdata_summary %>%
+  dplyr::select(Deployment_Name2, CR, Season, Species) %>%
+  filter(Species == "Sciurus niger") %>%
+  spread(key = Season, value = CR) %>%
+  dplyr::select(3:6) 
+
+#Gray squirrel
+graySq <- camdata_summary %>%
+  dplyr::select(Deployment_Name2, CR, Season, Species) %>%
+  filter(Species == "Sciurus carolinensis") %>%
+  spread(key = Season, value = CR) %>%
+  dplyr::select(3:6) 
+
+#Put all values into one matrix and plot
+crFull <- cbind(deer, foxSq, graySq, raccoon, bear)
+colnames(crFull) <- c("d-F", "d-Sp", "d-Sm", "d-W", "fs-F", "fs-Sp", "fs-Sm", "fs-W","gs-F", "gs-Sp", "gs-Sm", "gs-W","r-F", "r-Sp", "r-Sm", "r-W","b-F", "b-Sp", "b-Sm", "b-W")
+allCor <- cor(crFull, use = "complete.obs")
+
+tiff("results/corrPlot_Mix.tiff", width = 8.5, height = 8.5, units = 'in', res = 800, compression = 'lzw')
+corrplot.mixed(allCor, tl.col = "black", number.cex = 0.7, tl.cex = .7)
+dev.off()
+
+tiff("results/corrPlot_Order.tiff", width = 8.5, height = 8.5, units = 'in', res = 800, compression = 'lzw')
+corrplot(allCor, order = "FPC", addrect = 2, tl.col = "black", type = "upper")
+dev.off()
+
 # GLM NB test of Season effects on CR -------------------------------------
 
 #Note that this analysis does not test for seasonal change at specific camreas, it does not take camera ID into account, and so is only really testing overall grid mean values
