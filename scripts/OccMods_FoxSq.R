@@ -136,12 +136,28 @@ FSqSprHgtPlot <- ggplot(predPlotFSpHgt, aes(x=(Height_cm*sd(covSpSN$Height_cm))+
   # Prediction Lines
   geom_line() +
   xlab("Camera height (cm)") +   
-  ylab("Estimated detection probability") +
-  geom_text(aes(x = 34, y = .63, label = "C"), size = 8)+
+  ylab("Est. det. probability") +
+  ylim(c(0,0.7)) +
   myTheme
+  #geom_text(aes(x = 34, y = .63, label = "C"), size = 8)
+  
 
 #ggsave("results/FoxSqSprHgt_DP.tiff", width = 6.5, height = 4.0, units = "in" )
 
+
+# Combined 3 plots for Manuscript Figure on Cam Height --------------------
+
+load("results/GrSqWinHgtPlot_ct.RData")
+load("results/GSpWinHgtPlot_det.RData")
+library(cowplot)
+ggdraw() +
+  draw_plot(GrSqWinHgtPlot, x = .25, y = .5, width = .5, height = .5) +
+  draw_plot(GSqWinHgtPlot, x = 0, y = 0, width = .5, height = .5) +
+  draw_plot(FSqSprHgtPlot, x = .5, y = 0, width = .5, height = 0.5) + 
+  draw_plot_label(label = c("A", "B", "C"), size = 15,
+                  x = c(.35, .1, .6), y = c(1, .5, 0.5))
+
+ggsave("results/CamHeightS1_Fig.tiff", width = 7, height = 6, units = "in", dpi = 300 )
 # Fox Squirrel Occupancy Models in Winter ---------------------------------
 
 

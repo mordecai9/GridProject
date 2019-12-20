@@ -944,4 +944,10 @@ SqSpEDDPlot <- ggplot(predPlotSp, aes(x=Squirrel_EDD_WSp, y=response)) +
   myTheme
 
 SqSpEDDPlot
-ggsave("results/SqSpringEDDLog.tiff", width = 6.5, height = 4.0, units = "in" ) #saves whatever last ggplot was made
+#ggsave("results/SqSpringEDDLog.tiff", width = 6.5, height = 4.0, units = "in" ) #saves whatever last ggplot was made
+
+
+# Plot for Manuscript - Fall and Spring together --------------------------
+library(ggpubr)
+ggarrange(SqFallEDDPlot,SqSpEDDPlot, ncol = 1, nrow = 2)
+ggsave("results/EddLog_Sq_Fall_Spring_Fig.tiff", width = 4.5, height = 6, units = "in", dpi = 600 ) #saves whatever last ggplot was made

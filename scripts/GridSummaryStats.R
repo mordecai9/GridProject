@@ -414,7 +414,7 @@ idxf <- which(gridXY$Deployment == "505" | gridXY$Deployment == "206")
 idxw <- which(gridXY$Deployment == "101" | gridXY$Deployment == "401")
 
 
-tiff("results/AllSpeciesGridCR.tiff", width = 10, height = 8, units = 'in', res = 800, compression = 'lzw')
+tiff("results/AllSpeciesGridCR.tiff", width = 8.5, height = 6, units = 'in', res = 600, compression = 'lzw')
 
 #Remember margins are bottom, left, top, right
 
@@ -433,7 +433,7 @@ camdata_summary %>%
   filter(Season == "Summer 2017") %>%
   with(plot(NAD83_X, NAD83_Y,main = "Summer",
             axes = F,
-            cex.main = 2.0,
+            cex.main = 1.7,
             xlab = "", ylab = "",
             cex.lab = 1.5,
             cex = CR/s, 
@@ -460,7 +460,7 @@ camdata_summary %>%
   filter(Season == "Fall 2017") %>%
   with(plot(NAD83_X, NAD83_Y,main = "Fall",
             axes = F,
-            cex.main = 2.0,
+            cex.main = 1.7,
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
@@ -487,7 +487,7 @@ camdata_summary %>%
   filter(Season == "Winter 2017") %>%
   with(plot(NAD83_X, NAD83_Y,main = "Winter",
             axes = F,
-            cex.main = 2.0,
+            cex.main = 1.7,
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
@@ -516,7 +516,7 @@ camdata_summary %>%
   filter(Season == "Spring 2018") %>%
   with(plot(NAD83_X, NAD83_Y,main = "Spring",
             axes = F,
-            cex.main = 2.0,
+            cex.main = 1.7,
             xlab = "", ylab = "",
             cex = CR/s, 
             pch = 20,  
@@ -553,7 +553,7 @@ legend(x = "center",
   xpd = T,
   y.intersp=1.2,
   title = "White-tailed Deer",
-  cex = 1.2
+  cex = 1.0
 )
 
 #_____________________________________________
@@ -685,7 +685,7 @@ legend(x = "center",
        xpd = T,
        y.intersp=1.2,
        title = "Fox Squirrel",
-       cex = 1.2
+       cex = 1.0
 )
 
 #_____________________________________________
@@ -816,7 +816,7 @@ legend(x = "center",
        xpd = T,
        y.intersp=1.2,
        title = "Gray Squirrel",
-       cex = 1.2
+       cex = 1.0
 )
 
 #_____________________________________________
@@ -947,7 +947,7 @@ legend(x = "center",
        xpd = T,
        y.intersp=1.2,
        title = "Northern Raccoon",
-       cex = 1.2
+       cex = 1.0
 )
 
 #_____________________________________________
@@ -1078,6 +1078,6 @@ legend(x = "center",
        xpd = T,
        y.intersp=1.2,
        title = "Black Bear",
-       cex = 1.2
+       cex = 1.0
 )
 dev.off() #turns off tiff building

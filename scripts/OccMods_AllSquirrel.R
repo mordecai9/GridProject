@@ -227,11 +227,10 @@ SqWinEDDPlot <- ggplot(predPlot, aes(x=Squirrel_EDD_WSp * sd(covWinSQ$Squirrel_E
   scale_colour_manual("",values=c("tomato","darkolivegreen"))+
   scale_fill_manual("",values=c("tomato","darkolivegreen"))+
   xlab("Effective Detection Distance (m)") +   
-  ylab("Estimated detection probability") +
-  geom_text(aes(x = 2.2, y = 1.0, label = "A"), size = 8)+
+  ylab("Est. det. probability") +
   myTheme
   
-#ggsave("results/SqWinEDDLog_DP.tiff", width = 6.5, height = 4.0, units = "in" ) #saves whatever last ggplot was made
+ggsave("results/SqWinEDDLog_DP_S2.tiff", width = 6.5, height = 4.0, units = "in", dpi = 300 ) #saves whatever last ggplot was made
 
 # All Squirrel Occupancy Models in Summer ---------------------------------
 

@@ -220,9 +220,12 @@ GSqWinHgtPlot <- ggplot(predPlotWHgt, aes(x=(Height_cm*sd(covWinSC$Height_cm))+m
   # Prediction Lines
   geom_line() +
   xlab("Camera height (cm)") +   
-  ylab("Estimated detection probability") +
-  geom_text(aes(x = 34, y = .40, label = "B"), size = 8)+
+  ylab("Est. det. probability") +
+  ylim(c(0,0.7)) +
   myTheme
+#  geom_text(aes(x = 34, y = .40, label = "B"), size = 8)
+ 
+save(GSqWinHgtPlot, file = "results/GSpWinHgtPlot_det.RData")
 #ggsave("results/GrSqWinHgt_DP.tiff", width = 6.5, height = 4.0, units = "in" )
 
 #Response Curve for EDD log interaction - Gray Sq Winter----------------------------------------------------------------------- 

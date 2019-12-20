@@ -124,7 +124,9 @@ grSqFallCR <- grsqDataFall %>%
 library(ncf)
 d <- 80 #max distance for correlograms
 
-#White Tailed Deer. Will need to format as high res tiff if used in paper.
+tiff("results/WTD_correlogram.tiff", width = 9, height = 6, units = 'in', res = 600, compression = 'lzw')
+
+#White Tailed Deer. Figure in final Manuscript
 par.default <- par(no.readonly = T)
 par(mfrow = c(2,2))
 
@@ -132,7 +134,8 @@ Correlog_DeerSum <- spline.correlog(x = deerDataSum[, "NAD83_X"],
                                     y = deerDataSum[, "NAD83_Y"],
                                     z = deerDataSum[, "CR"],
                                     xmax = d)
-plot(Correlog_DeerSum)
+plot(Correlog_DeerSum,
+     xlab = "Distance (m)")
 abline(v = 20, lty = 2)
 text(x = 1, y = 0.8, "A", cex = 2)
 
@@ -141,7 +144,8 @@ Correlog_DeerFall <- spline.correlog(
   y = deerDataFall[, "NAD83_Y"],
   z = deerDataFall[, "CR"],
   xmax = d)
-plot(Correlog_DeerFall)
+plot(Correlog_DeerFall,
+     xlab = "Distance (m)")
 abline(v = 20, lty = 2)
 text(x = 1, y = 0.8, "B", cex = 2)
 
@@ -150,7 +154,8 @@ Correlog_DeerWin <- spline.correlog(
   y = deerDataWin[, "NAD83_Y"],
   z = deerDataWin[, "CR"],
   xmax = d)
-plot(Correlog_DeerWin)
+plot(Correlog_DeerWin,
+     xlab = "Distance (m)")
 abline(v = 20, lty = 2)
 text(x = 1, y = 0.8, "C", cex = 2)
 
@@ -158,10 +163,12 @@ Correlog_DeerSpr <- spline.correlog(x = deerDataSpr[, "NAD83_X"],
                                     y = deerDataSpr[, "NAD83_Y"],
                                     z = deerDataSpr[, "CR"],
                                     xmax = d)
-plot(Correlog_DeerSpr)
+plot(Correlog_DeerSpr,
+     xlab = "Distance (m)")
 abline(v = 20, lty = 2)
 text(x = 1, y = 0.8, "D", cex = 2)
 
+dev.off()
 par(par.default)
 
 #Black Bear, ignoring Winter here

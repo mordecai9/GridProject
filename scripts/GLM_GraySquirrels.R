@@ -705,9 +705,9 @@ GrSqWinHgtPlot <- ggplot(predPlotGrayWinHgt, aes(x=Height_cm, y=response)) +
   geom_point(data = grsqDataWin, aes(x=Height_cm, y=nSeqs), show.legend = F, size = 2.5) +
   xlab("Camera height (cm)") +   
   ylab("Count of sequences") +
-  geom_text(aes(x = 34, y = 50, label = "A"), size = 8)+
+#  geom_text(aes(x = 34, y = 50, label = "A"), size = 8)
   myTheme
-
+save(GrSqWinHgtPlot, file = "results/GrSqWinHgtPlot_ct.RData")
 #ggsave("results/GrSqWinHgt.tiff", width = 6.5, height = 4.0, units = "in" )
 
 
